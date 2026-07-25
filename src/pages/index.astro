@@ -97,44 +97,32 @@ import { Sunrise } from '@lucide/astro';
     <section class="container-site px-6 md:px-8 mt-14 md:mt-[72px]">
       <a
         href="/about#visit"
-        class="group relative block overflow-hidden rounded-lg no-underline shadow-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-primary"
+        class="group block overflow-hidden rounded-lg no-underline shadow-card bg-surface-card border border-border-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-primary transition-shadow duration-[280ms] ease-[var(--ease-gentle)] hover:shadow-lift"
       >
-        <div class="relative aspect-[2/1] sm:aspect-[21/9] md:aspect-[3/1]">
+        <div class="relative aspect-[2/1] sm:aspect-[21/9] md:aspect-[3/1] overflow-hidden">
           <img
             src="/images/church/exterior.jpg"
             alt="Roseville New Church exterior on Shirley Road"
             loading="lazy"
             decoding="async"
-            class="absolute inset-0 h-full w-full object-cover object-center saturate-[0.75] brightness-[0.94] transition-transform duration-[280ms] ease-[var(--ease-gentle)] group-hover:scale-[1.02]"
+            class="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-[280ms] ease-[var(--ease-gentle)] group-hover:scale-[1.02]"
           />
+        </div>
+        <div class="px-5 py-4 sm:px-7 sm:py-5">
           <div
-            class="absolute inset-0 bg-violet-950/40 mix-blend-multiply"
-            aria-hidden="true"
+            class="font-display text-[12px] tracking-eyebrow uppercase text-accent-primary mb-1.5"
           >
+            Our home
           </div>
           <div
-            class="absolute inset-0 bg-gradient-to-r from-violet-950/55 via-violet-900/25 to-transparent"
-            aria-hidden="true"
+            class="font-display font-semibold text-h3 tracking-display text-text-heading"
           >
+            2B Shirley Rd, Roseville
           </div>
-          <div
-            class="absolute inset-x-0 bottom-0 p-5 sm:p-7 md:p-8 text-text-on-dark"
-          >
-            <div
-              class="font-display text-[12px] tracking-eyebrow uppercase text-gold-300 mb-1.5"
-            >
-              Our home
-            </div>
-            <div
-              class="font-display font-semibold text-h3 tracking-display text-text-on-dark"
-            >
-              2B Shirley Rd, Roseville
-            </div>
-            <p class="m-0 mt-1 text-sm text-text-on-dark/75 max-w-md">
-              A short walk from Roseville station — join us on the 1st and 3rd
-              Sundays at 10am.
-            </p>
-          </div>
+          <p class="m-0 mt-1 text-sm text-text-muted max-w-md">
+            A short walk from Roseville station — join us on the 1st and 3rd
+            Sundays at 10am.
+          </p>
         </div>
       </a>
     </section>
