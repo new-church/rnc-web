@@ -1,0 +1,61 @@
+:root{
+/* ---- Base palette ---- */
+/* Purples — the core of the brand */
+--rnc-violet-950:#231338;
+--rnc-violet-900:#2e1a47;
+--rnc-violet-700:#53377e;
+--rnc-violet-500:#7c5cbf;
+--rnc-violet-400:#9678d1;
+--rnc-violet-200:#d8cbee;
+--rnc-violet-100:#ece4f7;
+--rnc-violet-50:#f6f2fb;
+/* Dawn gold — warm accent */
+--rnc-gold-600:#c07f1d;
+--rnc-gold-500:#e8a33d;
+--rnc-gold-300:#f5c874;
+--rnc-gold-100:#fbecd2;
+/* Aurora hues — the "rainbow", used sparingly */
+--rnc-rose-500:#d96ba0;
+--rnc-rose-100:#f9e4ee;
+--rnc-teal-500:#3fa8a0;
+--rnc-teal-100:#e0f2f0;
+--rnc-sky-500:#5b8dd9;
+--rnc-sky-100:#e4edfa;
+/* Neutrals — warm paper, never pure grey */
+--rnc-paper:#fbf9f4;
+--rnc-cream:#f4f0e7;
+--rnc-stone-300:#d9d3c7;
+--rnc-stone-500:#8d8577;
+--rnc-ink-soft:#5c5370;
+--rnc-ink:#2e2440;
+/* ---- Gradients ---- */
+--rnc-gradient-aurora:linear-gradient(115deg,#7c5cbf 0%,#d96ba0 55%,#e8a33d 100%); /* @kind color */
+--rnc-gradient-dawn:linear-gradient(180deg,#f6f2fb 0%,#fbecd2 100%); /* @kind color */
+--rnc-gradient-dusk:linear-gradient(160deg,#2e1a47 0%,#53377e 70%,#8a4d86 100%); /* @kind color */
+/* ---- Semantic aliases ---- */
+--surface-page:var(--rnc-paper);
+--surface-card:#ffffff;
+--surface-tint:var(--rnc-violet-50);
+--surface-inverse:var(--rnc-violet-900);
+--text-heading:var(--rnc-violet-900);
+--text-body:var(--rnc-ink);
+--text-muted:var(--rnc-ink-soft);
+--text-on-dark:#f6f2fb;
+--text-on-accent:#ffffff;
+--accent-primary:var(--rnc-violet-500);
+--accent-primary-strong:var(--rnc-violet-700);
+--accent-gold:var(--rnc-gold-500);
+--border-soft:var(--rnc-violet-100);
+--border-strong:var(--rnc-violet-200);
+--link:var(--rnc-violet-700);
+--link-hover:var(--rnc-rose-500);
+/* Feedback */
+--status-success:var(--rnc-teal-500);
+--status-success-bg:var(--rnc-teal-100);
+--status-warning:var(--rnc-gold-600);
+--status-warning-bg:var(--rnc-gold-100);
+--status-error:#c14e6e;
+--status-error-bg:var(--rnc-rose-100);
+--status-info:var(--rnc-sky-500);
+--status-info-bg:var(--rnc-sky-100);
+}

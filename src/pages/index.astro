@@ -1,0 +1,174 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
+import Card from '../components/Card.astro';
+import Badge from '../components/Badge.astro';
+import Input from '../components/Input.astro';
+import { Sunrise } from '@lucide/astro';
+---
+
+<BaseLayout
+  title="Roseville New Church"
+  description="A Swedenborgian community in Sydney — a place to seek, question, and grow in light."
+  currentPath="/"
+>
+  <main>
+    <!-- Hero -->
+    <section class="bg-gradient-dawn border-b border-border-soft">
+      <div
+        class="container-site px-6 md:px-8 pt-16 md:pt-24 pb-14 md:pb-[88px] text-center"
+      >
+        <div
+          class="font-display font-semibold text-eyebrow tracking-eyebrow uppercase text-accent-primary mb-[18px]"
+        >
+          ✦ A Swedenborgian community in Sydney ✦
+        </div>
+        <h1
+          class="mx-auto font-light text-hero max-w-[820px] text-text-heading"
+        >
+          A place to seek, question, and{' '}
+          <span class="text-gradient-aurora font-semibold">grow in light</span>
+        </h1>
+        <p
+          class="max-w-[560px] mx-auto mt-[22px] mb-[34px] text-lg text-text-muted"
+        >
+          We explore the Bible and the nature of God through the writings of
+          Emanuel Swedenborg — and we'd love you to join us.
+        </p>
+        <div
+          class="flex flex-col sm:flex-row gap-3 justify-center items-center"
+        >
+          <Button size="lg" href="/about#visit">Join us this Sunday</Button>
+          <Button size="lg" variant="secondary" href="/about"
+            >What we believe</Button
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- This week -->
+    <section class="container-site px-6 md:px-8 pt-14 md:pt-[72px]">
+      <div
+        class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-3 mb-6"
+      >
+        <h2 class="m-0 text-h2">This week</h2>
+        <a
+          href="/events"
+          class="font-display font-semibold text-[15px] no-underline hover:underline"
+        >
+          All events →
+        </a>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <Card
+          interactive
+          href="/events"
+          eyebrow="Sunday · 10am"
+          title="Sunday worship"
+        >
+          Worship, readings and reflection at 4 Shirley Rd — everyone is
+          welcome.
+          <Badge slot="footer" tone="gold">Morning tea after</Badge>
+        </Card>
+        <Card
+          interactive
+          href="/events"
+          eyebrow="Tuesday · 11am"
+          title="Open discussion"
+        >
+          Delve deeper into Swedenborg's writings and relate them to our own
+          lives.
+          <Badge slot="footer" tone="info">On Zoom</Badge>
+        </Card>
+        <Card
+          interactive
+          href="/events"
+          eyebrow="Wednesday · 10am"
+          title="Read & reflect"
+        >
+          Reading slowly through one of Swedenborg's works, together.
+          <Badge slot="footer" tone="info">On Zoom</Badge>
+        </Card>
+      </div>
+    </section>
+
+    <!-- Quote band -->
+    <section class="container-site px-6 md:px-8 mt-14 md:mt-[72px]">
+      <div
+        class="bg-gradient-dusk rounded-lg px-6 py-12 md:px-12 md:py-16 text-center text-text-on-dark"
+      >
+        <div class="text-gold-300 flex justify-center mb-3.5">
+          <Sunrise size={28} stroke-width={1.5} aria-hidden="true" />
+        </div>
+        <p
+          class="mx-auto max-w-[640px] italic text-[22px] md:text-[26px] leading-[1.5] m-0"
+        >
+          “All religion relates to life, and the life of religion is to do
+          good.”
+        </p>
+        <div
+          class="mt-4 font-display text-[13px] tracking-eyebrow uppercase text-text-on-dark/60"
+        >
+          Emanuel Swedenborg
+        </div>
+      </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section
+      class="container-site px-6 md:px-8 pt-14 md:pt-[72px] pb-4 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 items-center"
+      id="newsletter"
+    >
+      <div>
+        <div
+          class="font-display font-semibold text-eyebrow tracking-eyebrow uppercase text-accent-primary mb-3"
+        >
+          Newsletter
+        </div>
+        <h2 class="mt-0 text-h2">News from the church, every month</h2>
+        <p class="text-text-muted">
+          Reflections, garden updates, Swedenborg Centre news and what's coming
+          up — straight to your inbox.
+        </p>
+      </div>
+      <Card variant="tint">
+        <div id="newsletter-form" class="flex flex-col gap-3.5">
+          <Input
+            label="Email address"
+            type="email"
+            id="newsletter-email"
+            name="email"
+            placeholder="you@example.com"
+            required
+          />
+          <Button type="button" id="newsletter-submit">Subscribe</Button>
+        </div>
+        <div
+          id="newsletter-success"
+          class="hidden font-display font-semibold text-lg text-status-success py-[18px]"
+          role="status"
+        >
+          ✦ You're on the list — welcome!
+        </div>
+      </Card>
+    </section>
+  </main>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById('newsletter-form');
+  const success = document.getElementById('newsletter-success');
+  const submit = document.getElementById('newsletter-submit');
+  const email = document.getElementById(
+    'newsletter-email',
+  ) as HTMLInputElement | null;
+
+  submit?.addEventListener('click', () => {
+    if (!email?.value?.trim()) {
+      email?.focus();
+      return;
+    }
+    form?.classList.add('hidden');
+    success?.classList.remove('hidden');
+  });
+</script>

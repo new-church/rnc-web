@@ -1,0 +1,27 @@
+---
+interface Props {
+  tone?: 'violet' | 'gold' | 'success' | 'warning' | 'error' | 'info';
+  class?: string;
+}
+
+const { tone = 'violet', class: className = '' } = Astro.props;
+
+const tones = {
+  violet: 'bg-violet-100 text-violet-700',
+  gold: 'bg-gold-100 text-gold-600',
+  success: 'bg-status-success-bg text-status-success',
+  warning: 'bg-status-warning-bg text-status-warning',
+  error: 'bg-status-error-bg text-status-error',
+  info: 'bg-status-info-bg text-status-info',
+};
+---
+
+<span
+  class:list={[
+    'inline-flex items-center gap-1.5 font-display font-semibold text-[12px] tracking-[0.08em] uppercase rounded-pill px-3 pt-[5px] pb-[3px]',
+    tones[tone],
+    className,
+  ]}
+>
+  <slot />
+</span>

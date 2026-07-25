@@ -1,0 +1,9 @@
+:root{
+--radius-sm:8px;--radius-md:14px;--radius-lg:22px;--radius-pill:999px;
+--shadow-card:0 2px 8px rgba(46,26,71,.06),0 12px 32px rgba(46,26,71,.08);
+--shadow-lift:0 4px 12px rgba(46,26,71,.10),0 20px 48px rgba(46,26,71,.14);
+--shadow-glow:0 0 0 4px var(--rnc-violet-100);
+--ease-gentle:cubic-bezier(.4,0,.2,1); /* @kind other */
+--duration-quick:150ms; /* @kind other */
+--duration-soft:280ms; /* @kind other */
+}

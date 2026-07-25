@@ -1,0 +1,25 @@
+:root{
+--font-display:"Josefin Sans",system-ui,sans-serif;
+--font-body:"Lora",Georgia,serif;
+/* Type scale */
+--text-hero:clamp(44px,6vw,72px);
+--text-h1:40px;
+--text-h2:28px;
+--text-h3:20px;
+--text-eyebrow:13px;
+--text-lg:19px;
+--text-base:17px;
+--text-sm:15px;
+--text-caption:13px;
+/* Weights & rhythm */
+--weight-display:600;
+--weight-display-light:300;
+--leading-tight:1.15;
+--leading-body:1.65;
+--tracking-display:0.02em;
+--tracking-eyebrow:0.22em;
+}
+body{font-family:var(--font-body);color:var(--text-body);font-size:var(--text-base);line-height:var(--leading-body);background:var(--surface-page)}
+h1,h2,h3,h4{font-family:var(--font-display);color:var(--text-heading);font-weight:var(--weight-display);letter-spacing:var(--tracking-display);line-height:var(--leading-tight)}
+a{color:var(--link);text-decoration-color:var(--rnc-violet-200);text-underline-offset:3px}
+a:hover{color:var(--link-hover)}

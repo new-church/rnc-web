@@ -1,0 +1,55 @@
+---
+interface Props {
+  variant?: 'primary' | 'secondary' | 'gold' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
+  href?: string;
+  type?: 'button' | 'submit' | 'reset';
+  class?: string;
+  disabled?: boolean;
+  id?: string;
+}
+
+const {
+  variant = 'primary',
+  size = 'md',
+  href,
+  type = 'button',
+  class: className = '',
+  disabled = false,
+  id,
+} = Astro.props;
+
+const base =
+  'inline-flex items-center justify-center gap-2 font-display font-semibold tracking-[0.04em] rounded-pill border border-transparent transition-[background,transform,color] duration-150 ease-[var(--ease-gentle)] active:scale-[0.98] disabled:opacity-45 disabled:cursor-default disabled:active:scale-100';
+
+const sizes = {
+  sm: 'px-[18px] pt-[9px] pb-[7px] text-[13px] leading-none',
+  md: 'px-[26px] pt-[13px] pb-[11px] text-[15px] leading-none',
+  lg: 'px-[34px] pt-[17px] pb-[15px] text-[17px] leading-none',
+};
+
+const variants = {
+  primary:
+    'bg-accent-primary text-text-on-accent hover:bg-accent-primary-strong',
+  secondary:
+    'bg-transparent text-accent-primary-strong border-violet-200 hover:bg-violet-100',
+  gold: 'bg-gold-500 text-white hover:bg-gold-600',
+  ghost: 'bg-transparent text-accent-primary-strong hover:bg-violet-50',
+};
+
+const classes = [base, sizes[size], variants[variant], className]
+  .filter(Boolean)
+  .join(' ');
+---
+
+{
+  href && !disabled ? (
+    <a href={href} class={classes} id={id}>
+      <slot />
+    </a>
+  ) : (
+    <button type={type} class={classes} disabled={disabled} id={id}>
+      <slot />
+    </button>
+  )
+}

@@ -1,0 +1,5 @@
+export function IconButton({icon,label,variant='ghost',size=40,style,...rest}){
+  const [hover,setHover]=React.useState(false);
+  const looks={ghost:{background:hover?'var(--rnc-violet-100)':'transparent',color:'var(--accent-primary-strong)'},tinted:{background:hover?'var(--rnc-violet-200)':'var(--rnc-violet-100)',color:'var(--accent-primary-strong)'},primary:{background:hover?'var(--accent-primary-strong)':'var(--accent-primary)',color:'#fff'}};
+  return <button aria-label={label} title={label} {...rest} style={{width:size,height:size,border:'none',borderRadius:'50%',cursor:'pointer',display:'inline-flex',alignItems:'center',justifyContent:'center',transition:'background var(--duration-quick) var(--ease-gentle)',...looks[variant],...style}} onMouseEnter={()=>setHover(true)} onMouseLeave={()=>setHover(false)}>{icon}</button>;
+}

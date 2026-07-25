@@ -1,0 +1,172 @@
+@import "tailwindcss";
+
+@import "@fontsource/josefin-sans/300.css";
+@import "@fontsource/josefin-sans/400.css";
+@import "@fontsource/josefin-sans/600.css";
+@import "@fontsource/lora/400.css";
+@import "@fontsource/lora/400-italic.css";
+@import "@fontsource/lora/500.css";
+
+@theme {
+  /* Brand palette — violet */
+  --color-violet-950: #231338;
+  --color-violet-900: #2e1a47;
+  --color-violet-700: #53377e;
+  --color-violet-500: #7c5cbf;
+  --color-violet-400: #9678d1;
+  --color-violet-200: #d8cbee;
+  --color-violet-100: #ece4f7;
+  --color-violet-50: #f6f2fb;
+
+  /* Dawn gold */
+  --color-gold-600: #c07f1d;
+  --color-gold-500: #e8a33d;
+  --color-gold-300: #f5c874;
+  --color-gold-100: #fbecd2;
+
+  /* Aurora accents */
+  --color-rose-500: #d96ba0;
+  --color-rose-100: #f9e4ee;
+  --color-teal-500: #3fa8a0;
+  --color-teal-100: #e0f2f0;
+  --color-sky-500: #5b8dd9;
+  --color-sky-100: #e4edfa;
+
+  /* Neutrals */
+  --color-paper: #fbf9f4;
+  --color-cream: #f4f0e7;
+  --color-stone-300: #d9d3c7;
+  --color-stone-500: #8d8577;
+  --color-ink-soft: #5c5370;
+  --color-ink: #2e2440;
+
+  /* Semantic surfaces & text */
+  --color-surface-page: #fbf9f4;
+  --color-surface-card: #ffffff;
+  --color-surface-tint: #f6f2fb;
+  --color-surface-inverse: #2e1a47;
+  --color-text-heading: #2e1a47;
+  --color-text-body: #2e2440;
+  --color-text-muted: #5c5370;
+  --color-text-on-dark: #f6f2fb;
+  --color-text-on-accent: #ffffff;
+  --color-accent-primary: #7c5cbf;
+  --color-accent-primary-strong: #53377e;
+  --color-accent-gold: #e8a33d;
+  --color-border-soft: #ece4f7;
+  --color-border-strong: #d8cbee;
+  --color-link: #53377e;
+  --color-link-hover: #d96ba0;
+
+  /* Status */
+  --color-status-success: #3fa8a0;
+  --color-status-success-bg: #e0f2f0;
+  --color-status-warning: #c07f1d;
+  --color-status-warning-bg: #fbecd2;
+  --color-status-error: #c14e6e;
+  --color-status-error-bg: #f9e4ee;
+  --color-status-info: #5b8dd9;
+  --color-status-info-bg: #e4edfa;
+
+  /* Typography */
+  --font-display: "Josefin Sans", system-ui, sans-serif;
+  --font-body: "Lora", Georgia, serif;
+
+  --text-hero: clamp(44px, 6vw, 72px);
+  --text-hero--line-height: 1.15;
+  --text-h1: 40px;
+  --text-h1--line-height: 1.15;
+  --text-h2: 28px;
+  --text-h2--line-height: 1.15;
+  --text-h3: 20px;
+  --text-h3--line-height: 1.15;
+  --text-eyebrow: 13px;
+  --text-lg: 19px;
+  --text-lg--line-height: 1.65;
+  --text-base: 17px;
+  --text-base--line-height: 1.65;
+  --text-sm: 15px;
+  --text-sm--line-height: 1.65;
+  --text-caption: 13px;
+
+  --tracking-display: 0.02em;
+  --tracking-eyebrow: 0.22em;
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+
+  /* Shadows */
+  --shadow-card: 0 2px 8px rgba(46, 26, 71, 0.06), 0 12px 32px rgba(46, 26, 71, 0.08);
+  --shadow-lift: 0 4px 12px rgba(46, 26, 71, 0.1), 0 20px 48px rgba(46, 26, 71, 0.14);
+  --shadow-glow: 0 0 0 4px #ece4f7;
+
+  /* Spacing extras */
+  --spacing-container: 1120px;
+  --spacing-prose: 680px;
+
+  /* Motion */
+  --ease-gentle: cubic-bezier(0.4, 0, 0.2, 1);
+  --default-transition-duration: 150ms;
+  --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@utility bg-gradient-dawn {
+  background-image: linear-gradient(180deg, #f6f2fb 0%, #fbecd2 100%);
+}
+
+@utility bg-gradient-dusk {
+  background-image: linear-gradient(160deg, #2e1a47 0%, #53377e 70%, #8a4d86 100%);
+}
+
+@utility bg-gradient-aurora {
+  background-image: linear-gradient(115deg, #7c5cbf 0%, #d96ba0 55%, #e8a33d 100%);
+}
+
+@utility text-gradient-aurora {
+  background-image: linear-gradient(115deg, #7c5cbf 0%, #d96ba0 55%, #e8a33d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility container-site {
+  width: 100%;
+  max-width: 1120px;
+  margin-inline: auto;
+}
+
+@utility container-prose {
+  width: 100%;
+  max-width: 680px;
+  margin-inline: auto;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-paper font-body text-base text-ink antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display font-semibold tracking-display text-text-heading;
+    line-height: 1.15;
+  }
+
+  a {
+    @apply text-link underline-offset-[3px];
+    text-decoration-color: var(--color-violet-200);
+  }
+
+  a:hover {
+    @apply text-link-hover;
+  }
+}

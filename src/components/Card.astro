@@ -1,0 +1,80 @@
+---
+interface Props {
+  variant?: 'default' | 'tint' | 'dusk';
+  interactive?: boolean;
+  eyebrow?: string;
+  title?: string;
+  class?: string;
+  href?: string;
+}
+
+const {
+  variant = 'default',
+  interactive = false,
+  eyebrow,
+  title,
+  class: className = '',
+  href,
+} = Astro.props;
+
+const looks = {
+  default: 'bg-surface-card border border-border-soft',
+  tint: 'bg-surface-tint border border-border-soft',
+  dusk: 'bg-gradient-dusk border-none',
+};
+
+const dark = variant === 'dusk';
+const Tag = href ? 'a' : 'div';
+---
+
+<Tag
+  href={href}
+  class:list={[
+    'block rounded-lg p-6 shadow-card transition-all duration-[280ms] ease-[var(--ease-gentle)]',
+    looks[variant],
+    interactive &&
+      'hover:shadow-lift hover:-translate-y-0.5 cursor-pointer no-underline',
+    href && 'no-underline',
+    className,
+  ]}
+>
+  {
+    eyebrow && (
+      <div
+        class:list={[
+          'font-display text-eyebrow font-semibold tracking-eyebrow uppercase mb-2.5',
+          dark ? 'text-gold-300' : 'text-accent-primary',
+        ]}
+      >
+        {eyebrow}
+      </div>
+    )
+  }
+  {
+    title && (
+      <div
+        class:list={[
+          'font-display text-h3 font-semibold tracking-display mb-2',
+          dark ? 'text-text-on-dark' : 'text-text-heading',
+        ]}
+      >
+        {title}
+      </div>
+    )
+  }
+  <div
+    class:list={[
+      'font-body text-sm leading-[1.65]',
+      dark ? 'text-text-on-dark/85' : 'text-text-body',
+    ]}
+  >
+    <slot />
+  </div>
+  {
+    Astro.slots.has('footer') && (
+      <div class="mt-3.5">
+        <slot name="footer" />
+      </div>
+    )
+  }
+</Tag>

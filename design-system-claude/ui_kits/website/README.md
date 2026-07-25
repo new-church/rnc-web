@@ -1,0 +1,2 @@
+# Website UI kit — rosevillenewchurch.com.au (reimagined)
+No codebase or Figma existed; the current Wix site has no consistent system. These screens are the NEW brand applied to the church's real content (services, events, newsletter, contact details from the live site and the Swedenborg Centre). Three views: Home, Events, About — click the nav in index.html. No photography is used (the church has had image-copyright trouble); tinted panels with Lucide icons stand in until real photos are supplied.

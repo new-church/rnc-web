@@ -1,0 +1,73 @@
+---
+interface Props {
+  tabs: string[];
+  active?: string;
+  class?: string;
+}
+
+const { tabs, active = tabs[0], class: className = '' } = Astro.props;
+---
+
+<div
+  class:list={['event-tabs', className]}
+  data-active={active}
+>
+  <div
+    role="tablist"
+    class="flex flex-wrap gap-1 border-b border-border-soft"
+  >
+    {
+      tabs.map((tab) => (
+        <button
+          type="button"
+          role="tab"
+          data-tab={tab}
+          aria-selected={tab === active ? 'true' : 'false'}
+          class:list={[
+            'tab-btn font-display font-semibold text-[15px] tracking-[0.03em] px-[18px] pt-2.5 pb-3 border-none bg-transparent cursor-pointer transition-colors duration-150 ease-[var(--ease-gentle)]',
+            tab === active
+              ? 'text-accent-primary-strong shadow-[inset_0_-2.5px_0_var(--color-accent-primary)]'
+              : 'text-text-muted hover:text-text-heading',
+          ]}
+        >
+          {tab}
+        </button>
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  function initTabs(root: Element) {
+    const buttons = root.querySelectorAll<HTMLButtonElement>('.tab-btn');
+    const panelRoot = root.closest('main') ?? document;
+
+    function setActive(tab: string) {
+      root.setAttribute('data-active', tab);
+      buttons.forEach((btn) => {
+        const isActive = btn.dataset.tab === tab;
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        btn.classList.toggle('text-accent-primary-strong', isActive);
+        btn.classList.toggle(
+          'shadow-[inset_0_-2.5px_0_var(--color-accent-primary)]',
+          isActive,
+        );
+        btn.classList.toggle('text-text-muted', !isActive);
+      });
+
+      panelRoot.querySelectorAll<HTMLElement>('[data-category]').forEach((el) => {
+        const category = el.dataset.category ?? '';
+        const show = tab === 'All' || category === tab;
+        el.hidden = !show;
+      });
+    }
+
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.tab) setActive(btn.dataset.tab);
+      });
+    });
+  }
+
+  document.querySelectorAll('.event-tabs').forEach(initTabs);
+</script>

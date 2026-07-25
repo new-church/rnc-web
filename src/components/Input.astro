@@ -1,0 +1,56 @@
+---
+interface Props {
+  label?: string;
+  hint?: string;
+  error?: string;
+  id?: string;
+  name?: string;
+  type?: string;
+  placeholder?: string;
+  required?: boolean;
+  class?: string;
+  value?: string;
+}
+
+const {
+  label,
+  hint,
+  error,
+  id = 'input',
+  name,
+  type = 'text',
+  placeholder,
+  required = false,
+  class: className = '',
+  value,
+} = Astro.props;
+---
+
+<label
+  class:list={[
+    'flex flex-col gap-1.5 font-display text-sm text-text-heading',
+    className,
+  ]}
+>
+  {label}
+  <input
+    id={id}
+    name={name}
+    type={type}
+    placeholder={placeholder}
+    required={required}
+    value={value}
+    class:list={[
+      'font-body text-base text-text-body px-4 py-3 rounded-md border bg-white outline-none transition-[box-shadow,border-color] duration-150 ease-[var(--ease-gentle)]',
+      'focus:border-accent-primary focus:shadow-glow',
+      error ? 'border-status-error' : 'border-border-strong',
+    ]}
+  />
+  {
+    error ? (
+      <span class="font-body text-[13px] text-status-error">{error}</span>
+    ) : hint ? (
+      <span class="font-body text-[13px] text-text-muted">{hint}</span>
+    ) : null
+  }
+</label>

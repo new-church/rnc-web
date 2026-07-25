@@ -1,0 +1,87 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Tabs from '../components/Tabs.astro';
+import Card from '../components/Card.astro';
+import Badge from '../components/Badge.astro';
+import Button from '../components/Button.astro';
+
+const events = [
+  {
+    title: 'Sunday worship',
+    date: 'Sun 26 Jul · 10am',
+    category: 'Worship',
+    where: 'In person' as const,
+    desc: 'Worship, readings and reflection, followed by morning tea in the hall.',
+  },
+  {
+    title: 'Swedenborg Tuesday: open discussion',
+    date: 'Tue 28 Jul · 11am',
+    category: 'Study',
+    where: 'On Zoom' as const,
+    desc: "Delve a little deeper into concepts in Swedenborg's writing and relate them to our lives.",
+  },
+  {
+    title: "Read and reflect on Swedenborg's writings",
+    date: 'Wed 29 Jul · 10am',
+    category: 'Study',
+    where: 'On Zoom' as const,
+    desc: 'Reading slowly through one of the works of Swedenborg, reflecting as we go.',
+  },
+  {
+    title: 'Sunday worship',
+    date: 'Sun 2 Aug · 10am',
+    category: 'Worship',
+    where: 'In person' as const,
+    desc: 'Worship, readings and reflection, followed by morning tea in the hall.',
+  },
+  {
+    title: 'Church garden working bee',
+    date: 'Sat 8 Aug · 9am',
+    category: 'Community',
+    where: 'In person' as const,
+    desc: 'Help us care for the church garden — tools and morning tea provided.',
+  },
+];
+
+const tabs = ['All', 'Worship', 'Study', 'Community'];
+---
+
+<BaseLayout
+  title="Events"
+  description="Upcoming worship, study and community events at Roseville New Church."
+  currentPath="/events"
+>
+  <main class="container-site px-6 md:px-8 pt-10 md:pt-14">
+    <div
+      class="font-display font-semibold text-eyebrow tracking-eyebrow uppercase text-accent-primary mb-2.5"
+    >
+      ✦ What's on
+    </div>
+    <h1 class="mt-0 text-h1">Upcoming events</h1>
+    <p class="text-text-muted -mt-1.5">All times are Sydney time (AEST).</p>
+
+    <Tabs tabs={tabs} active="All" class="my-[18px] mb-[26px]" />
+
+    <div class="flex flex-col gap-4 max-w-[760px]">
+      {
+        events.map((event) => (
+          <div data-category={event.category}>
+            <Card interactive eyebrow={event.date} title={event.title}>
+              {event.desc}
+              <div slot="footer" class="flex flex-wrap gap-2.5 items-center">
+                <Badge tone={event.where === 'On Zoom' ? 'info' : 'success'}>
+                  {event.where}
+                </Badge>
+                {event.where === 'On Zoom' && (
+                  <Button size="sm" variant="secondary" href="#">
+                    Join Zoom
+                  </Button>
+                )}
+              </div>
+            </Card>
+          </div>
+        ))
+      }
+    </div>
+  </main>
+</BaseLayout>
