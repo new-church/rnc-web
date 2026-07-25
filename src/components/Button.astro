@@ -40,11 +40,19 @@ const variants = {
 const classes = [base, sizes[size], variants[variant], className]
   .filter(Boolean)
   .join(' ');
+
+const external = Boolean(href?.startsWith('http'));
 ---
 
 {
   href && !disabled ? (
-    <a href={href} class={classes} id={id}>
+    <a
+      href={href}
+      class={classes}
+      id={id}
+      target={external ? '_blank' : undefined}
+      rel={external ? 'noopener noreferrer' : undefined}
+    >
       <slot />
     </a>
   ) : (

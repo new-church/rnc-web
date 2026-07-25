@@ -8,38 +8,33 @@ import Button from '../components/Button.astro';
 const events = [
   {
     title: 'Sunday worship',
-    date: 'Sun 26 Jul · 10am',
+    date: '1st & 3rd Sundays · 10am',
     category: 'Worship',
     where: 'In person' as const,
-    desc: 'Worship, readings and reflection, followed by morning tea in the hall.',
+    desc: 'Worship, readings and reflection at 2B Shirley Rd, followed by refreshments and conversation in the hall. A service pamphlet with hymns is provided.',
   },
   {
     title: 'Swedenborg Tuesday: open discussion',
-    date: 'Tue 28 Jul · 11am',
+    date: 'Tuesdays · 11am',
     category: 'Study',
     where: 'On Zoom' as const,
-    desc: "Delve a little deeper into concepts in Swedenborg's writing and relate them to our lives.",
+    href: 'https://swedenborg.com.au/',
+    desc: "Hosted by the Swedenborg Centre — delve a little deeper into concepts in Swedenborg's writing and relate them to our lives.",
   },
   {
     title: "Read and reflect on Swedenborg's writings",
-    date: 'Wed 29 Jul · 10am',
+    date: 'Wednesdays · 10am',
     category: 'Study',
     where: 'On Zoom' as const,
-    desc: 'Reading slowly through one of the works of Swedenborg, reflecting as we go.',
-  },
-  {
-    title: 'Sunday worship',
-    date: 'Sun 2 Aug · 10am',
-    category: 'Worship',
-    where: 'In person' as const,
-    desc: 'Worship, readings and reflection, followed by morning tea in the hall.',
+    href: 'https://swedenborg.com.au/',
+    desc: "Hosted by the Swedenborg Centre — reading slowly through one of the works, reflecting as we go. See swedenborg.com.au for the current Zoom links.",
   },
   {
     title: 'Church garden working bee',
-    date: 'Sat 8 Aug · 9am',
+    date: 'As announced',
     category: 'Community',
     where: 'In person' as const,
-    desc: 'Help us care for the church garden — tools and morning tea provided.',
+    desc: 'Help us care for the church garden — tools and morning tea provided. Dates are shared in the newsletter.',
   },
 ];
 
@@ -48,7 +43,7 @@ const tabs = ['All', 'Worship', 'Study', 'Community'];
 
 <BaseLayout
   title="Events"
-  description="Upcoming worship, study and community events at Roseville New Church."
+  description="Worship, study and community at Roseville New Church — 1st and 3rd Sundays at 10am."
   currentPath="/events"
 >
   <main class="container-site px-6 md:px-8 pt-10 md:pt-14">
@@ -58,7 +53,13 @@ const tabs = ['All', 'Worship', 'Study', 'Community'];
       ✦ What's on
     </div>
     <h1 class="mt-0 text-h1">Upcoming events</h1>
-    <p class="text-text-muted -mt-1.5">All times are Sydney time (AEST).</p>
+    <p class="text-text-muted -mt-1.5 max-w-[640px]">
+      Sunday worship is on the <strong>1st and 3rd Sundays</strong> of each month
+      at 10am (Sydney time). Midweek Zoom groups are run by the{' '}
+      <a href="https://swedenborg.com.au/" rel="noopener noreferrer" target="_blank"
+        >Swedenborg Centre</a
+      > — check their site for the latest links and times.
+    </p>
 
     <Tabs tabs={tabs} active="All" class="my-[18px] mb-[26px]" />
 
@@ -73,8 +74,12 @@ const tabs = ['All', 'Worship', 'Study', 'Community'];
                   {event.where}
                 </Badge>
                 {event.where === 'On Zoom' && (
-                  <Button size="sm" variant="secondary" href="#">
-                    Join Zoom
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    href={event.href ?? 'https://swedenborg.com.au/'}
+                  >
+                    Swedenborg Centre
                   </Button>
                 )}
               </div>

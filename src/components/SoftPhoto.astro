@@ -1,0 +1,43 @@
+---
+interface Props {
+  src: string;
+  alt: string;
+  class?: string;
+  /** Tailwind aspect class, e.g. aspect-[16/10] */
+  aspect?: string;
+}
+
+const {
+  src,
+  alt,
+  class: className = '',
+  aspect = 'aspect-[16/10]',
+} = Astro.props;
+---
+
+<figure
+  class:list={[
+    'relative overflow-hidden rounded-lg bg-violet-100 shadow-card',
+    aspect,
+    className,
+  ]}
+>
+  <img
+    src={src}
+    alt={alt}
+    loading="lazy"
+    decoding="async"
+    class="absolute inset-0 h-full w-full object-cover saturate-[0.78] brightness-[0.96] contrast-[0.96]"
+  />
+  <!-- Soft brand veil — keeps amateur photos from dominating -->
+  <div
+    class="pointer-events-none absolute inset-0 bg-violet-900/20 mix-blend-multiply"
+    aria-hidden="true"
+  >
+  </div>
+  <div
+    class="pointer-events-none absolute inset-0 bg-gradient-to-t from-paper/55 via-paper/10 to-violet-50/35"
+    aria-hidden="true"
+  >
+  </div>
+</figure>

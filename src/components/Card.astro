@@ -25,10 +25,13 @@ const looks = {
 
 const dark = variant === 'dusk';
 const Tag = href ? 'a' : 'div';
+const external = Boolean(href?.startsWith('http'));
 ---
 
 <Tag
   href={href}
+  target={external ? '_blank' : undefined}
+  rel={external ? 'noopener noreferrer' : undefined}
   class:list={[
     'block rounded-lg p-6 shadow-card transition-all duration-[280ms] ease-[var(--ease-gentle)]',
     looks[variant],

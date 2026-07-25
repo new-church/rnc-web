@@ -9,7 +9,7 @@ import { Sunrise } from '@lucide/astro';
 
 <BaseLayout
   title="Roseville New Church"
-  description="A Swedenborgian community in Sydney — a place to seek, question, and grow in light."
+  description="A Swedenborgian community in Sydney — worshipping the Lord Jesus Christ and exploring His love and wisdom together."
   currentPath="/"
 >
   <main>
@@ -38,7 +38,7 @@ import { Sunrise } from '@lucide/astro';
         <div
           class="flex flex-col sm:flex-row gap-3 justify-center items-center"
         >
-          <Button size="lg" href="/about#visit">Join us this Sunday</Button>
+          <Button size="lg" href="/about#visit">Plan a visit</Button>
           <Button size="lg" variant="secondary" href="/about"
             >What we believe</Button
           >
@@ -46,12 +46,12 @@ import { Sunrise } from '@lucide/astro';
       </div>
     </section>
 
-    <!-- This week -->
+    <!-- This week / regular rhythm -->
     <section class="container-site px-6 md:px-8 pt-14 md:pt-[72px]">
       <div
         class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-3 mb-6"
       >
-        <h2 class="m-0 text-h2">This week</h2>
+        <h2 class="m-0 text-h2">Join us</h2>
         <a
           href="/events"
           class="font-display font-semibold text-[15px] no-underline hover:underline"
@@ -62,37 +62,84 @@ import { Sunrise } from '@lucide/astro';
       <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
         <Card
           interactive
-          href="/events"
-          eyebrow="Sunday · 10am"
+          href="/about#visit"
+          eyebrow="1st & 3rd Sundays · 10am"
           title="Sunday worship"
         >
-          Worship, readings and reflection at 4 Shirley Rd — everyone is
-          welcome.
+          Worship, readings and reflection at 2B Shirley Rd — everyone is
+          welcome. Stay afterwards for refreshments and conversation.
           <Badge slot="footer" tone="gold">Morning tea after</Badge>
         </Card>
         <Card
           interactive
-          href="/events"
-          eyebrow="Tuesday · 11am"
+          href="https://swedenborg.com.au/"
+          eyebrow="Tuesdays · 11am · Zoom"
           title="Open discussion"
         >
-          Delve deeper into Swedenborg's writings and relate them to our own
-          lives.
+          Hosted by the Swedenborg Centre — delve deeper into the writings and
+          relate them to our lives.
           <Badge slot="footer" tone="info">On Zoom</Badge>
         </Card>
         <Card
           interactive
-          href="/events"
-          eyebrow="Wednesday · 10am"
+          href="https://swedenborg.com.au/"
+          eyebrow="Wednesdays · 10am · Zoom"
           title="Read & reflect"
         >
-          Reading slowly through one of Swedenborg's works, together.
+          Hosted by the Swedenborg Centre — reading slowly through one of the
+          works, together.
           <Badge slot="footer" tone="info">On Zoom</Badge>
         </Card>
       </div>
     </section>
 
-    <!-- Quote band -->
+    <!-- Place — quiet exterior, not a hero -->
+    <section class="container-site px-6 md:px-8 mt-14 md:mt-[72px]">
+      <a
+        href="/about#visit"
+        class="group relative block overflow-hidden rounded-lg no-underline shadow-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-primary"
+      >
+        <div class="relative aspect-[2/1] sm:aspect-[21/9] md:aspect-[3/1]">
+          <img
+            src="/images/church/exterior.jpg"
+            alt="Roseville New Church exterior on Shirley Road"
+            loading="lazy"
+            decoding="async"
+            class="absolute inset-0 h-full w-full object-cover object-center saturate-[0.75] brightness-[0.94] transition-transform duration-[280ms] ease-[var(--ease-gentle)] group-hover:scale-[1.02]"
+          />
+          <div
+            class="absolute inset-0 bg-violet-950/40 mix-blend-multiply"
+            aria-hidden="true"
+          >
+          </div>
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-violet-950/55 via-violet-900/25 to-transparent"
+            aria-hidden="true"
+          >
+          </div>
+          <div
+            class="absolute inset-x-0 bottom-0 p-5 sm:p-7 md:p-8 text-text-on-dark"
+          >
+            <div
+              class="font-display text-[12px] tracking-eyebrow uppercase text-gold-300 mb-1.5"
+            >
+              Our home
+            </div>
+            <div
+              class="font-display font-semibold text-h3 tracking-display text-text-on-dark"
+            >
+              2B Shirley Rd, Roseville
+            </div>
+            <p class="m-0 mt-1 text-sm text-text-on-dark/75 max-w-md">
+              A short walk from Roseville station — join us on the 1st and 3rd
+              Sundays at 10am.
+            </p>
+          </div>
+        </div>
+      </a>
+    </section>
+
+    <!-- Quote band — from live homepage -->
     <section class="container-site px-6 md:px-8 mt-14 md:mt-[72px]">
       <div
         class="bg-gradient-dusk rounded-lg px-6 py-12 md:px-12 md:py-16 text-center text-text-on-dark"
@@ -103,13 +150,12 @@ import { Sunrise } from '@lucide/astro';
         <p
           class="mx-auto max-w-[640px] italic text-[22px] md:text-[26px] leading-[1.5] m-0"
         >
-          “All religion relates to life, and the life of religion is to do
-          good.”
+          “All who live well, of whatever religion, have a place in heaven.”
         </p>
         <div
           class="mt-4 font-display text-[13px] tracking-eyebrow uppercase text-text-on-dark/60"
         >
-          Emanuel Swedenborg
+          Emanuel Swedenborg · Divine Providence 330
         </div>
       </div>
     </section>
@@ -125,7 +171,7 @@ import { Sunrise } from '@lucide/astro';
         >
           Newsletter
         </div>
-        <h2 class="mt-0 text-h2">News from the church, every month</h2>
+        <h2 class="mt-0 text-h2">News from the church</h2>
         <p class="text-text-muted">
           Reflections, garden updates, Swedenborg Centre news and what's coming
           up — straight to your inbox.

@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Card from '../components/Card.astro';
 import Button from '../components/Button.astro';
+import SoftPhoto from '../components/SoftPhoto.astro';
 ---
 
 <BaseLayout
@@ -9,44 +10,114 @@ import Button from '../components/Button.astro';
   description="An old faith, seen in new light — about Roseville New Church, a Swedenborgian community in Sydney."
   currentPath="/about"
 >
-  <main class="container-prose px-6 md:px-8 pt-10 md:pt-14">
+  <main class="container-prose px-6 md:px-8 pt-10 md:pt-14 pb-4">
     <div
       class="font-display font-semibold text-eyebrow tracking-eyebrow uppercase text-accent-primary mb-2.5"
     >
       ✦ About us
     </div>
-    <h1 class="mt-0 text-h1">An old faith, seen in new light</h1>
-    <p class="text-lg">
-      The Roseville New Church is a place of worship for those seeking to
-      understand the Bible and the nature of God through the theological writings
-      of Emanuel Swedenborg.
-    </p>
-    <p>
-      We worship the Lord Jesus Christ as the one true God, in heaven and on
-      earth. Our aim is to deepen our understanding of His love and wisdom, and
-      to help one another lead joyful and useful lives — in the present and the
-      hereafter.
-    </p>
-    <p
-      class="italic text-[22px] leading-[1.5] text-violet-700 my-9 text-center"
-    >
-      “Love in its essence is spiritual fire.”
-    </p>
-    <p>
-      You don't need to know anything about Swedenborg to visit. Come as you
-      are, ask anything, and stay for morning tea.
-    </p>
 
-    <div id="visit" class="scroll-mt-24 mt-8">
+    <article class="prose-rnc">
+      <h1>An old faith, seen in new light</h1>
+      <p>
+        The Roseville New Church is a place of worship for those seeking to
+        understand the Bible and the nature of God through the theological
+        writings of Emanuel Swedenborg. We are the Sydney Society of the New
+        Church, trading as Roseville New Church.
+      </p>
+      <p>
+        We worship the Lord Jesus Christ as the one true God, in heaven and on
+        earth. Our aim is to deepen our understanding of His love and wisdom, to
+        share the distinctive doctrines of the New Church, and to help one
+        another lead joyful and useful lives — in the present and the hereafter.
+      </p>
+
+      <h2>Our values</h2>
+      <p>
+        There does not exist the person the Lord does not love. It is the
+        continual effort of the Lord to draw all people towards Himself, that
+        each of us may experience heavenly states in this life and to eternity.
+        Though difficult to comprehend, it is this expression of love we desire
+        to manifest in the world as a New Church community.
+      </p>
+
+      <blockquote>
+        “All who live well, of whatever religion, have a place in heaven.”
+      </blockquote>
+      <p class="quote-attr">Divine Providence 330</p>
+
+      <h2>Understanding the Bible</h2>
+      <p>
+        On its surface the Bible can present a confusing picture of God —
+        especially when its words and stories are taken only literally. Jesus
+        often criticised people for missing the spirit of the law while keeping
+        its letter. We read the Word with the help of Swedenborg's teaching that
+        Scripture has an inner, spiritual sense: true lessons spoken in parable,
+        clothing a deeper meaning so that it may be received and not falsified.
+      </p>
+      <p>
+        With that knowledge we seek a greater understanding of the true nature
+        of God and our purpose in this world and the next. You don't need to
+        know anything about Swedenborg to visit — come as you are, ask anything,
+        and stay for morning tea.
+      </p>
+
+      <h2>What to expect</h2>
+      <p>
+        Walking into a new place can feel intimidating. We want you to know you
+        are welcome here — a warm community where everyone is accepted and
+        valued.
+      </p>
+      <p>
+        When you arrive you will find quiet contemplation with pre-service
+        music. The service begins with an opening hymn. We provide a pamphlet
+        with the order of service and the hymns for the day, so you always know
+        what comes next.
+      </p>
+      <p>
+        Afterwards we invite you to stay for refreshments and conversation. A
+        pouch at the back of the sanctuary is there for free-will offerings to
+        support the church; we do not pass a collection during the service, so
+        please enjoy your first visit without any obligation to give.
+      </p>
+    </article>
+
+    <!-- Soft place photos — secondary to the copy -->
+    <div
+      class="mt-10 grid grid-cols-1 sm:grid-cols-[1.2fr_0.8fr] gap-3 sm:gap-4"
+    >
+      <SoftPhoto
+        src="/images/church/exterior.jpg"
+        alt="The brick church exterior at 2B Shirley Road, Roseville"
+        aspect="aspect-[4/3] sm:aspect-[5/4]"
+      />
+      <SoftPhoto
+        src="/images/church/stained-glass.jpg"
+        alt="Stained glass window inside Roseville New Church"
+        aspect="aspect-[4/3] sm:aspect-[5/4]"
+      />
+    </div>
+
+    <div id="visit" class="scroll-mt-24 mt-6">
       <Card variant="tint" title="Come and see us">
-        Sundays at 10am · 4 Shirley Rd, Roseville NSW 2069 — two minutes' walk
-        from Roseville station.
-        <Button
-          slot="footer"
-          href="https://maps.google.com/?q=4+Shirley+Rd,+Roseville+NSW+2069"
-        >
-          Get directions
-        </Button>
+        <p class="m-0">
+          Worship on the <strong>1st and 3rd Sundays</strong> of each month at
+          <strong>10am</strong>.
+        </p>
+        <p class="mt-3 mb-0">
+          2B Shirley Rd, Roseville NSW 2069 — two minutes' walk from Roseville
+          station. The Swedenborg Centre is next door at 4 Shirley Rd.
+        </p>
+        <div slot="footer" class="flex flex-wrap gap-3">
+          <Button
+            href="https://maps.google.com/?q=2B+Shirley+Rd,+Roseville+NSW+2069"
+          >
+            Get directions
+          </Button>
+          <Button variant="secondary" href="tel:+61294167026">
+            Call the church office
+          </Button>
+        </div>
       </Card>
     </div>
   </main>
