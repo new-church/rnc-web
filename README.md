@@ -6,10 +6,23 @@ Brand reference and design tokens live in [`design-system-claude/`](design-syste
 
 ## Stack
 
-- [Astro](https://astro.build) (static output, TypeScript)
+- [Astro](https://astro.build) (static pages + Vercel adapter for `/api/calendar`)
 - [Tailwind CSS v4](https://tailwindcss.com) via `@tailwindcss/vite`
 - Self-hosted fonts: Josefin Sans + Lora (`@fontsource`)
 - Icons: [`@lucide/astro`](https://lucide.dev)
+
+## Calendar
+
+`/events` shows a custom month view fed by a published Outlook ICS URL.
+
+Set in `.env.local` (and Vercel project env):
+
+```bash
+PUBLIC_CALENDAR_ICS_URL="https://outlook.office365.com/owa/calendar/.../calendar.ics"
+CALENDAR_ICS_URL="https://outlook.office365.com/owa/calendar/.../calendar.ics"
+```
+
+Publish the calendar from Outlook on the web: **Settings → Calendar → Shared calendars → Publish a calendar** (permission: *Can view all details*). Prefer **AUS Eastern Standard Time** on the mailbox so times match Sydney.
 
 ## Local development
 
@@ -42,8 +55,9 @@ Past issues are listed at `/newsletters`, driven by Markdown in `src/content/new
 
 
 1. Import the GitHub repo [`new-church/rnc-web`](https://github.com/new-church/rnc-web) in the [Vercel dashboard](https://vercel.com/new).
-2. Framework preset: **Astro** (or Other with Build Command `npm run build`, Output Directory `dist`).
-3. Deploy. No adapter or `vercel.json` is required for this static site.
+2. Framework preset: **Astro**.
+3. Add `PUBLIC_CALENDAR_ICS_URL` and `CALENDAR_ICS_URL` (same published `.ics` link).
+4. Deploy. The Vercel adapter serves static pages plus `/api/calendar`.
 
 Optional CLI:
 

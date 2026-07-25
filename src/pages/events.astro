@@ -4,6 +4,11 @@ import Tabs from '../components/Tabs.astro';
 import Card from '../components/Card.astro';
 import Badge from '../components/Badge.astro';
 import Button from '../components/Button.astro';
+import EventsCalendar from '../components/EventsCalendar.astro';
+
+const icsUrl =
+  import.meta.env.PUBLIC_CALENDAR_ICS_URL ||
+  'https://outlook.office365.com/owa/calendar/d3aab09d67bf4025ae539869196ad552@rosevillenewchurch.com.au/9a35e72b134e4c91bbb5b6956e035fa42959863401420048630/calendar.ics';
 
 const events = [
   {
@@ -46,7 +51,7 @@ const tabs = ['All', 'Worship', 'Study', 'Community'];
   description="Worship, study and community at Roseville New Church — 1st and 3rd Sundays at 10am."
   currentPath="/events"
 >
-  <main class="container-site px-6 md:px-8 pt-10 md:pt-14">
+  <main class="container-site px-6 md:px-8 pt-10 md:pt-14 pb-16">
     <div
       class="font-display font-semibold text-eyebrow tracking-eyebrow uppercase text-accent-primary mb-2.5"
     >
@@ -55,7 +60,15 @@ const tabs = ['All', 'Worship', 'Study', 'Community'];
     <h1 class="mt-0 text-h1">Upcoming events</h1>
     <p class="text-text-muted -mt-1.5 max-w-[640px]">
       Sunday worship is on the <strong>1st and 3rd Sundays</strong> of each month
-      at 10am (Sydney time). Midweek Zoom groups are run by the{' '}
+      at 10am (Sydney time). Add dated events below to your own calendar, or browse
+      the regular rhythm further down.
+    </p>
+
+    <EventsCalendar icsUrl={icsUrl} />
+
+    <h2 class="mt-14 mb-2 text-h2">Regular rhythm</h2>
+    <p class="text-text-muted mt-0 mb-5 max-w-[640px]">
+      Midweek Zoom groups are run by the{' '}
       <a href="https://swedenborg.com.au/" rel="noopener noreferrer" target="_blank"
         >Swedenborg Centre</a
       > — check their site for the latest links and times.

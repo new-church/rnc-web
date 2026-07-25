@@ -1,0 +1,304 @@
+---
+interface Props {
+  icsUrl: string;
+}
+
+const { icsUrl } = Astro.props;
+const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
+---
+
+<section
+  class="mt-10 mb-4"
+  data-events-calendar
+  data-ics-url={icsUrl}
+  data-webcal-url={webcalUrl}
+  aria-label="Events calendar"
+>
+  <div
+    class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-5"
+  >
+    <div>
+      <h2 class="m-0 text-h2">Calendar</h2>
+      <p class="m-0 mt-1.5 text-text-muted max-w-[36rem]">
+        Updated from the church Outlook calendar. Times shown in Sydney time.
+      </p>
+    </div>
+    <div class="flex flex-wrap gap-2.5">
+      <a
+        data-subscribe
+        href={webcalUrl}
+        class="inline-flex items-center justify-center gap-2 font-display font-semibold tracking-[0.04em] rounded-pill border border-transparent transition-[background,transform,color] duration-150 ease-[var(--ease-gentle)] active:scale-[0.98] px-[18px] pt-[9px] pb-[7px] text-[13px] leading-none bg-accent-primary text-text-on-accent hover:bg-accent-primary-strong no-underline"
+      >
+        Add to my calendar
+      </a>
+      <a
+        href={icsUrl}
+        class="inline-flex items-center justify-center gap-2 font-display font-semibold tracking-[0.04em] rounded-pill border border-violet-200 transition-[background,transform,color] duration-150 ease-[var(--ease-gentle)] active:scale-[0.98] px-[18px] pt-[9px] pb-[7px] text-[13px] leading-none bg-transparent text-accent-primary-strong hover:bg-violet-100 no-underline"
+        download
+      >
+        Download .ics
+      </a>
+    </div>
+  </div>
+
+  <div
+    class="rounded-2xl border border-border-soft bg-surface-card/80 p-4 sm:p-5 shadow-[0_1px_0_rgba(46,26,71,0.04)]"
+  >
+    <div class="flex items-center justify-between gap-3 mb-4">
+      <button
+        type="button"
+        data-prev
+        class="font-display font-semibold text-[14px] text-accent-primary-strong px-3 py-2 rounded-lg hover:bg-violet-50 transition-colors"
+        aria-label="Previous month"
+      >
+        ←
+      </button>
+      <h3
+        data-month-label
+        class="m-0 font-display font-semibold text-[18px] text-text-heading tracking-wide"
+      >
+        …
+      </h3>
+      <button
+        type="button"
+        data-next
+        class="font-display font-semibold text-[14px] text-accent-primary-strong px-3 py-2 rounded-lg hover:bg-violet-50 transition-colors"
+        aria-label="Next month"
+      >
+        →
+      </button>
+    </div>
+
+    <div
+      class="grid grid-cols-7 gap-1 mb-1 text-center font-display text-[11px] font-semibold tracking-[0.14em] uppercase text-text-muted"
+      aria-hidden="true"
+    >
+      <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span
+        >Thu</span
+      ><span>Fri</span><span>Sat</span>
+    </div>
+
+    <div data-grid class="grid grid-cols-7 gap-1" role="grid"></div>
+
+    <p
+      data-status
+      class="m-0 mt-4 text-sm text-text-muted"
+      aria-live="polite"
+    >
+      Loading calendar…
+    </p>
+
+    <ul data-list class="m-0 mt-3 p-0 list-none flex flex-col gap-3"></ul>
+  </div>
+</section>
+
+<script>
+  type CalendarEvent = {
+    uid: string;
+    title: string;
+    description: string;
+    location: string;
+    start: string;
+    end: string;
+    allDay: boolean;
+  };
+
+  const root = document.querySelector<HTMLElement>('[data-events-calendar]');
+  if (root) {
+    const grid = root.querySelector<HTMLElement>('[data-grid]')!;
+    const list = root.querySelector<HTMLElement>('[data-list]')!;
+    const status = root.querySelector<HTMLElement>('[data-status]')!;
+    const monthLabel = root.querySelector<HTMLElement>('[data-month-label]')!;
+    const tz = 'Australia/Sydney';
+
+    let cursor = new Date();
+    cursor = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+    let events: CalendarEvent[] = [];
+    let selectedKey: string | null = null;
+
+    const ymdInTz = (iso: string, allDay: boolean) => {
+      if (allDay && /^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso;
+      const d = new Date(iso);
+      return new Intl.DateTimeFormat('en-CA', {
+        timeZone: tz,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).format(d);
+    };
+
+    const formatTime = (iso: string, allDay: boolean) => {
+      if (allDay) return 'All day';
+      return new Intl.DateTimeFormat('en-AU', {
+        timeZone: tz,
+        hour: 'numeric',
+        minute: '2-digit',
+      }).format(new Date(iso));
+    };
+
+    const formatDayHeading = (key: string) => {
+      const [y, m, d] = key.split('-').map(Number);
+      const date = new Date(y!, m! - 1, d!);
+      return new Intl.DateTimeFormat('en-AU', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+      }).format(date);
+    };
+
+    const monthKey = (y: number, m: number) =>
+      `${y}-${String(m + 1).padStart(2, '0')}`;
+
+    const eventsForDay = (key: string) =>
+      events.filter((e) => ymdInTz(e.start, e.allDay) === key);
+
+    const eventsInMonth = (y: number, m: number) => {
+      const prefix = monthKey(y, m);
+      return events.filter((e) => ymdInTz(e.start, e.allDay).startsWith(prefix));
+    };
+
+    const renderList = () => {
+      const y = cursor.getFullYear();
+      const m = cursor.getMonth();
+      const monthEvents = eventsInMonth(y, m);
+      const shown = selectedKey
+        ? eventsForDay(selectedKey)
+        : monthEvents;
+
+      list.innerHTML = '';
+      if (!shown.length) {
+        status.textContent = selectedKey
+          ? `No events on ${formatDayHeading(selectedKey)}.`
+          : 'No events this month yet.';
+        return;
+      }
+
+      status.textContent = selectedKey
+        ? formatDayHeading(selectedKey)
+        : `${shown.length} event${shown.length === 1 ? '' : 's'} this month`;
+
+      for (const event of shown) {
+        const li = document.createElement('li');
+        li.className =
+          'rounded-xl border border-border-soft bg-surface-page px-4 py-3.5 animate-[fadeRise_0.35s_ease_both]';
+        const when = event.allDay
+          ? formatDayHeading(ymdInTz(event.start, true))
+          : `${formatDayHeading(ymdInTz(event.start, false))} · ${formatTime(event.start, false)}`;
+        li.innerHTML = `
+          <div class="font-display text-[12px] font-semibold tracking-[0.14em] uppercase text-accent-primary mb-1">${when}</div>
+          <div class="font-display font-semibold text-[17px] text-text-heading">${escapeHtml(event.title)}</div>
+          ${event.location ? `<div class="mt-1 text-sm text-text-muted">${escapeHtml(event.location)}</div>` : ''}
+          ${event.description ? `<p class="mt-2 mb-0 text-sm text-text-body whitespace-pre-line">${escapeHtml(event.description)}</p>` : ''}
+        `;
+        list.appendChild(li);
+      }
+    };
+
+    const escapeHtml = (s: string) =>
+      s
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;');
+
+    const renderGrid = () => {
+      const y = cursor.getFullYear();
+      const m = cursor.getMonth();
+      monthLabel.textContent = new Intl.DateTimeFormat('en-AU', {
+        month: 'long',
+        year: 'numeric',
+      }).format(cursor);
+
+      const firstDow = new Date(y, m, 1).getDay();
+      const daysInMonth = new Date(y, m + 1, 0).getDate();
+      const todayKey = ymdInTz(new Date().toISOString(), false);
+
+      grid.innerHTML = '';
+      for (let i = 0; i < firstDow; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'min-h-11 rounded-lg';
+        grid.appendChild(cell);
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const key = `${y}-${String(m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const count = eventsForDay(key).length;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.setAttribute('role', 'gridcell');
+        btn.dataset.day = key;
+        const isSelected = selectedKey === key;
+        const isToday = todayKey === key;
+        btn.className = [
+          'min-h-11 rounded-lg border text-sm font-display transition-[background,transform,border-color] duration-150',
+          'flex flex-col items-center justify-center gap-0.5 px-1 py-1.5',
+          isSelected
+            ? 'bg-violet-700 text-text-on-dark border-violet-700'
+            : isToday
+              ? 'bg-violet-50 border-violet-200 text-text-heading'
+              : 'bg-transparent border-transparent text-text-heading hover:bg-violet-50',
+        ].join(' ');
+        btn.innerHTML = `<span>${day}</span>${
+          count
+            ? `<span class="block w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-gold-300' : 'bg-accent-primary'}" aria-hidden="true"></span>`
+            : '<span class="block w-1.5 h-1.5" aria-hidden="true"></span>'
+        }`;
+        btn.setAttribute(
+          'aria-label',
+          count
+            ? `${formatDayHeading(key)}, ${count} event${count === 1 ? '' : 's'}`
+            : formatDayHeading(key),
+        );
+        btn.addEventListener('click', () => {
+          selectedKey = selectedKey === key ? null : key;
+          renderGrid();
+          renderList();
+        });
+        grid.appendChild(btn);
+      }
+
+      renderList();
+    };
+
+    root.querySelector('[data-prev]')?.addEventListener('click', () => {
+      cursor = new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1);
+      selectedKey = null;
+      renderGrid();
+    });
+    root.querySelector('[data-next]')?.addEventListener('click', () => {
+      cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+      selectedKey = null;
+      renderGrid();
+    });
+
+    const load = async () => {
+      try {
+        const res = await fetch('/api/calendar');
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to load');
+        events = Array.isArray(data.events) ? data.events : [];
+        status.textContent = '';
+        renderGrid();
+      } catch {
+        status.textContent =
+          'Could not load the live calendar. You can still subscribe with the button above.';
+        renderGrid();
+      }
+    };
+
+    load();
+  }
+</script>
+
+<style>
+  @keyframes fadeRise {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
