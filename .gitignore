@@ -22,3 +22,8 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Newsletter PDF archive (too large for git / Vercel deploy — see README)
+data/newsletters/pdfs/
+
+.env.local

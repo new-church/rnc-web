@@ -36,7 +36,10 @@ src/
 design-system-claude/   # Design reference only
 ```
 
-## Deploy on Vercel
+## Newsletters
+
+Past issues are listed at `/newsletters`, driven by Markdown in `src/content/newsletters/`. PDF downloads currently point at the Wix-hosted files (~266 MB total — too large for Git/Vercel). See [`data/newsletters/README.md`](data/newsletters/README.md) for Blob upload steps. Local mirror: `npm run newsletters:download`. Upload to Blob: `npm run newsletters:upload-blob` (needs `BLOB_READ_WRITE_TOKEN` in `.env.local`).
+
 
 1. Import the GitHub repo [`new-church/rnc-web`](https://github.com/new-church/rnc-web) in the [Vercel dashboard](https://vercel.com/new).
 2. Framework preset: **Astro** (or Other with Build Command `npm run build`, Output Directory `dist`).
