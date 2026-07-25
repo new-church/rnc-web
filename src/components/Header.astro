@@ -17,33 +17,39 @@ function isActive(href: string) {
   if (href === '/') return currentPath === '/';
   return currentPath.startsWith(href);
 }
+
+const linkBase =
+  'font-display font-semibold tracking-[0.03em] no-underline rounded-pill transition-colors duration-150';
 ---
 
 <header
+  id="site-header"
   class="sticky top-0 z-40 border-b border-border-soft bg-paper/85 backdrop-blur-[12px]"
 >
   <div
-    class="container-site flex flex-wrap items-center gap-4 px-6 md:px-8 py-3.5"
+    class="container-site flex items-center gap-3 px-4 sm:px-6 md:px-8 py-2.5 md:py-3.5"
   >
     <a
       href="/"
-      class="flex items-center gap-2.5 no-underline text-violet-900 hover:text-violet-900"
+      class="flex items-center gap-2 min-w-0 no-underline text-violet-900 hover:text-violet-900"
     >
       <img
         src="/brand/rnc-icon-colour.svg"
         alt=""
         width="40"
         height="28"
-        class="h-8 w-auto shrink-0"
+        class="h-7 md:h-8 w-auto shrink-0"
       />
       <span
-        class="font-display font-semibold text-[17px] sm:text-[19px] tracking-[0.06em] whitespace-nowrap"
+        class="font-display font-semibold text-[15px] sm:text-[17px] md:text-[19px] tracking-[0.06em] truncate"
       >
         Roseville New Church
       </span>
     </a>
+
+    <!-- Desktop nav -->
     <nav
-      class="flex flex-wrap items-center gap-1.5 ml-auto"
+      class="hidden md:flex items-center gap-1.5 ml-auto"
       aria-label="Primary"
     >
       {
@@ -51,7 +57,8 @@ function isActive(href: string) {
           <a
             href={link.href}
             class:list={[
-              'font-display font-semibold text-[15px] tracking-[0.03em] no-underline px-3.5 pt-2 pb-1.5 rounded-pill transition-colors duration-150',
+              linkBase,
+              'text-[15px] px-3.5 pt-2 pb-1.5',
               isActive(link.href)
                 ? 'text-accent-primary-strong bg-violet-100'
                 : 'text-text-muted hover:text-text-heading',
@@ -64,7 +71,10 @@ function isActive(href: string) {
       }
       <a
         href="https://swedenborg.com.au/"
-        class="font-display font-semibold text-[15px] tracking-[0.03em] no-underline px-3.5 pt-2 pb-1.5 rounded-pill text-text-muted hover:text-text-heading transition-colors duration-150"
+        class:list={[
+          linkBase,
+          'text-[15px] px-3.5 pt-2 pb-1.5 text-text-muted hover:text-text-heading',
+        ]}
         rel="noopener noreferrer"
         target="_blank"
       >
@@ -74,5 +84,138 @@ function isActive(href: string) {
         Plan a visit
       </Button>
     </nav>
+
+    <!-- Mobile: compact CTA + menu toggle -->
+    <div class="flex items-center gap-1.5 ml-auto md:hidden">
+      <Button
+        variant="gold"
+        size="sm"
+        href="/about#visit"
+        class="!px-3 !pt-2 !pb-1.5 !text-[12px]"
+      >
+        Visit
+      </Button>
+      <button
+        type="button"
+        id="nav-toggle"
+        class="inline-flex items-center justify-center size-10 rounded-pill text-violet-900 hover:bg-violet-100 transition-colors duration-150"
+        aria-controls="mobile-nav"
+        aria-expanded="false"
+        aria-label="Open menu"
+      >
+        <svg
+          id="nav-icon-open"
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.75"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M4 7h16M4 12h16M4 17h16"></path>
+        </svg>
+        <svg
+          id="nav-icon-close"
+          class="hidden"
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.75"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M6 6l12 12M18 6L6 18"></path>
+        </svg>
+      </button>
+    </div>
   </div>
+
+  <!-- Mobile drawer -->
+  <nav
+    id="mobile-nav"
+    class="md:hidden hidden border-t border-border-soft bg-paper/95 backdrop-blur-[12px]"
+    aria-label="Mobile"
+    hidden
+  >
+    <div class="container-site px-4 sm:px-6 py-3 flex flex-col gap-1">
+      {
+        links.map((link) => (
+          <a
+            href={link.href}
+            class:list={[
+              linkBase,
+              'text-[16px] px-4 py-3',
+              isActive(link.href)
+                ? 'text-accent-primary-strong bg-violet-100'
+                : 'text-text-muted hover:text-text-heading hover:bg-violet-50',
+            ]}
+            aria-current={isActive(link.href) ? 'page' : undefined}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+      <a
+        href="https://swedenborg.com.au/"
+        class:list={[
+          linkBase,
+          'text-[16px] px-4 py-3 text-text-muted hover:text-text-heading hover:bg-violet-50',
+        ]}
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Swedenborg Centre
+      </a>
+      <div class="pt-2 pb-1 px-1">
+        <Button variant="gold" size="md" href="/about#visit" class="w-full">
+          Plan a visit
+        </Button>
+      </div>
+    </div>
+  </nav>
 </header>
+
+<script>
+  const toggle = document.getElementById('nav-toggle');
+  const panel = document.getElementById('mobile-nav');
+  const iconOpen = document.getElementById('nav-icon-open');
+  const iconClose = document.getElementById('nav-icon-close');
+
+  function setOpen(open: boolean) {
+    if (!toggle || !panel) return;
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    panel.classList.toggle('hidden', !open);
+    panel.hidden = !open;
+    iconOpen?.classList.toggle('hidden', open);
+    iconClose?.classList.toggle('hidden', !open);
+    document.body.classList.toggle('overflow-hidden', open);
+  }
+
+  toggle?.addEventListener('click', () => {
+    const open = toggle.getAttribute('aria-expanded') === 'true';
+    setOpen(!open);
+  });
+
+  // Close after navigating (same-page hash or leaving)
+  panel?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => setOpen(false));
+  });
+
+  // Close on escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') setOpen(false);
+  });
+
+  // Reset if resized to desktop
+  const mq = window.matchMedia('(min-width: 768px)');
+  mq.addEventListener('change', (e) => {
+    if (e.matches) setOpen(false);
+  });
+</script>
