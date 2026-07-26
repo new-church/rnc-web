@@ -1,0 +1,46 @@
+name: Request a change to the website
+description: Ask for something on the site to be added, changed, fixed, or removed.
+title: "Change: "
+labels: ["claude"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Fill this in and Claude will open a pull request with the change.
+        You don't need to know anything about code — just describe what you want.
+
+  - type: input
+    id: page
+    attributes:
+      label: Which page or part of the site?
+      description: A link is best. Otherwise describe it, e.g. "the calendar page" or "the footer on every page".
+      placeholder: https://...
+    validations:
+      required: true
+
+  - type: textarea
+    id: change
+    attributes:
+      label: What should change?
+      description: Describe what it looks like now and what you want instead.
+      placeholder: |
+        Right now the service times say 9am and 11am.
+        They should say 9:30am and 11am.
+    validations:
+      required: true
+
+  - type: textarea
+    id: content
+    attributes:
+      label: Exact wording, if you have it
+      description: Paste any text, headings, or captions exactly as they should appear. Leave blank if not applicable.
+    validations:
+      required: false
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Anything else worth knowing?
+      description: Deadlines, related pages, things to avoid changing.
+    validations:
+      required: false
