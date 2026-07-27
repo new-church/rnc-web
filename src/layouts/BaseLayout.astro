@@ -9,16 +9,16 @@ interface Props {
   currentPath?: string;
 }
 
+const SITE_NAME = 'Roseville New Church';
+const HOME_TITLE = `${SITE_NAME} · A Swedenborgian community in Sydney`;
+
 const {
-  title = 'Roseville New Church',
+  title,
   description = 'A Swedenborgian community in Sydney — worshipping the Lord Jesus Christ and exploring His love and wisdom together.',
   currentPath = '/',
 } = Astro.props;
 
-const pageTitle =
-  title === 'Roseville New Church'
-    ? title
-    : `${title} · Roseville New Church`;
+const pageTitle = title ? `${title} · ${SITE_NAME}` : HOME_TITLE;
 ---
 
 <!doctype html>
