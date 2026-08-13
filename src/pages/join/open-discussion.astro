@@ -1,0 +1,77 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Button from '../../components/Button.astro';
+import Card from '../../components/Card.astro';
+---
+
+<BaseLayout
+  title="Open discussion"
+  description="Weekly Open Discussion sessions — Tuesdays 11am to 1pm, in person or via Zoom, hosted by the Swedenborg Centre."
+  currentPath="/join"
+>
+  <main class="container-prose px-6 md:px-8 pt-10 md:pt-14 pb-4">
+    <p class="mb-4">
+      <a
+        href="/join"
+        class="font-display text-sm font-semibold text-accent-primary no-underline hover:underline"
+        >← Join us</a
+      >
+    </p>
+
+    <article class="prose-rnc">
+      <div
+        class="font-display font-semibold text-eyebrow tracking-eyebrow uppercase text-accent-primary mb-2.5 !mt-0"
+      >
+        ✦ Tuesdays · 11am–1pm
+      </div>
+      <h1>Join our Weekly Open Discussion Sessions</h1>
+      <p>
+        <strong>Tuesdays – 11 am to 1pm – In person or via Zoom</strong><br />
+        Hosted by the Swedenborg Centre, 4 Shirley Rd, Roseville
+      </p>
+      <p>
+        You're warmly invited to join our weekly Open Discussion, held on
+        Tuesdays.
+      </p>
+      <p>
+        This is an open, friendly conversation where everyone is welcome,
+        whether you're new to Swedenborg's writings or have been exploring them
+        for many years. There are no formal presentations—just thoughtful
+        discussion in a relaxed and respectful atmosphere.
+      </p>
+      <p>
+        Feel free to bring a question, a passage from Swedenborg's writings, or
+        a topic that has arisen in your own spiritual journey. Together we
+        explore how spiritual teachings can help us better understand ourselves,
+        our relationships, and the deeper meaning of everyday life.
+      </p>
+      <p>
+        While Swedenborg's writings provide the foundation for our discussions,
+        we also enjoy exploring insights from other wisdom traditions where they
+        shed light on similar spiritual themes. Past conversations have included
+        topics from Advaita Vedanta, Shin Buddhism, and the Fourth Way teachings
+        of G.I. Gurdjieff and P.D. Ouspensky. Looking at timeless spiritual
+        questions through different lenses often deepens our understanding and
+        appreciation of Swedenborg's teachings.
+      </p>
+      <p>
+        There is no expectation that you have read Swedenborg or are familiar
+        with these traditions. Curiosity, thoughtful questions, and a
+        willingness to explore are all you need. We would be delighted to
+        welcome you and hear your perspective.
+      </p>
+    </article>
+
+    <Card variant="tint" class="mt-8" title="Zoom link and dates">
+      <p class="m-0">
+        The Zoom link and dates can be found on the Swedenborg Centre events
+        page.
+      </p>
+      <div slot="footer">
+        <Button href="https://swedenborg.com.au/events/">
+          swedenborg.com.au/events →
+        </Button>
+      </div>
+    </Card>
+  </main>
+</BaseLayout>

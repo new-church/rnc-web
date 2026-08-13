@@ -11,6 +11,8 @@ highlights:
   - "Bondi Reflection"
   - "NCIA Retreat 2026 Report"
   - "AGM Announcement"
+summary: "A look ahead at church life and Centre activities for the year."
+tags: ["community", "events"]
 ---
 
 Issue for February 2026 (23.1 MB PDF).

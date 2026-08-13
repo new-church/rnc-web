@@ -1,0 +1,164 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
+import Card from '../components/Card.astro';
+import Input from '../components/Input.astro';
+---
+
+<BaseLayout
+  title="Contact us"
+  description="Get in touch with Roseville New Church — address, phone, email, and a simple enquiry form."
+  currentPath="/contact"
+>
+  <main class="container-site px-6 md:px-8 pt-10 md:pt-14 pb-4">
+    <div class="max-w-[760px]">
+      <div
+        class="font-display font-semibold text-eyebrow tracking-eyebrow uppercase text-accent-primary mb-2.5"
+      >
+        ✦ Get in touch
+      </div>
+      <h1 class="mt-0 text-h1">Contact us</h1>
+      <p class="text-lg text-text-muted -mt-1 mb-10">
+        We welcome you to visit our church, or contact us if you have any
+        questions.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 max-w-[960px]">
+      <div class="flex flex-col gap-5">
+        <Card title="Roseville New Church">
+          <p class="m-0">
+            2B Shirley Rd<br />
+            Roseville NSW 2069<br />
+            Australia
+          </p>
+          <p class="mt-3 mb-0 text-sm text-text-muted">
+            Ten minutes’ walk from Roseville Station. Worship on the 1st and 3rd
+            Sundays at 10am.
+          </p>
+          <div slot="footer" class="flex flex-wrap gap-3">
+            <Button
+              size="sm"
+              href="https://maps.google.com/?q=2B+Shirley+Rd,+Roseville+NSW+2069"
+            >
+              Get directions
+            </Button>
+            <Button size="sm" variant="secondary" href="/join/sunday-worship">
+              Plan a Sunday visit
+            </Button>
+          </div>
+        </Card>
+
+        <Card title="Swedenborg Centre">
+          <p class="m-0">
+            4 Shirley Rd<br />
+            Roseville NSW 2069
+          </p>
+          <p class="mt-3 mb-0 text-sm text-text-muted">
+            Next door to the church — events, discussions and material on
+            Swedenborg’s writings, weekdays 9:30am–4:30pm.
+          </p>
+          <div slot="footer">
+            <Button
+              size="sm"
+              variant="secondary"
+              href="https://swedenborg.com.au/"
+            >
+              swedenborg.com.au →
+            </Button>
+          </div>
+        </Card>
+
+        <Card title="Church office">
+          <p class="m-0">
+            Phone:{' '}
+            <a href="tel:+61294167026" class="text-link hover:text-link-hover"
+              >02 9416 7026</a
+            >
+          </p>
+          <p class="mt-2 mb-0">
+            Email:{' '}
+            <a
+              href="mailto:pastor@rosevillenewchurch.com.au"
+              class="text-link hover:text-link-hover break-all"
+              >pastor@rosevillenewchurch.com.au</a
+            >
+          </p>
+        </Card>
+      </div>
+
+      <Card variant="tint" title="General enquiry">
+        <p class="m-0 mb-5 text-sm text-text-muted">
+          Send a message and we’ll open it in your email app addressed to the
+          church office.
+        </p>
+        <form id="contact-form" class="flex flex-col gap-4" novalidate>
+          <Input
+            label="Your name"
+            id="contact-name"
+            name="name"
+            required
+            placeholder="Your name"
+          />
+          <Input
+            label="Your email"
+            id="contact-email"
+            name="email"
+            type="email"
+            required
+            placeholder="you@example.com"
+          />
+          <Input
+            label="Subject"
+            id="contact-subject"
+            name="subject"
+            placeholder="How can we help?"
+          />
+          <label
+            class="flex flex-col gap-1.5 font-display text-sm text-text-heading"
+          >
+            Your message
+            <textarea
+              id="contact-message"
+              name="message"
+              required
+              rows="5"
+              placeholder="Write your message…"
+              class="font-body text-base text-text-body px-4 py-3 rounded-md border border-border-strong bg-white outline-none transition-[box-shadow,border-color] duration-150 ease-[var(--ease-gentle)] focus:border-accent-primary focus:shadow-glow resize-y min-h-[120px]"
+            ></textarea>
+          </label>
+          <Button type="submit">Send message</Button>
+        </form>
+      </Card>
+    </div>
+  </main>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement | null;
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = (
+      document.getElementById('contact-name') as HTMLInputElement
+    )?.value.trim();
+    const email = (
+      document.getElementById('contact-email') as HTMLInputElement
+    )?.value.trim();
+    const subject =
+      (
+        document.getElementById('contact-subject') as HTMLInputElement
+      )?.value.trim() || 'Enquiry from rosevillenewchurch.com.au';
+    const message = (
+      document.getElementById('contact-message') as HTMLTextAreaElement
+    )?.value.trim();
+
+    if (!name || !email || !message) {
+      form?.reportValidity();
+      return;
+    }
+
+    const body = `Name: ${name}\nEmail: ${email}\n\n${message}`;
+    const mailto = `mailto:pastor@rosevillenewchurch.com.au?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailto;
+  });
+</script>

@@ -1,0 +1,34 @@
+---
+import Button from './Button.astro';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+---
+
+<aside
+  class:list={[
+    'mt-12 rounded-lg border border-border-soft bg-surface-tint p-6 md:p-8',
+    className,
+  ]}
+>
+  <div
+    class="font-display font-semibold text-eyebrow tracking-eyebrow uppercase text-accent-primary mb-2"
+  >
+    Continue the journey
+  </div>
+  <h2 class="m-0 font-display text-h3 tracking-display text-text-heading">
+    Join us on a Sunday
+  </h2>
+  <p class="mt-2 mb-5 text-text-muted max-w-[520px]">
+    Services are on the 1st and 3rd Sundays at 10am. Stay afterwards for morning
+    tea — everyone is welcome.
+  </p>
+  <div class="flex flex-wrap gap-3">
+    <Button href="/join/sunday-worship">Sunday worship</Button>
+    <Button variant="secondary" href="/blog">More articles</Button>
+    <Button variant="secondary" href="/newsletters">Newsletters</Button>
+  </div>
+</aside>

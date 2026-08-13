@@ -1,13 +1,67 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Card from '../components/Card.astro';
 import Button from '../components/Button.astro';
 import SoftPhoto from '../components/SoftPhoto.astro';
+import Badge from '../components/Badge.astro';
+
+const ministers = [
+  {
+    name: 'Rev. Howard A. Thompson',
+    photo: '/images/about/howard-debra.jpeg',
+    photoAlt: 'Rev. Howard A. Thompson and Debra',
+    body: [
+      'Originally from the United States, I spent over 20 years in the insurance and risk management industry before feeling a calling to ministry in 2007. It was 10 years before this calling that my wife Debra and I were choosing a primary school for our first child and were introduced to the faith of the New Church. The New Church\'s emphasis on God\'s love and compassion and the importance of faith in everyday life resonated with me and ultimately led to my decision to leave my business and pursue theological school.',
+      'As Revelation 3:20 reminds us, the Lord is constantly pressing to be received by us, but we can struggle to listen amidst the busyness of life. Through personal events and decisions, I learned that making choices in the best interest of others can ultimately transform our own lives. It is my belief that the Lord\'s love and guidance are present in all aspects of our lives, whether it be at home with our families or at work.',
+      'Outside of ministry, I enjoy staying active with CrossFit workouts and spending time in nature, particularly at the beach and in my garden.',
+      'In early June 2026, he and his wife Debra returned to America, to start a new chapter in their lives.',
+    ],
+  },
+  {
+    name: 'Rev. Julian Duckworth',
+    photo: '/images/about/julian-ruth.jpg',
+    photoAlt: 'Rev. Julian Duckworth and Ruth',
+    body: [
+      'Julian and his wife Ruth arrived from England to be part of the Roseville New Church. They have four grown up children. Julian spent ten years in primary school teaching, specialising in music, and Ruth has been a physiotherapist. They both take an active part in school programs and opened the church to the local community in a number of ways. Their vision is to help people on their spiritual path and to provide people with the freedom and opportunity to do so.',
+      'Julian has a great love for the Bible and the symbolism lying below the surface. He is familiar with Hebrew and Greek and enjoys using the words of the Bible to shed more light on our spiritual life. He says that Swedenborg’s spiritual teachings are a great joy and a bright light because they teach us how God is most relevant in the way we choose to live.',
+    ],
+  },
+  {
+    name: 'Rev. Ian Arnold',
+    photo: '/images/about/ian-arnold.jpg',
+    photoAlt: 'Rev. Ian Arnold',
+    body: [
+      'Ian grew up in Melbourne and, already a young Christian during High School years was introduced to the teachings of Emanuel Swedenborg through a friend when in his late teens. Feeling a call to ministry he travelled to the UK, via experience in missionary work in South Africa in 1961. Following studies at The New Church College and London University Ian was ordained in 1965 and married the love of his life, Margaret, the same year, they becoming parents of 5 children. He has served as a Pastor in England, Mauritius, in Adelaide and in Sydney. In 1991 he became Principal of The New Church College in the UK and, returning home, he served as Principal of the Australian New Church College for 10 years. He retired in 2014.',
+    ],
+  },
+];
+
+const placeholders = [
+  {
+    role: 'Manager of the Swedenborg Centre',
+    name: 'Joe',
+    note: 'Short description and picture to be added.',
+  },
+  {
+    role: 'Secretary of the Sydney Society',
+    name: null,
+    note: 'Details coming soon.',
+  },
+  {
+    role: 'Treasurer of the Sydney Society',
+    name: null,
+    note: 'Details coming soon.',
+  },
+  {
+    role: 'Committee member',
+    name: 'Charlie',
+    note: 'Details coming soon.',
+  },
+];
 ---
 
 <BaseLayout
   title="About"
-  description="An old faith, seen in new light — about Roseville New Church, a Swedenborgian community in Sydney."
+  description="An old faith, seen in new light — the Sydney Society of the New Church and Roseville New Church."
   currentPath="/about"
 >
   <main class="container-prose px-6 md:px-8 pt-10 md:pt-14 pb-4">
@@ -20,69 +74,94 @@ import SoftPhoto from '../components/SoftPhoto.astro';
     <article class="prose-rnc">
       <h1>An old faith, seen in new light</h1>
       <p>
-        The Roseville New Church is a place of worship for those seeking to
-        understand the Bible and the nature of God through the theological
-        writings of Emanuel Swedenborg. We are the Sydney Society of the New
-        Church, trading as Roseville New Church.
+        The organisation behind the Roseville New Church is the Sydney Society
+        of the New Church, governing and maintaining its activities. The Sydney
+        Society of the New Church has been nourishing people’s spiritual journey
+        for more than 150 years. Established in 1875, the Society was formed by
+        people inspired by the teachings of the eighteenth-century Swedish
+        scientist, philosopher, and theologian Emanuel Swedenborg. Since then,
+        it has sought to encourage a practical Christianity centred on love to
+        the Lord, kindness towards others, and the understanding that genuine
+        faith finds its fulfilment in a life of useful service.
       </p>
       <p>
-        We worship the Lord Jesus Christ as the one true God, in heaven and on
-        earth. Our aim is to deepen our understanding of His love and wisdom, to
-        share the distinctive doctrines of the New Church, and to help one
-        another lead joyful and useful lives — in the present and the hereafter.
+        A long-standing tradition connects the Society's story with the very
+        beginnings of European settlement in Australia. It has been widely held
+        within the New Church that a collection of Swedenborg's theological
+        writings travelled with the First Fleet and arrived in Sydney Cove in
+        1788. While historians continue to discuss the details, the tradition
+        reflects the belief that Swedenborg’s influence was present from the
+        colony's earliest days and forms a meaningful part of the Society's
+        heritage.
+      </p>
+      <p>
+        Throughout its history, the Sydney Society has sought to make
+        Swedenborg's vision of Christianity accessible to each new generation.
+        His writings present a picture of God as the Lord Jesus Christ, teach
+        that the Bible contains profound spiritual meaning, and emphasise that
+        heaven begins within us as we freely choose lives shaped by love,
+        wisdom, and service. These teachings continue to offer hope and
+        practical guidance for people seeking a thoughtful and life-affirming
+        spirituality.
+      </p>
+      <p>
+        Over the decades the Society has adapted to changing times while
+        remaining faithful to its purpose. Worship services, Sunday school,
+        Bible study, public lectures, pastoral care, and community gatherings
+        have all played their part in fostering a community where questions are
+        encouraged, spiritual growth is nurtured, and people from different
+        backgrounds are made to feel at home.
+      </p>
+      <p>
+        A significant milestone was reached in 2025, when the Sydney Society of
+        the New Church celebrated its 150th Anniversary of faithful service. The
+        anniversary honoured the dedication of generations who have preserved
+        and shared these teachings while looking forward with confidence to the
+        future. It was both a celebration of the past and a renewed commitment
+        to serving the spiritual needs of those who participate in its
+        activities.
+      </p>
+      <p>
+        Today, the Sydney Society warmly welcomes all who are searching for a
+        deeper understanding of God, the Bible, and the purpose of life. Whether
+        you are exploring Swedenborg's writings for the first time or are simply
+        looking for a thoughtful and friendly Christian community, we invite you
+        to discover a tradition that has quietly enriched lives in Sydney for
+        over a century and a half.
       </p>
 
-      <h2>Our values</h2>
+      <h2>Part of a larger network</h2>
       <p>
-        There does not exist the person the Lord does not love. It is the
-        continual effort of the Lord to draw all people towards Himself, that
-        each of us may experience heavenly states in this life and to eternity.
-        Though difficult to comprehend, it is this expression of love we desire
-        to manifest in the world as a New Church community.
+        The Roseville New Church is part of a larger network of like-minded
+        communities around Australia and New Zealand. To find out more visit{' '}
+        <a
+          href="https://newchurch.net.au/"
+          rel="noopener noreferrer"
+          target="_blank">newchurch.net.au</a
+        >.
       </p>
 
-      <blockquote>
-        “All who live well, of whatever religion, have a place in heaven.”
-      </blockquote>
-      <p class="quote-attr">Divine Providence 330</p>
-
-      <h2>Understanding the Bible</h2>
+      <h2>Beliefs</h2>
       <p>
-        On its surface the Bible can present a confusing picture of God —
-        especially when its words and stories are taken only literally. Jesus
-        often criticised people for missing the spirit of the law while keeping
-        its letter. We read the Word with the help of Swedenborg's teaching that
-        Scripture has an inner, spiritual sense: true lessons spoken in parable,
-        clothing a deeper meaning so that it may be received and not falsified.
-      </p>
-      <p>
-        With that knowledge we seek a greater understanding of the true nature
-        of God and our purpose in this world and the next. You don't need to
-        know anything about Swedenborg to visit — come as you are, ask anything,
-        and stay for morning tea.
+        If you are wishing to explore core beliefs of our communities visit{' '}
+        <a
+          href="https://newchurch.net.au/beliefs"
+          rel="noopener noreferrer"
+          target="_blank">newchurch.net.au/beliefs</a
+        >. You can also ask questions via the New Church Chatbot at the bottom of
+        that page.
       </p>
 
-      <h2>What to expect</h2>
+      <h2>Come and worship with us</h2>
       <p>
-        Walking into a new place can feel intimidating. We want you to know you
-        are welcome here — a warm community where everyone is accepted and
-        valued.
-      </p>
-      <p>
-        When you arrive you will find quiet contemplation with pre-service
-        music. The service begins with an opening hymn. We provide a pamphlet
-        with the order of service and the hymns for the day, so you always know
-        what comes next.
-      </p>
-      <p>
-        Afterwards we invite you to stay for refreshments and conversation. A
-        pouch at the back of the sanctuary is there for free-will offerings to
-        support the church; we do not pass a collection during the service, so
-        please enjoy your first visit without any obligation to give.
+        You’re warmly invited — find service times, what to expect, and how to
+        find us on our{' '}
+        <a href="/join/sunday-worship">Sunday worship</a> page, or browse all
+        ways to{' '}
+        <a href="/join">join us</a>.
       </p>
     </article>
 
-    <!-- Soft place photos — secondary to the copy -->
     <div
       class="mt-10 grid grid-cols-1 sm:grid-cols-[1.2fr_0.8fr] gap-3 sm:gap-4"
     >
@@ -98,27 +177,61 @@ import SoftPhoto from '../components/SoftPhoto.astro';
       />
     </div>
 
-    <div id="visit" class="scroll-mt-24 mt-6">
-      <Card variant="tint" title="Come and see us">
-        <p class="m-0">
-          Worship on the <strong>1st and 3rd Sundays</strong> of each month at
-          <strong>10am</strong>.
-        </p>
-        <p class="mt-3 mb-0">
-          2B Shirley Rd, Roseville NSW 2069 — two minutes' walk from Roseville
-          station. The Swedenborg Centre is next door at 4 Shirley Rd.
-        </p>
-        <div slot="footer" class="flex flex-wrap gap-3">
-          <Button
-            href="https://maps.google.com/?q=2B+Shirley+Rd,+Roseville+NSW+2069"
-          >
-            Get directions
-          </Button>
-          <Button variant="secondary" href="tel:+61294167026">
-            Call the church office
-          </Button>
-        </div>
-      </Card>
-    </div>
+    <section class="mt-14">
+      <h2 class="text-h2 mt-0 mb-2">Past ministers</h2>
+      <p class="text-text-muted mb-8 max-w-[560px]">
+        Draft profiles — wording may be updated by those named.
+      </p>
+      <div class="flex flex-col gap-10">
+        {
+          ministers.map((m) => (
+            <div class="grid grid-cols-1 sm:grid-cols-[200px_1fr] gap-5 items-start">
+              <SoftPhoto
+                src={m.photo}
+                alt={m.photoAlt}
+                aspect="aspect-square"
+                class="max-w-[200px]"
+              />
+              <div>
+                <h3 class="m-0 font-display text-h3 tracking-display text-text-heading">
+                  {m.name}
+                </h3>
+                {m.body.map((para) => (
+                  <p class="mt-3 mb-0 text-sm leading-[1.65] text-text-body">
+                    {para}
+                  </p>
+                ))}
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="mt-14 mb-4">
+      <h2 class="text-h2 mt-0 mb-2">Society & Centre roles</h2>
+      <p class="text-text-muted mb-6 max-w-[560px]">
+        Placeholders until descriptions and photos are confirmed.
+      </p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {
+          placeholders.map((p) => (
+            <div class="rounded-lg border border-border-soft border-dashed bg-surface-tint/60 p-5">
+              <Badge tone="violet">Coming soon</Badge>
+              <div class="mt-3 font-display font-semibold text-text-heading">
+                {p.role}
+              </div>
+              {p.name && (
+                <div class="mt-1 text-sm text-accent-primary-strong">{p.name}</div>
+              )}
+              <p class="mt-2 mb-0 text-sm text-text-muted">{p.note}</p>
+            </div>
+          ))
+        }
+      </div>
+      <div class="mt-8">
+        <Button href="/contact">Contact us</Button>
+      </div>
+    </section>
   </main>
 </BaseLayout>

@@ -9,6 +9,9 @@ highlights:
   - "First Fleet Re-enactment story"
   - "Visioning the Future of SSNC"
   - "Christmas Readings and Service Schedule"
+summary: "Seasonal reflections and updates from an active congregation."
+tags: ["spiritual-life"]
+relatedArticles: ["what-if-the-world-had-never-seen-van-gogh"]
 ---
 
 Issue for November 2025 (11.4 MB PDF).

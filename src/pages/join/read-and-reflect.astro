@@ -1,0 +1,70 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Button from '../../components/Button.astro';
+import Card from '../../components/Card.astro';
+---
+
+<BaseLayout
+  title="Read & reflect"
+  description="Weekly Swedenborg reading and exploration — Wednesdays 10am to noon, in person and Zoom."
+  currentPath="/join"
+>
+  <main class="container-prose px-6 md:px-8 pt-10 md:pt-14 pb-4">
+    <p class="mb-4">
+      <a
+        href="/join"
+        class="font-display text-sm font-semibold text-accent-primary no-underline hover:underline"
+        >← Join us</a
+      >
+    </p>
+
+    <article class="prose-rnc">
+      <div
+        class="font-display font-semibold text-eyebrow tracking-eyebrow uppercase text-accent-primary mb-2.5 !mt-0"
+      >
+        ✦ Wednesdays · 10am–noon
+      </div>
+      <h1>Join our Weekly Swedenborg Reading and Exploration Sessions</h1>
+      <p>
+        <strong>Wednesdays – 10 am to noon – In person and Zoom</strong><br />
+        Hosted by the Swedenborg Centre, 4 Shirley Rd, Roseville
+      </p>
+      <p>
+        You're warmly invited to join our weekly Swedenborg reading and
+        exploration on Wednesdays. Together we read and discuss passages from
+        Emanuel Swedenborg's writings, taking time to reflect on their spiritual
+        meaning and how they can enrich our understanding of everyday life.
+        Whether you are new to Swedenborg or have been reading his works for
+        many years, you are very welcome.
+      </p>
+      <p>
+        We are currently exploring <em>True Christianity</em> (also published as
+        <em>True Christian Religion</em>), Swedenborg's comprehensive
+        presentation of his central theological teachings. Each session focuses
+        on a small section of the text, with plenty of opportunity for
+        questions, discussion, and sharing insights.
+      </p>
+      <p>
+        There's no need to have attended previous sessions. We begin each week
+        with a brief overview of the context, making it easy to join at any
+        point in the series.
+      </p>
+      <p>
+        Come along with curiosity, bring your questions, and enjoy exploring
+        these profound ideas in a friendly and welcoming group.
+      </p>
+    </article>
+
+    <Card variant="tint" class="mt-8" title="Zoom link and dates">
+      <p class="m-0">
+        The Zoom link and dates can be found on the Swedenborg Centre events
+        page.
+      </p>
+      <div slot="footer">
+        <Button href="https://swedenborg.com.au/events/">
+          swedenborg.com.au/events →
+        </Button>
+      </div>
+    </Card>
+  </main>
+</BaseLayout>

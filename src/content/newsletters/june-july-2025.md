@@ -9,6 +9,9 @@ highlights:
   - "Van Gogh's Art \u2014 A Call to Action"
   - "Christine Gospodarczyk remembrance"
   - "October anniversary weekend plans"
+summary: "Mid-year news, reflections, and Swedenborg Centre highlights."
+tags: ["swedenborg", "community"]
+relatedArticles: ["we-can-earn-heaven"]
 ---
 
 Issue for June/July 2025 (6.4 MB PDF).

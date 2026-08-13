@@ -9,6 +9,9 @@ highlights:
   - "150 Years: A Legacy of Light"
   - "Are We Ready for AI?"
   - "How The Lord Sees The Church"
+summary: "Essays and announcements from October — including themes that link faith with everyday life."
+tags: ["spiritual-life", "ai"]
+relatedArticles: ["artificial-intelligence-and-our-role"]
 ---
 
 Issue for October 2025 (9.1 MB PDF).

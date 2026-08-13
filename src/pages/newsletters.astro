@@ -8,6 +8,17 @@ const issues = (await getCollection('newsletters')).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
 );
 
+const allTags = [...new Set(issues.flatMap((i) => i.data.tags))].sort();
+
+const byYear = new Map<number, typeof issues>();
+for (const issue of issues) {
+  const year = issue.data.date.getUTCFullYear();
+  const list = byYear.get(year) ?? [];
+  list.push(issue);
+  byYear.set(year, list);
+}
+const years = [...byYear.keys()].sort((a, b) => b - a);
+
 function formatIssueDate(date: Date) {
   return date.toLocaleDateString('en-AU', {
     month: 'long',
@@ -21,6 +32,9 @@ function formatSize(bytes?: number) {
   const mb = bytes / (1024 * 1024);
   return mb >= 10 ? `${mb.toFixed(0)} MB` : `${mb.toFixed(1)} MB`;
 }
+
+const articles = await getCollection('articles');
+const articleById = new Map(articles.map((a) => [a.id, a]));
 ---
 
 <BaseLayout
@@ -36,53 +50,162 @@ function formatSize(bytes?: number) {
         ✦ Archive
       </div>
       <h1 class="mt-0 text-h1">Newsletters</h1>
-      <p class="text-lg text-text-muted -mt-1 mb-10">
+      <p class="text-lg text-text-muted -mt-1 mb-6">
         There's always something going on. Browse past issues and download the
         PDF — reflections, schedules, garden updates, and Swedenborg Centre
-        news.
+        news. Standalone essays extracted from newsletters live in{' '}
+        <a href="/articles" class="text-link hover:text-link-hover"
+          >Articles</a
+        >.
       </p>
+      {
+        allTags.length > 0 && (
+          <div
+            id="tag-filters"
+            class="flex flex-wrap gap-2 mb-10"
+            data-active=""
+          >
+            <button
+              type="button"
+              data-tag=""
+              class="tag-chip font-display text-[13px] px-3 py-1.5 rounded-pill border border-accent-primary bg-violet-100 text-accent-primary-strong"
+            >
+              All
+            </button>
+            {allTags.map((tag) => (
+              <button
+                type="button"
+                data-tag={tag}
+                class="tag-chip font-display text-[13px] px-3 py-1.5 rounded-pill border border-border-strong text-text-muted hover:border-accent-primary hover:text-accent-primary-strong"
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        )
+      }
+    </div>
 
-      <div class="flex flex-col gap-5">
-        {
-          issues.map((issue) => {
-            const size = formatSize(issue.data.bytes);
-            return (
-              <article class="rounded-lg border border-border-soft bg-surface-card shadow-card p-6 transition-shadow duration-[280ms] ease-[var(--ease-gentle)] hover:shadow-lift">
-                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                  <div class="min-w-0">
-                    <div class="font-display text-eyebrow font-semibold tracking-eyebrow uppercase text-accent-primary mb-2">
-                      {formatIssueDate(issue.data.date)}
-                    </div>
-                    <h2 class="m-0 font-display text-h3 tracking-display text-text-heading">
-                      {issue.data.title}
-                    </h2>
-                    {issue.data.highlights.length > 0 && (
-                      <ul class="mt-3 mb-0 pl-5 text-sm text-text-body space-y-1">
-                        {issue.data.highlights.map((h) => (
-                          <li>{h}</li>
-                        ))}
-                      </ul>
-                    )}
-                    {size && (
-                      <div class="mt-3">
-                        <Badge tone="violet">PDF · {size}</Badge>
-                      </div>
-                    )}
-                  </div>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    href={issue.data.pdfUrl}
-                    class="shrink-0 self-start"
+    <div class="flex flex-col gap-8 max-w-[760px]">
+      {
+        years.map((year, yi) => {
+          const yearIssues = byYear.get(year)!;
+          return (
+            <details class="group" open={yi === 0}>
+              <summary class="cursor-pointer list-none flex items-baseline justify-between gap-3 py-2 border-b border-border-soft">
+                <h2 class="m-0 text-h2">{year}</h2>
+                <span class="font-display text-sm text-text-muted">
+                  {yearIssues.length} issue{yearIssues.length === 1 ? '' : 's'}
+                  <span class="ml-2 text-accent-primary group-open:hidden"
+                    >Show ↓</span
                   >
-                    Download
-                  </Button>
-                </div>
-              </article>
-            );
-          })
-        }
-      </div>
+                  <span class="ml-2 text-accent-primary hidden group-open:inline"
+                    >Hide ↑</span
+                  >
+                </span>
+              </summary>
+              <div class="flex flex-col gap-5 mt-5">
+                {yearIssues.map((issue) => {
+                  const size = formatSize(issue.data.bytes);
+                  const blurb =
+                    issue.data.summary ||
+                    issue.data.highlights.slice(0, 2).join(' · ');
+                  const related = issue.data.relatedArticles
+                    .map((id) => articleById.get(id))
+                    .filter(Boolean);
+                  return (
+                    <article
+                      class="newsletter-issue rounded-lg border border-border-soft bg-surface-card shadow-card p-6 transition-shadow duration-[280ms] ease-[var(--ease-gentle)] hover:shadow-lift"
+                      data-tags={issue.data.tags.join(',')}
+                    >
+                      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                        <div class="min-w-0">
+                          <div class="font-display text-eyebrow font-semibold tracking-eyebrow uppercase text-accent-primary mb-2">
+                            {formatIssueDate(issue.data.date)}
+                          </div>
+                          <h3 class="m-0 font-display text-h3 tracking-display text-text-heading">
+                            {issue.data.title}
+                          </h3>
+                          {blurb && (
+                            <p class="mt-3 mb-0 text-sm text-text-muted">
+                              {blurb}
+                            </p>
+                          )}
+                          {issue.data.highlights.length > 0 && (
+                            <ul class="mt-3 mb-0 pl-5 text-sm text-text-body space-y-1">
+                              {issue.data.highlights.map((h) => (
+                                <li>{h}</li>
+                              ))}
+                            </ul>
+                          )}
+                          {(issue.data.tags.length > 0 || size) && (
+                            <div class="mt-3 flex flex-wrap gap-2">
+                              {issue.data.tags.map((tag) => (
+                                <Badge tone="violet">{tag}</Badge>
+                              ))}
+                              {size && <Badge tone="violet">PDF · {size}</Badge>}
+                            </div>
+                          )}
+                          {related.length > 0 && (
+                            <div class="mt-3 text-sm">
+                              <span class="text-text-muted">Also as articles:</span>{' '}
+                              {related.map((a, i) => (
+                                <>
+                                  {i > 0 && ', '}
+                                  <a
+                                    href={`/articles/${a!.id}`}
+                                    class="text-link hover:text-link-hover"
+                                  >
+                                    {a!.data.title}
+                                  </a>
+                                </>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          href={issue.data.pdfUrl}
+                          class="shrink-0 self-start"
+                        >
+                          Download
+                        </Button>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </details>
+          );
+        })
+      }
     </div>
   </main>
 </BaseLayout>
+
+<script>
+  const filters = document.getElementById('tag-filters');
+  const chips = filters?.querySelectorAll<HTMLButtonElement>('.tag-chip');
+  const issues = document.querySelectorAll<HTMLElement>('.newsletter-issue');
+
+  function setActive(tag: string) {
+    chips?.forEach((chip) => {
+      const active = (chip.dataset.tag ?? '') === tag;
+      chip.classList.toggle('bg-violet-100', active);
+      chip.classList.toggle('border-accent-primary', active);
+      chip.classList.toggle('text-accent-primary-strong', active);
+      chip.classList.toggle('border-border-strong', !active);
+      chip.classList.toggle('text-text-muted', !active);
+    });
+    issues.forEach((issue) => {
+      const tags = (issue.dataset.tags ?? '').split(',').filter(Boolean);
+      const show = !tag || tags.includes(tag);
+      issue.classList.toggle('hidden', !show);
+    });
+  }
+
+  chips?.forEach((chip) => {
+    chip.addEventListener('click', () => setActive(chip.dataset.tag ?? ''));
+  });
+</script>

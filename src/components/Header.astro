@@ -9,7 +9,9 @@ const { currentPath = '/' } = Astro.props;
 
 const links = [
   { href: '/', label: 'Home' },
+  { href: '/join', label: 'Join' },
   { href: '/events', label: 'Events' },
+  { href: '/blog', label: 'Blog' },
   { href: '/newsletters', label: 'Newsletters' },
   { href: '/about', label: 'About' },
 ];
@@ -50,7 +52,7 @@ const linkBase =
 
     <!-- Desktop nav -->
     <nav
-      class="hidden md:flex items-center gap-1.5 ml-auto"
+      class="hidden lg:flex items-center gap-1 ml-auto"
       aria-label="Primary"
     >
       {
@@ -59,7 +61,7 @@ const linkBase =
             href={link.href}
             class:list={[
               linkBase,
-              'text-[15px] px-3.5 pt-2 pb-1.5',
+              'text-[14px] px-2.5 xl:px-3.5 pt-2 pb-1.5',
               isActive(link.href)
                 ? 'text-accent-primary-strong bg-violet-100'
                 : 'text-text-muted hover:text-text-heading',
@@ -74,27 +76,27 @@ const linkBase =
         href="https://swedenborg.com.au/"
         class:list={[
           linkBase,
-          'text-[15px] px-3.5 pt-2 pb-1.5 text-text-muted hover:text-text-heading',
+          'text-[14px] px-2.5 xl:px-3.5 pt-2 pb-1.5 text-text-muted hover:text-text-heading',
         ]}
         rel="noopener noreferrer"
         target="_blank"
       >
         Swedenborg Centre
       </a>
-      <Button variant="gold" size="sm" href="/about#visit" class="ml-2.5">
-        Plan a visit
+      <Button variant="gold" size="sm" href="/contact" class="ml-2">
+        Contact us
       </Button>
     </nav>
 
-    <!-- Mobile: compact CTA + menu toggle -->
-    <div class="flex items-center gap-1.5 ml-auto md:hidden">
+    <!-- Mobile / tablet: compact CTA + menu toggle -->
+    <div class="flex items-center gap-1.5 ml-auto lg:hidden">
       <Button
         variant="gold"
         size="sm"
-        href="/about#visit"
+        href="/contact"
         class="!px-3 !pt-2 !pb-1.5 !text-[12px]"
       >
-        Visit
+        Contact
       </Button>
       <button
         type="button"
@@ -140,7 +142,7 @@ const linkBase =
   <!-- Mobile drawer -->
   <nav
     id="mobile-nav"
-    class="md:hidden hidden border-t border-border-soft bg-paper/95 backdrop-blur-[12px]"
+    class="lg:hidden hidden border-t border-border-soft bg-paper/95 backdrop-blur-[12px]"
     aria-label="Mobile"
     hidden
   >
@@ -174,8 +176,8 @@ const linkBase =
         Swedenborg Centre
       </a>
       <div class="pt-2 pb-1 px-1">
-        <Button variant="gold" size="md" href="/about#visit" class="w-full">
-          Plan a visit
+        <Button variant="gold" size="md" href="/contact" class="w-full">
+          Contact us
         </Button>
       </div>
     </div>
@@ -204,18 +206,15 @@ const linkBase =
     setOpen(!open);
   });
 
-  // Close after navigating (same-page hash or leaving)
   panel?.querySelectorAll('a').forEach((link) => {
     link.addEventListener('click', () => setOpen(false));
   });
 
-  // Close on escape
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') setOpen(false);
   });
 
-  // Reset if resized to desktop
-  const mq = window.matchMedia('(min-width: 768px)');
+  const mq = window.matchMedia('(min-width: 1024px)');
   mq.addEventListener('change', (e) => {
     if (e.matches) setOpen(false);
   });

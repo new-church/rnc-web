@@ -9,6 +9,8 @@ highlights:
   - "Movie Review: As It Is In Heaven"
   - "Sesquicentenary Celebration"
   - "Sermon Summary: We Can Earn Heaven?"
+summary: "Reflections that connect spiritual life with culture and contemporary questions — browse the PDF for essays and community news."
+tags: ["spiritual-life", "culture"]
 ---
 
 Issue for August 2025 (12.5 MB PDF).

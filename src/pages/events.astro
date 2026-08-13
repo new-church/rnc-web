@@ -16,6 +16,7 @@ const events = [
     date: '1st & 3rd Sundays · 10am',
     category: 'Worship',
     where: 'In person' as const,
+    href: '/join/sunday-worship',
     desc: 'Worship, readings and reflection at 2B Shirley Rd, followed by refreshments and conversation in the hall. A service pamphlet with hymns is provided.',
   },
   {
@@ -23,7 +24,7 @@ const events = [
     date: 'Tuesdays · 11am',
     category: 'Study',
     where: 'On Zoom' as const,
-    href: 'https://swedenborg.com.au/',
+    href: '/join/open-discussion',
     desc: "Hosted by the Swedenborg Centre — delve a little deeper into concepts in Swedenborg's writing and relate them to our lives.",
   },
   {
@@ -31,8 +32,24 @@ const events = [
     date: 'Wednesdays · 10am',
     category: 'Study',
     where: 'On Zoom' as const,
-    href: 'https://swedenborg.com.au/',
-    desc: "Hosted by the Swedenborg Centre — reading slowly through one of the works, reflecting as we go. See swedenborg.com.au for the current Zoom links.",
+    href: '/join/read-and-reflect',
+    desc: 'Hosted by the Swedenborg Centre — reading slowly through True Christianity, reflecting as we go.',
+  },
+  {
+    title: 'Monday meditation',
+    date: 'Mondays · 10am',
+    category: 'Community',
+    where: 'In person' as const,
+    href: '/join/meditation',
+    desc: 'Quiet meditation in the church sanctuary with Kathryn Baker. Please confirm with Kathryn before your first visit.',
+  },
+  {
+    title: 'New Church Family Retreat 2027',
+    date: '22–26 January 2027',
+    category: 'Community',
+    where: 'In person' as const,
+    href: '/join/family-retreat-2027',
+    desc: 'Five days at The Tops Conference Centre, Stanwell Tops — worship, talks, activities and fellowship for all ages.',
   },
   {
     title: 'Church garden working bee',
@@ -61,7 +78,8 @@ const tabs = ['All', 'Worship', 'Study', 'Community'];
     <p class="text-text-muted -mt-1.5 max-w-[640px]">
       Sunday worship is on the <strong>1st and 3rd Sundays</strong> of each month
       at 10am (Sydney time). Add dated events below to your own calendar, or browse
-      the regular rhythm further down.
+      the regular rhythm further down. New visitors can start at{' '}
+      <a href="/join" class="text-link hover:text-link-hover">Join us</a>.
     </p>
 
     <EventsCalendar icsUrl={icsUrl} />
@@ -69,8 +87,10 @@ const tabs = ['All', 'Worship', 'Study', 'Community'];
     <h2 class="mt-14 mb-2 text-h2">Regular rhythm</h2>
     <p class="text-text-muted mt-0 mb-5 max-w-[640px]">
       Midweek Zoom groups are run by the{' '}
-      <a href="https://swedenborg.com.au/" rel="noopener noreferrer" target="_blank"
-        >Swedenborg Centre</a
+      <a
+        href="https://swedenborg.com.au/"
+        rel="noopener noreferrer"
+        target="_blank">Swedenborg Centre</a
       > — check their site for the latest links and times.
     </p>
 
@@ -80,19 +100,15 @@ const tabs = ['All', 'Worship', 'Study', 'Community'];
       {
         events.map((event) => (
           <div data-category={event.category}>
-            <Card interactive eyebrow={event.date} title={event.title}>
+            <Card eyebrow={event.date} title={event.title}>
               {event.desc}
               <div slot="footer" class="flex flex-wrap gap-2.5 items-center">
                 <Badge tone={event.where === 'On Zoom' ? 'info' : 'success'}>
                   {event.where}
                 </Badge>
-                {event.where === 'On Zoom' && (
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    href={event.href ?? 'https://swedenborg.com.au/'}
-                  >
-                    Swedenborg Centre
+                {event.href && (
+                  <Button size="sm" variant="secondary" href={event.href}>
+                    Learn more
                   </Button>
                 )}
               </div>

@@ -1,0 +1,59 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Button from '../../components/Button.astro';
+import Card from '../../components/Card.astro';
+import Badge from '../../components/Badge.astro';
+---
+
+<BaseLayout
+  title="Monday meditation"
+  description="Monday morning meditation in the church sanctuary with Kathryn Baker — 10:00am."
+  currentPath="/join"
+>
+  <main class="container-prose px-6 md:px-8 pt-10 md:pt-14 pb-4">
+    <p class="mb-4">
+      <a
+        href="/join"
+        class="font-display text-sm font-semibold text-accent-primary no-underline hover:underline"
+        >← Join us</a
+      >
+    </p>
+
+    <article class="prose-rnc">
+      <div
+        class="font-display font-semibold text-eyebrow tracking-eyebrow uppercase text-accent-primary mb-2.5 !mt-0"
+      >
+        ✦ Mondays · 10:00am
+      </div>
+      <h1>Monday’s Meditation with Kathryn Baker</h1>
+      <p>
+        Kathryn Baker has been guiding members of our community in meditation
+        for many years. Recently there has been an upsurge in activity and
+        Kathryn has returned to a regular Monday morning meditation held in the
+        quiet of the church sanctuary. In today’s ever-changing, fast-paced and
+        sometimes overwhelming life, meditation offers a gentle respite—an
+        opportunity to re-centre, quiet the mind and become more aware of the
+        comforting presence of the Divine. Even a short time of stillness can
+        soften anxiety, renew focus, and deepen our capacity to love and serve.
+      </p>
+      <p>
+        If interested, feel free to join the group any Monday at 10:00am. If
+        you’d like to speak with Kathryn before coming along, feel free to
+        contact her at{' '}
+        <a href="tel:+61410166482">0410 166 482</a>.
+      </p>
+    </article>
+
+    <Card variant="tint" class="mt-8" title="Before you come">
+      <Badge tone="warning">Confirm with Kathryn</Badge>
+      <p class="mt-3 mb-0 text-sm text-text-muted">
+        Please check with Kathryn first that the group is meeting as usual —
+        details may change.
+      </p>
+      <div slot="footer" class="flex flex-wrap gap-3">
+        <Button href="tel:+61410166482">Call Kathryn</Button>
+        <Button variant="secondary" href="/contact">Church office</Button>
+      </div>
+    </Card>
+  </main>
+</BaseLayout>

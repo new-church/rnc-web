@@ -1,0 +1,179 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Button from '../../components/Button.astro';
+import SoftPhoto from '../../components/SoftPhoto.astro';
+import Card from '../../components/Card.astro';
+
+const testimonials = [
+  {
+    quote:
+      'I was born into the New Church in 1914, married there, so have had the privilege of learning that the Word is nothing but the doctrine of love to our Lord and charity towards our neighbour. We have been led by the writings of Emanuel Swedenborg. Church for me is happiness, especially as some members were with me when we were young and our minister imparts true love with his service.',
+    name: 'Joan Aronsten',
+  },
+  {
+    quote:
+      "What I like about coming to New Church services is that the message radiates the energy of Love and Truth. I started attending in the early 1990s when Julian was our minister. He has a deep love of the Bible and coming from a Swedenborgian background, opened up many of the stories so that one sees the relevance of the passages in one's own life. Another name for our group that I privately use is 'The Church of the Open Word' as it expresses my experience that the inner meanings of the Bible are opened up here. The people attending are very friendly and I enjoy being with them afterwards when we gather for morning tea.",
+    name: 'Michael Chester',
+  },
+  {
+    quote:
+      'I was first attracted to the New Church by a neighbourhood "welcome" letter from the Minister in 1991. I continue to appreciate the following: helpful answers to hard questions; the concepts of "regeneration" and personal responsibility; opportunities to share ideas; each other as good friends; occasions of feeling and giving joy. I enjoy learning about the deeper meaning of the Bible which leads us in our personal growth. There is very little use of the words guilt or sin, but recognition of the universality of all faiths.',
+    name: 'Stella Green',
+  },
+  {
+    quote:
+      'Many years ago when I left school, I was ready to embark on a search for the Truth. Before too long I stumbled upon the teachings of the New Church and my search was over. But in another sense, it had just begun because this Truth is never-ending in what it reveals to me.',
+    name: 'Wayne Kasmar',
+  },
+  {
+    quote:
+      'I find the teaching at the New Church always helpful. Our group is thoughtfully led by our minister assisted by his wife. I first entered the church as a bridesmaid at the wedding of friends, and became a member in 2001.',
+    name: 'Lillian King',
+  },
+  {
+    quote:
+      'It was being impressed by the influence of Swedenborg on Helen Keller that directed me to seek out the Swedenborg Centre and from there discovered the New Church based on Swedenborg\'s teachings and there I found a community. "A happy band of pilgrims" which made me feel comfortable and accepted without judgement.',
+    name: 'Bobbie Page',
+  },
+  {
+    quote:
+      'I come to the New Church because of the gentle humanity that pervades each meeting there whether this is one to one with the minister or is one of the many functions (both religious and secular) conducted there. Whether the view expressed always agrees with mine is not important, it always stimulates self consideration and pondering.',
+    name: 'Roy Simmonds',
+  },
+];
+---
+
+<BaseLayout
+  title="Sunday worship"
+  description="Join us on Sunday at Roseville New Church — 1st and 3rd Sundays at 10am, with morning tea afterwards."
+  currentPath="/join"
+>
+  <main class="container-prose px-6 md:px-8 pt-10 md:pt-14 pb-4">
+    <p class="mb-4">
+      <a
+        href="/join"
+        class="font-display text-sm font-semibold text-accent-primary no-underline hover:underline"
+        >← Join us</a
+      >
+    </p>
+
+    <article class="prose-rnc">
+      <div
+        class="font-display font-semibold text-eyebrow tracking-eyebrow uppercase text-accent-primary mb-2.5 !mt-0"
+      >
+        ✦ 1st &amp; 3rd Sundays · 10am
+      </div>
+      <h1>Join us on Sunday</h1>
+      <p>
+        We would love to welcome you to one of our Sunday worship services.
+      </p>
+      <p>
+        Our services are held on the first and third Sunday of each month,
+        beginning at 10:00 am, and usually last 45–55 minutes. On the first
+        Sunday of the month we also celebrate the Holy Supper, during which
+        blessed bread and wine are shared with those who wish to participate.
+      </p>
+      <p>
+        If you've never visited our church before, you may be wondering what to
+        expect. We know that walking into a new church can feel a little
+        daunting, so we want you to know that you'll be warmly welcomed. Whether
+        you're exploring the Christian faith, interested in the teachings of the
+        New Church, or simply looking for a place to reflect and worship, you
+        are very welcome here.
+      </p>
+      <p>
+        Before the service begins, you'll find a quiet, peaceful atmosphere with
+        music playing as people prepare for worship. You'll be given a service
+        booklet containing the order of service and the words of the hymns, so
+        it's easy to follow along, even if it's your first visit.
+      </p>
+      <p>
+        The service begins with the singing of an opening hymn. During the
+        service we have readings from the Bible and the writings of Emanuel
+        Swedenborg, pray together, sing hymns, and listen to a sermon that
+        explores the theme for the day. The message is intended to offer
+        practical spiritual insights that encourage and support us in our
+        everyday lives.
+      </p>
+      <p>
+        After the service, everyone is invited to stay for tea, coffee, and
+        refreshments. It's a relaxed opportunity to meet people, enjoy
+        conversation, and get to know our church community. Our pastor is always
+        happy to answer questions about the service, the New Church, or anything
+        else you may be curious about.
+      </p>
+      <p>
+        A freewill offering may be placed in the offering pouch at the back of
+        the sanctuary to help support the work of the church. We do not take up
+        an offering during the service, and if you are visiting for the first
+        time, please feel no obligation to contribute. We are simply glad that
+        you have joined us.
+      </p>
+      <p>
+        We hope you'll feel at home here and leave encouraged, refreshed, and
+        inspired. If you have any questions before your visit, please don't
+        hesitate to{' '}
+        <a href="/contact">get in touch</a>. We look forward to welcoming you.
+      </p>
+    </article>
+
+    <div class="mt-10">
+      <SoftPhoto
+        src="/images/join/morning-tea.png"
+        alt="Morning tea and fellowship after Sunday worship"
+        aspect="aspect-[16/10]"
+      />
+      <p
+        class="mt-3 mb-0 font-display text-sm text-text-muted text-center italic"
+      >
+        Faith that makes sense. A welcoming Christian community in Roseville.
+      </p>
+    </div>
+
+    <Card variant="tint" class="mt-8" title="Where to find us">
+      <p class="m-0">
+        2B Shirley Rd, Roseville NSW 2069 — ten minutes’ walk from Roseville
+        Station.
+      </p>
+      <p class="mt-2 mb-0">
+        The Swedenborg Centre is next door at 4 Shirley Rd.
+      </p>
+      <p class="mt-2 mb-0">
+        Church Office:{' '}
+        <a href="tel:+61294167026" class="text-link hover:text-link-hover"
+          >02 9416 7026</a
+        >
+      </p>
+      <div slot="footer" class="flex flex-wrap gap-3">
+        <Button
+          href="https://maps.google.com/?q=2B+Shirley+Rd,+Roseville+NSW+2069"
+        >
+          Get directions
+        </Button>
+        <Button variant="secondary" href="/contact">Contact us</Button>
+      </div>
+    </Card>
+
+    <section class="mt-14">
+      <h2 class="text-h2 mt-0 mb-2">From people who worship with us</h2>
+      <p class="text-text-muted mb-8 max-w-[560px]">
+        Testimonials from people who attend and have attended the Roseville New
+        Church.
+      </p>
+      <div class="flex flex-col gap-5">
+        {
+          testimonials.map((t) => (
+            <blockquote class="m-0 rounded-lg border border-border-soft bg-surface-card p-5 md:p-6 shadow-card">
+              <p class="m-0 font-body text-base italic text-text-body leading-[1.65]">
+                “{t.quote}”
+              </p>
+              <footer class="mt-3 font-display text-sm font-semibold text-accent-primary-strong not-italic">
+                — {t.name}
+              </footer>
+            </blockquote>
+          ))
+        }
+      </div>
+    </section>
+  </main>
+</BaseLayout>
