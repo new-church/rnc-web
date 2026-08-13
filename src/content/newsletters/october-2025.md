@@ -9,7 +9,7 @@ highlights:
   - "150 Years: A Legacy of Light"
   - "Are We Ready for AI?"
   - "How The Lord Sees The Church"
-summary: "Essays and announcements from October — including themes that link faith with everyday life."
+summary: "In 'Are We Ready for AI?' Rev. Thompson reads Yuval Noah Harari's Nexus against Swedenborg's theology, landing on a genuinely striking parallel: both writers see human civilisation as held together by shared information and story, and both warn that the same networks which enlighten can just as easily deceive when cut off from love and truth. It's a thoughtful case for treating spiritual discernment — not fear or blind adoption — as the real answer to artificial intelligence. The issue also traces the 150-year story of how Swedenborgian ideas took root in Australia, reportedly arriving with the First Fleet itself."
 tags: ["spiritual-life", "ai"]
 relatedArticles: ["artificial-intelligence-and-our-role"]
 ---

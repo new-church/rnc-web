@@ -9,6 +9,7 @@ highlights:
   - "A Reflection on Spiritual Transformation"
   - "Christmas Service Schedule"
   - "Swedenborg Centre News"
+summary: "Howard Thompson's Christmas essay \"Even the Parts We'd Rather Not Play\" takes the uncomfortable route through the nativity, reading King Herod as the self-protective ego inside all of us that panics when genuine goodness threatens to be born — a sharper, more searching piece than the usual shepherds-and-wise-men retelling. It's paired with Bede Draper's ambitious \"Doctrine of Spiritual Transformation (in a nutshell),\" which puts Christian, Hindu and Buddhist teaching side by side to ask what God is, what we are, and where suffering really comes from. A note on the Centre's free screening of It's a Wonderful Life adds some seasonal warmth."
 ---
 
 Issue for December 2025/January 2026 (3.5 MB PDF).

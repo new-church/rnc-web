@@ -11,7 +11,7 @@ highlights:
   - "Bondi Reflection"
   - "NCIA Retreat 2026 Report"
   - "AGM Announcement"
-summary: "A look ahead at church life and Centre activities for the year."
+summary: "Rev. Howard Thompson's lead essay, 'Truth Is Hard, Falsity Is Easy,' draws on Yuval Harari and Swedenborg to argue that our deepest loves, not our arguments, decide what we're willing to call true — a sharp read in any era of confirmation bias. It sits alongside a raw, personal reflection written days after the Bondi Beach antisemitic attack, on attending Shabbat service in solidarity and what neighbourly love actually costs. This issue also marks a hinge point for the parish: Rev. Thompson's letter announcing his and Debra's return to the US after seven years in Roseville."
 tags: ["community", "events"]
 ---
 

@@ -9,6 +9,7 @@ highlights:
   - "In Memoriam \u2014 Gerda Meyer"
   - "Hurstville Ordination"
   - "NCIA Retreat 2025"
+summary: "The finale of a five-part series draws out the striking overlap between ancient Stoicism and Swedenborgian theology, arguing that Ryan Holiday's modern revival of Marcus Aurelius offers a template for keeping old spiritual teachings alive and relevant rather than static and ignored. Alongside it, Julian Duckworth's warm tribute to the late Gerda Meyer \u2014 a Berlin-born nurse who survived the Hitler Youth years, married a German Jewish man, and became a beloved fixture of the Roseville congregation for decades \u2014 is a small but vivid piece of the church's living history."
 ---
 
 Issue for October/November 2024 (8.6 MB PDF).
