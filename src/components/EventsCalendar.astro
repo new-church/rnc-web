@@ -31,13 +31,6 @@ const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
       >
         Add to my calendar
       </a>
-      <a
-        href={icsUrl}
-        class="inline-flex items-center justify-center gap-2 font-display font-semibold tracking-[0.04em] rounded-pill border border-violet-200 transition-[background,transform,color] duration-150 ease-[var(--ease-gentle)] active:scale-[0.98] px-[18px] pt-[9px] pb-[7px] text-[13px] leading-none bg-transparent text-accent-primary-strong hover:bg-violet-100 no-underline"
-        download
-      >
-        Download .ics
-      </a>
     </div>
   </div>
 
@@ -69,16 +62,30 @@ const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
       </button>
     </div>
 
-    <div
-      class="grid grid-cols-7 gap-1 mb-1 text-center font-display text-[11px] font-semibold tracking-[0.14em] uppercase text-text-muted"
-      aria-hidden="true"
-    >
-      <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span
-        >Thu</span
-      ><span>Fri</span><span>Sat</span>
-    </div>
+    <div class="relative" data-calendar-board>
+      <!-- Continuous Sat/Sun column wash (behind headers + days) -->
+      <div
+        class="pointer-events-none absolute inset-0 grid grid-cols-7 gap-1"
+        aria-hidden="true"
+      >
+        <div></div><div></div><div></div><div></div><div></div>
+        <div class="bg-stone-100/90 rounded-sm"></div>
+        <div class="bg-stone-100/90 rounded-sm"></div>
+      </div>
 
-    <div data-grid class="grid grid-cols-7 gap-1" role="grid"></div>
+      <div
+        class="relative grid grid-cols-7 gap-1 mb-1 text-center font-display text-[11px] font-semibold tracking-[0.14em] uppercase text-text-muted"
+        aria-hidden="true"
+      >
+        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span
+          >Fri</span
+        ><span class="text-stone-500">Sat</span><span class="text-stone-500"
+          >Sun</span
+        >
+      </div>
+
+      <div data-grid class="relative grid grid-cols-7 gap-1" role="grid"></div>
+    </div>
 
     <p
       data-status
@@ -127,6 +134,24 @@ const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
       }).format(d);
     };
 
+    /** Shift a YYYY-MM-DD by N days (UTC date arithmetic — fine for civil dates). */
+    const shiftYmd = (ymd: string, days: number) => {
+      const [y, m, d] = ymd.split('-').map(Number);
+      const dt = new Date(Date.UTC(y!, m! - 1, d! + days));
+      return dt.toISOString().slice(0, 10);
+    };
+
+    /**
+     * ICS all-day DTEND is exclusive (day after the last day).
+     * Return the inclusive last day for display / spanning.
+     */
+    const inclusiveAllDayEnd = (event: CalendarEvent) => {
+      const start = ymdInTz(event.start, true);
+      const endExclusive = ymdInTz(event.end || event.start, true);
+      if (endExclusive <= start) return start;
+      return shiftYmd(endExclusive, -1);
+    };
+
     const formatTime = (iso: string, allDay: boolean) => {
       if (allDay) return 'All day';
       return new Intl.DateTimeFormat('en-AU', {
@@ -146,15 +171,40 @@ const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
       }).format(date);
     };
 
+    const formatWhen = (event: CalendarEvent) => {
+      if (!event.allDay) {
+        return `${formatDayHeading(ymdInTz(event.start, false))} · ${formatTime(event.start, false)}`;
+      }
+      const start = ymdInTz(event.start, true);
+      const end = inclusiveAllDayEnd(event);
+      if (start === end) return formatDayHeading(start);
+      return `${formatDayHeading(start)} – ${formatDayHeading(end)}`;
+    };
+
     const monthKey = (y: number, m: number) =>
       `${y}-${String(m + 1).padStart(2, '0')}`;
 
+    const eventSpansDay = (event: CalendarEvent, key: string) => {
+      if (!event.allDay) return ymdInTz(event.start, false) === key;
+      const start = ymdInTz(event.start, true);
+      const end = inclusiveAllDayEnd(event);
+      return key >= start && key <= end;
+    };
+
     const eventsForDay = (key: string) =>
-      events.filter((e) => ymdInTz(e.start, e.allDay) === key);
+      events.filter((e) => eventSpansDay(e, key));
 
     const eventsInMonth = (y: number, m: number) => {
       const prefix = monthKey(y, m);
-      return events.filter((e) => ymdInTz(e.start, e.allDay).startsWith(prefix));
+      const monthStart = `${prefix}-01`;
+      const lastDay = new Date(y, m + 1, 0).getDate();
+      const monthEnd = `${prefix}-${String(lastDay).padStart(2, '0')}`;
+      return events.filter((e) => {
+        if (!e.allDay) return ymdInTz(e.start, false).startsWith(prefix);
+        const start = ymdInTz(e.start, true);
+        const end = inclusiveAllDayEnd(e);
+        return start <= monthEnd && end >= monthStart;
+      });
     };
 
     const renderList = () => {
@@ -181,9 +231,7 @@ const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
         const li = document.createElement('li');
         li.className =
           'rounded-xl border border-border-soft bg-surface-page px-4 py-3.5 animate-[fadeRise_0.35s_ease_both]';
-        const when = event.allDay
-          ? formatDayHeading(ymdInTz(event.start, true))
-          : `${formatDayHeading(ymdInTz(event.start, false))} · ${formatTime(event.start, false)}`;
+        const when = formatWhen(event);
         li.innerHTML = `
           <div class="font-display text-[12px] font-semibold tracking-[0.14em] uppercase text-accent-primary mb-1">${when}</div>
           <div class="font-display font-semibold text-[17px] text-text-heading">${escapeHtml(event.title)}</div>
@@ -209,20 +257,22 @@ const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
         year: 'numeric',
       }).format(cursor);
 
-      const firstDow = new Date(y, m, 1).getDay();
+      // Monday-first: JS getDay() is Sun=0…Sat=6 → Mon=0…Sun=6
+      const firstDow = (new Date(y, m, 1).getDay() + 6) % 7;
       const daysInMonth = new Date(y, m + 1, 0).getDate();
       const todayKey = ymdInTz(new Date().toISOString(), false);
 
       grid.innerHTML = '';
       for (let i = 0; i < firstDow; i++) {
         const cell = document.createElement('div');
-        cell.className = 'min-h-11 rounded-lg';
+        cell.className = 'min-h-[4.75rem] sm:min-h-[5.5rem]';
         grid.appendChild(cell);
       }
 
       for (let day = 1; day <= daysInMonth; day++) {
         const key = `${y}-${String(m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const count = eventsForDay(key).length;
+        const dayEvents = eventsForDay(key);
+        const count = dayEvents.length;
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.setAttribute('role', 'gridcell');
@@ -230,23 +280,74 @@ const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
         const isSelected = selectedKey === key;
         const isToday = todayKey === key;
         btn.className = [
-          'min-h-11 rounded-lg border text-sm font-display transition-[background,transform,border-color] duration-150',
-          'flex flex-col items-center justify-center gap-0.5 px-1 py-1.5',
+          'min-h-[4.75rem] sm:min-h-[5.5rem] rounded-md border text-sm font-display transition-[background,transform,border-color] duration-150',
+          'flex flex-col items-stretch gap-0.5 px-1 pt-1 pb-1 text-left',
           isSelected
             ? 'bg-violet-700 text-text-on-dark border-violet-700'
             : isToday
               ? 'bg-violet-50 border-violet-200 text-text-heading'
-              : 'bg-transparent border-transparent text-text-heading hover:bg-violet-50',
+              : 'bg-transparent border-transparent text-text-heading hover:bg-black/[0.03]',
         ].join(' ');
-        btn.innerHTML = `<span>${day}</span>${
-          count
-            ? `<span class="block w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-gold-300' : 'bg-accent-primary'}" aria-hidden="true"></span>`
-            : '<span class="block w-1.5 h-1.5" aria-hidden="true"></span>'
-        }`;
+
+        const shortTime = (iso: string) => {
+          const raw = new Intl.DateTimeFormat('en-AU', {
+            timeZone: tz,
+            hour: 'numeric',
+            minute: '2-digit',
+          }).format(new Date(iso));
+          // "7:00 pm" → "7pm"
+          return raw.replace(':00', '').replace(/\s/g, '').toLowerCase();
+        };
+
+        /** Label for a grid pill: timed shows time; multi-day all-day is start / mid / end. */
+        const pillLabel = (event: CalendarEvent, dayKey: string) => {
+          if (!event.allDay) {
+            return `${shortTime(event.start)} ${event.title}`;
+          }
+          const start = ymdInTz(event.start, true);
+          const end = inclusiveAllDayEnd(event);
+          if (start === end) return event.title;
+          if (dayKey === start) return `${event.title} →`;
+          if (dayKey === end) return '→|';
+          return '→';
+        };
+
+        const maxPills = 2;
+        const visible = dayEvents.slice(0, maxPills);
+        const overflow = count - visible.length;
+        const pillsHtml = visible
+          .map((event) => {
+            const start = event.allDay ? ymdInTz(event.start, true) : '';
+            const end = event.allDay ? inclusiveAllDayEnd(event) : '';
+            const isMulti = event.allDay && start !== end;
+            const isMid = isMulti && key !== start && key !== end;
+            const isEnd = isMulti && key === end;
+            const pillClass = isSelected
+              ? isMid || isEnd
+                ? 'bg-gold-300/70 text-violet-950'
+                : 'bg-gold-300/95 text-violet-950'
+              : isMid || isEnd
+                ? 'bg-violet-100/80 text-violet-700'
+                : 'bg-violet-100 text-violet-800';
+            const label = pillLabel(event, key);
+            const align =
+              isEnd || isMid ? 'text-center' : 'text-left';
+            return `<span class="block w-full truncate rounded-full px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold leading-tight tracking-normal normal-case ${align} ${pillClass}" title="${escapeHtml(event.title)}">${escapeHtml(label)}</span>`;
+          })
+          .join('');
+        const moreHtml =
+          overflow > 0
+            ? `<span class="block px-0.5 text-[9px] sm:text-[10px] font-semibold leading-tight ${isSelected ? 'text-violet-100' : 'text-violet-600'}">+${overflow} more</span>`
+            : '';
+
+        btn.innerHTML = `
+          <span class="block text-[12px] sm:text-[13px] font-semibold leading-none px-0.5 ${isSelected ? 'text-text-on-dark' : 'text-text-heading'}">${day}</span>
+          <span class="flex flex-col gap-0.5 w-full min-h-0">${pillsHtml}${moreHtml}</span>
+        `;
         btn.setAttribute(
           'aria-label',
           count
-            ? `${formatDayHeading(key)}, ${count} event${count === 1 ? '' : 's'}`
+            ? `${formatDayHeading(key)}, ${count} event${count === 1 ? '' : 's'}: ${dayEvents.map((e) => e.title).join(', ')}`
             : formatDayHeading(key),
         );
         btn.addEventListener('click', () => {

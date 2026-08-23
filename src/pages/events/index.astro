@@ -1,14 +1,14 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Tabs from '../components/Tabs.astro';
-import Card from '../components/Card.astro';
-import Badge from '../components/Badge.astro';
-import Button from '../components/Button.astro';
-import EventsCalendar from '../components/EventsCalendar.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Tabs from '../../components/Tabs.astro';
+import Card from '../../components/Card.astro';
+import Badge from '../../components/Badge.astro';
+import Button from '../../components/Button.astro';
+import EventsCalendar from '../../components/EventsCalendar.astro';
 
 const icsUrl =
   import.meta.env.PUBLIC_CALENDAR_ICS_URL ||
-  'https://outlook.office365.com/owa/calendar/d3aab09d67bf4025ae539869196ad552@rosevillenewchurch.com.au/9a35e72b134e4c91bbb5b6956e035fa42959863401420048630/calendar.ics';
+  'https://outlook.office365.com/owa/calendar/d3aab09d67bf4025ae539869196ad552@rosevillenewchurch.com.au/e57651adf65b458bb5d1e3154770ba4517495040307124971130/calendar.ics';
 
 const events = [
   {
@@ -16,7 +16,7 @@ const events = [
     date: '1st & 3rd Sundays · 10am',
     category: 'Worship',
     where: 'In person' as const,
-    href: '/join/sunday-worship',
+    href: '/events/sunday-worship',
     desc: 'Worship, readings and reflection at 2B Shirley Rd, followed by refreshments and conversation in the hall. A service pamphlet with hymns is provided.',
   },
   {
@@ -24,7 +24,7 @@ const events = [
     date: 'Tuesdays · 11am',
     category: 'Study',
     where: 'On Zoom' as const,
-    href: '/join/open-discussion',
+    href: '/events/open-discussion',
     desc: "Hosted by the Swedenborg Centre — delve a little deeper into concepts in Swedenborg's writing and relate them to our lives.",
   },
   {
@@ -32,7 +32,7 @@ const events = [
     date: 'Wednesdays · 10am',
     category: 'Study',
     where: 'On Zoom' as const,
-    href: '/join/read-and-reflect',
+    href: '/events/read-and-reflect',
     desc: 'Hosted by the Swedenborg Centre — reading slowly through True Christianity, reflecting as we go.',
   },
   {
@@ -40,7 +40,7 @@ const events = [
     date: 'Mondays · 10am',
     category: 'Community',
     where: 'In person' as const,
-    href: '/join/meditation',
+    href: '/events/meditation',
     desc: 'Quiet meditation in the church sanctuary with Kathryn Baker. Please confirm with Kathryn before your first visit.',
   },
   {
@@ -48,7 +48,7 @@ const events = [
     date: '22–26 January 2027',
     category: 'Community',
     where: 'In person' as const,
-    href: '/join/family-retreat-2027',
+    href: '/events/family-retreat-2027',
     desc: 'Five days at The Tops Conference Centre, Stanwell Tops — worship, talks, activities and fellowship for all ages.',
   },
   {
@@ -77,9 +77,8 @@ const tabs = ['All', 'Worship', 'Study', 'Community'];
     <h1 class="mt-0 text-h1">Upcoming events</h1>
     <p class="text-text-muted -mt-1.5 max-w-[640px]">
       Sunday worship is on the <strong>1st and 3rd Sundays</strong> of each month
-      at 10am (Sydney time). Add dated events below to your own calendar, or browse
-      the regular rhythm further down. New visitors can start at{' '}
-      <a href="/join" class="text-link hover:text-link-hover">Join us</a>.
+      at 10am (Sydney time). Browse dated events on the calendar, or the regular
+      rhythm below — each item links through to full details.
     </p>
 
     <EventsCalendar icsUrl={icsUrl} />

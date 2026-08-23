@@ -18,13 +18,35 @@ export type CalendarPayload = {
   fetchedAt: string;
 };
 
+/** Church calendar is Sydney-local; use this when Outlook omits or uses an unknown TZID. */
+const DEFAULT_TZ = 'Australia/Sydney';
+
+/** Windows → IANA timezone IDs that appear in Outlook/Exchange ICS feeds. */
 const WINDOWS_TZ: Record<string, string> = {
   'AUS Eastern Standard Time': 'Australia/Sydney',
+  // Outlook often labels NSW/Sydney calendars as Tasmania (same AEST/AEDT offsets).
+  'Tasmania Standard Time': 'Australia/Hobart',
   'E. Australia Standard Time': 'Australia/Brisbane',
+  'AUS Central Standard Time': 'Australia/Darwin',
+  'Cen. Australia Standard Time': 'Australia/Adelaide',
+  'AUS Western Standard Time': 'Australia/Perth',
+  'W. Australia Standard Time': 'Australia/Perth',
   'Greenwich Standard Time': 'UTC',
   UTC: 'UTC',
   'UTC Standard Time': 'UTC',
 };
+
+function toIanaTimeZone(tzid: string | undefined): string {
+  if (!tzid) return DEFAULT_TZ;
+  if (WINDOWS_TZ[tzid]) return WINDOWS_TZ[tzid]!;
+  // Already an IANA id (e.g. Australia/Sydney), or unknown — validate via Intl.
+  try {
+    Intl.DateTimeFormat(undefined, { timeZone: tzid });
+    return tzid;
+  } catch {
+    return DEFAULT_TZ;
+  }
+}
 
 function unfold(ics: string): string {
   return ics.replace(/\r\n[ \t]/g, '').replace(/\n[ \t]/g, '');
@@ -92,8 +114,7 @@ function parseIcsDate(
     };
   }
 
-  const tzid = params.TZID;
-  const iana = tzid ? (WINDOWS_TZ[tzid] ?? tzid) : 'UTC';
+  const iana = toIanaTimeZone(params.TZID);
 
   // Interpret wall time in the given zone via Intl offset lookup.
   const asUtcGuess = Date.UTC(+y!, +mo! - 1, +d!, +h!, +mi!, +s!);
@@ -106,32 +127,28 @@ function parseIcsDate(
 }
 
 function tzOffsetMs(timeZone: string, utcMs: number): number {
-  try {
-    const dtf = new Intl.DateTimeFormat('en-US', {
-      timeZone,
-      hourCycle: 'h23',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    });
-    const parts = dtf.formatToParts(new Date(utcMs));
-    const get = (type: Intl.DateTimeFormatPartTypes) =>
-      parts.find((p) => p.type === type)?.value ?? '0';
-    const asLocal = Date.UTC(
-      +get('year'),
-      +get('month') - 1,
-      +get('day'),
-      +get('hour'),
-      +get('minute'),
-      +get('second'),
-    );
-    return asLocal - utcMs;
-  } catch {
-    return 0;
-  }
+  const dtf = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    hourCycle: 'h23',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
+  const parts = dtf.formatToParts(new Date(utcMs));
+  const get = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((p) => p.type === type)?.value ?? '0';
+  const asLocal = Date.UTC(
+    +get('year'),
+    +get('month') - 1,
+    +get('day'),
+    +get('hour'),
+    +get('minute'),
+    +get('second'),
+  );
+  return asLocal - utcMs;
 }
 
 export function parseIcs(ics: string): CalendarPayload {

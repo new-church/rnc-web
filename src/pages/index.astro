@@ -3,6 +3,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Button from '../components/Button.astro';
 import Card from '../components/Card.astro';
 import Badge from '../components/Badge.astro';
+import EventsCalendar from '../components/EventsCalendar.astro';
+
+const icsUrl =
+  import.meta.env.PUBLIC_CALENDAR_ICS_URL ||
+  'https://outlook.office365.com/owa/calendar/d3aab09d67bf4025ae539869196ad552@rosevillenewchurch.com.au/e57651adf65b458bb5d1e3154770ba4517495040307124971130/calendar.ics';
 ---
 
 <BaseLayout
@@ -44,7 +49,7 @@ import Badge from '../components/Badge.astro';
         <div
           class="flex flex-col sm:flex-row gap-3 justify-center items-center"
         >
-          <Button size="lg" href="/join">Join us</Button>
+          <Button size="lg" href="/events">What's on</Button>
           <Button size="lg" variant="secondary" href="/about">About us</Button>
         </div>
       </div>
@@ -64,23 +69,23 @@ import Badge from '../components/Badge.astro';
       </figure>
     </section>
 
-    <!-- Join us choices -->
+    <!-- Visiting / events shortcuts -->
     <section class="container-site px-6 md:px-8 pt-14 md:pt-[72px]">
       <div
         class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-3 mb-6"
       >
         <h2 class="m-0 text-h2">Visiting us</h2>
         <a
-          href="/join"
+          href="/events"
           class="font-display font-semibold text-[15px] no-underline hover:underline"
         >
-          All ways to join →
+          All events →
         </a>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
         <Card
           interactive
-          href="/join/sunday-worship"
+          href="/events/sunday-worship"
           eyebrow="1st & 3rd Sundays · 10am"
           title="Sunday worship"
         >
@@ -90,7 +95,7 @@ import Badge from '../components/Badge.astro';
         </Card>
         <Card
           interactive
-          href="/join/open-discussion"
+          href="/events/open-discussion"
           eyebrow="Tuesdays · 11am · Zoom"
           title="Open discussion"
         >
@@ -100,7 +105,7 @@ import Badge from '../components/Badge.astro';
         </Card>
         <Card
           interactive
-          href="/join/read-and-reflect"
+          href="/events/read-and-reflect"
           eyebrow="Wednesdays · 10am · Zoom"
           title="Read & reflect"
         >
@@ -111,10 +116,22 @@ import Badge from '../components/Badge.astro';
       </div>
     </section>
 
+    <!-- Live church calendar -->
+    <section class="container-site px-6 md:px-8">
+      <EventsCalendar icsUrl={icsUrl} />
+      <p class="m-0 mt-2 mb-0 text-sm text-text-muted">
+        See the{' '}
+        <a href="/events" class="text-link hover:text-link-hover"
+          >events page</a
+        >{' '}
+        for our regular weekly rhythm as well.
+      </p>
+    </section>
+
     <!-- Our home -->
     <section class="container-site px-6 md:px-8 mt-14 md:mt-[72px] pb-4">
       <a
-        href="/join/sunday-worship"
+        href="/events/sunday-worship"
         class="group block overflow-hidden rounded-lg no-underline shadow-card bg-surface-card border border-border-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-primary transition-shadow duration-[280ms] ease-[var(--ease-gentle)] hover:shadow-lift"
       >
         <div

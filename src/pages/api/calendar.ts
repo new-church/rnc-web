@@ -4,7 +4,7 @@ import { fetchCalendar } from '../../lib/ics';
 export const prerender = false;
 
 const DEFAULT_ICS =
-  'https://outlook.office365.com/owa/calendar/d3aab09d67bf4025ae539869196ad552@rosevillenewchurch.com.au/9a35e72b134e4c91bbb5b6956e035fa42959863401420048630/calendar.ics';
+  'https://outlook.office365.com/owa/calendar/d3aab09d67bf4025ae539869196ad552@rosevillenewchurch.com.au/e57651adf65b458bb5d1e3154770ba4517495040307124971130/calendar.ics';
 
 export const GET: APIRoute = async () => {
   const icsUrl =
