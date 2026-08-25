@@ -1,4 +1,4 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import {
   assertCursorMatches,
   cursorFromRow,
@@ -112,4 +112,15 @@ export class ItemsStore {
 
 export function createItemsStore(client: SupabaseClient): ItemsStore {
   return new ItemsStore(client);
+}
+
+/**
+ * HTTP API only: project URL + one key. No Postgres host/user/password.
+ * Use the `service_role` (or new `sb_secret_`) key on the server; `anon` in the browser with RLS.
+ */
+export function createItemsStoreFromApi(
+  url: string,
+  apiKey: string,
+): ItemsStore {
+  return createItemsStore(createClient(url, apiKey));
 }

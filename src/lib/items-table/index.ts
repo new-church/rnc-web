@@ -1,4 +1,8 @@
-export { createItemsStore, ItemsStore } from "./store";
+export {
+  createItemsStore,
+  createItemsStoreFromApi,
+  ItemsStore,
+} from "./store";
 export {
   KEY_SEP,
   beginsWithUpperBound,

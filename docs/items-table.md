@@ -11,28 +11,29 @@ Schema: `src/lib/items-table/sql/`
 2. Run [`sql/001_items.sql`](../src/lib/items-table/sql/001_items.sql) in the SQL editor.
 3. Run [`sql/002_ttl_cron.sql`](../src/lib/items-table/sql/002_ttl_cron.sql) after enabling the **pg_cron** extension (Dashboard → Database → Extensions).
 4. Add RLS policies before using the user `anon` / `authenticated` keys. Example: [`sql/003_rls.example.sql`](../src/lib/items-table/sql/003_rls.example.sql). The **service role** bypasses RLS (server-only).
-5. Env (server):
+5. Env — **two values**, from **Project Settings → API** (not Database → Connection string):
 
 ```bash
 SUPABASE_URL="https://xxxx.supabase.co"
-SUPABASE_SERVICE_ROLE_KEY="..."   # API routes / admin only
-# later, member login:
-PUBLIC_SUPABASE_URL="https://xxxx.supabase.co"
-PUBLIC_SUPABASE_ANON_KEY="..."
+SUPABASE_SECRET_KEY="..."   # service_role or sb_secret_…  (server only)
 ```
+
+Later, for member login in the browser, add the **anon** / `sb_publishable_` key as `PUBLIC_SUPABASE_ANON_KEY` (and usually the same URL as `PUBLIC_SUPABASE_URL`).
 
 ```ts
-import { createClient } from "@supabase/supabase-js";
-import { createItemsStore, MemberKeys } from "../lib/items-table";
+import { createItemsStoreFromApi, MemberKeys } from "../lib/items-table";
 
-const supabase = createClient(
+const items = createItemsStoreFromApi(
   import.meta.env.SUPABASE_URL,
-  import.meta.env.SUPABASE_SERVICE_ROLE_KEY,
+  import.meta.env.SUPABASE_SECRET_KEY,
 );
-const items = createItemsStore(supabase);
 ```
 
-Never ship the service role key to the browser.
+That is the Data API (HTTPS + API key), same idea as Dynamo’s SDK. You do **not** set `DATABASE_URL`, host, port, user, password, or the pooler.
+
+Never ship the secret / `service_role` key to the browser. Schema setup is the dashboard SQL editor (or CLI), not a Postgres client from the app.
+
+Dashboard copy-paste: **Project URL** + **`service_role`** (legacy) or **secret** key. Ignore “URI”, “Direct connection”, and “Session/Transaction pooler” unless you later add an ORM that talks SQL over the wire.
 
 ## Table shape
 
