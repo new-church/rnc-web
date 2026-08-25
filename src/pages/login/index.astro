@@ -1,0 +1,102 @@
+---
+export const prerender = false;
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Button from '../../components/Button.astro';
+import Input from '../../components/Input.astro';
+import { createSupabaseServerClient } from '../../lib/auth/supabase';
+import { getSessionContext } from '../../lib/auth/session';
+
+const session = await getSessionContext({
+  request: Astro.request,
+  cookies: Astro.cookies,
+});
+
+if (session && Astro.url.searchParams.get('error') !== 'forbidden') {
+  if (session.appUser?.data.scopes?.length) {
+    return Astro.redirect('/admin/users');
+  }
+}
+
+let error =
+  Astro.url.searchParams.get('error') === 'forbidden'
+    ? 'Signed in, but this account has no admin access yet.'
+    : Astro.url.searchParams.get('error') &&
+        Astro.url.searchParams.get('error') !== 'forbidden'
+      ? decodeURIComponent(Astro.url.searchParams.get('error')!)
+      : '';
+let info = '';
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const email = String(form.get('email') ?? '').trim();
+
+  if (!email) {
+    error = 'Enter your email address.';
+  } else {
+    try {
+      const supabase = createSupabaseServerClient({
+        request: Astro.request,
+        cookies: Astro.cookies,
+      });
+      const { error: otpError } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: true,
+          emailRedirectTo: new URL('/login/callback', Astro.url.origin).href,
+        },
+      });
+      if (otpError) {
+        error = otpError.message;
+      } else {
+        return Astro.redirect(
+          `/login/verify?email=${encodeURIComponent(email)}`,
+        );
+      }
+    } catch (err) {
+      error = err instanceof Error ? err.message : String(err);
+    }
+  }
+}
+---
+
+<BaseLayout
+  title="Log in"
+  description="Sign in with a one-time email code."
+  currentPath="/login"
+>
+  <main class="container-site px-4 sm:px-6 md:px-8 py-10 md:py-14 max-w-md">
+    <h1 class="font-display text-3xl text-ink mb-2">Log in</h1>
+    <p class="text-ink-muted mb-8 leading-relaxed">
+      We’ll email you a sign-in link (and sometimes a code). No password.
+    </p>
+
+    {
+      error && (
+        <p class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-900 text-sm">
+          {error}
+        </p>
+      )
+    }
+    {
+      info && (
+        <p class="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-900 text-sm">
+          {info}
+        </p>
+      )
+    }
+
+    <form method="POST" class="flex flex-col gap-4">
+      <Input
+        label="Email"
+        id="email"
+        name="email"
+        type="email"
+        required
+        placeholder="you@example.com"
+        autocomplete="email"
+      />
+      <Button type="submit" variant="primary">Email me a link</Button>
+    </form>
+  </main>
+</BaseLayout>

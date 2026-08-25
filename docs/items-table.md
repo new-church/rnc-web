@@ -29,14 +29,13 @@ If the TTL migration fails on `pg_cron`, enable **pg_cron** under Dashboard → 
 
 5. (Optional) Apply example RLS from `supabase/seed/rls.example.sql` in the SQL editor after you decide auth rules. Service role bypasses RLS; the anon/user key needs policies.
 
-6. Env for the **app** — **two values**, from **Project Settings → API** (not Database → Connection string):
+6. Env for the **app** — use the Vercel Supabase integration names (or copy the same from Project Settings → API). **Three values**; ignore `POSTGRES_*`:
 
 ```bash
 SUPABASE_URL="https://xxxx.supabase.co"
-SUPABASE_SECRET_KEY="..."   # service_role or sb_secret_…  (server only)
+SUPABASE_ANON_KEY="..."       # Auth / OTP (SSR)
+SUPABASE_SECRET_KEY="..."     # server items store (or SERVICE_ROLE_KEY)
 ```
-
-Later, for member login in the browser, add the **anon** / `sb_publishable_` key as `PUBLIC_SUPABASE_ANON_KEY` (and usually the same URL as `PUBLIC_SUPABASE_URL`).
 
 ```ts
 import { createItemsStoreFromApi, MemberKeys } from "../lib/items-table";
@@ -56,6 +55,41 @@ That is the Data API (HTTPS + API key), same idea as Dynamo’s SDK. The **app**
 3. Open [`/dev/items-check`](http://localhost:4321/dev/items-check) with the dev server running.
 
 That page is SSR-only (`prerender = false`), not in the main nav.
+
+## Auth (OTP) + app users
+
+Supabase Auth proves email ownership (OTP). **Permissions** live on `USER#{email} / PROFILE` items (`data.scopes`), not in `auth.users`.
+
+| Piece | Role |
+|---|---|
+| `/login` | Request email magic link / OTP |
+| `/login/verify` | Waiting page + optional code entry |
+| `/login/callback` | Completes magic-link redirect (free-plan default) |
+| `/admin/users` | List users + scopes (requires `admin` or `super_admin`) |
+| Seed migration | Inserts `USER#joel@duckworth.me` with `super_admin` — scopes only come from DB |
+
+Extra env (Vercel Supabase integration names — prefer these over inventing `PUBLIC_` copies):
+
+```bash
+SUPABASE_URL="https://xxxx.supabase.co"
+SUPABASE_ANON_KEY="..."       # or SUPABASE_PUBLISHABLE_KEY (same role)
+SUPABASE_SECRET_KEY="..."     # or SUPABASE_SERVICE_ROLE_KEY (server only)
+```
+
+Ignore `POSTGRES_*` and `SUPABASE_JWT_SECRET` for this app (Data API + Auth only, no Prisma wire connection).
+
+Our auth flow is SSR-only, so the anon key does **not** need a `PUBLIC_` prefix. `PUBLIC_SUPABASE_*` still works as a fallback if you already set those.
+
+Login never grants scopes. To bootstrap admin access, seed a `USER#{email} / PROFILE` row with `data.scopes` (see `supabase/migrations/*_app_users_seed.sql`). After magic-link/OTP, `authUserId` is linked onto that row.
+
+**Email on free plan:** you usually can’t customize the Magic Link template, so the email is a **clickable link**. The app handles that at `/login/callback`. Code entry on `/login/verify` still works if a numeric token is present.
+
+In Supabase **Authentication → URL configuration**:
+
+- Site URL: `http://localhost:4321` (local) or your Vercel URL  
+- Redirect URLs: `http://localhost:4321/login/callback` and `https://<your-domain>/login/callback`
+
+User item keys: see `src/lib/auth/user-keys.ts` (`EMAIL#` GSI1, `USERS#rnc` list on GSI2, `AUTH#{uid}` on GSI3).
 
 ### Migrations day-to-day
 

@@ -10,6 +10,7 @@ interface Props {
   required?: boolean;
   class?: string;
   value?: string;
+  autocomplete?: string;
 }
 
 const {
@@ -23,6 +24,7 @@ const {
   required = false,
   class: className = '',
   value,
+  autocomplete,
 } = Astro.props;
 ---
 
@@ -40,6 +42,7 @@ const {
     placeholder={placeholder}
     required={required}
     value={value}
+    autocomplete={autocomplete}
     class:list={[
       'font-body text-base text-text-body px-4 py-3 rounded-md border bg-white outline-none transition-[box-shadow,border-color] duration-150 ease-[var(--ease-gentle)]',
       'focus:border-accent-primary focus:shadow-glow',
