@@ -124,6 +124,31 @@ export async function ensureAppUserAfterLogin(opts: {
   });
 }
 
+export async function updateAppUser(opts: {
+  email: string;
+  displayName?: string;
+  scopes?: string[];
+  authUserId?: string | null;
+  store?: ItemsStore;
+}): Promise<AppUser> {
+  const store = opts.store ?? createItemsStoreFromEnv();
+  const email = normalizeEmail(opts.email);
+  const existing = await getAppUserByEmail(email, store);
+  if (!existing) {
+    throw new Error(`No USER# row for ${email}`);
+  }
+  return putUser(store, email, {
+    ...existing.data,
+    displayName: opts.displayName ?? existing.data.displayName,
+    scopes: opts.scopes ?? existing.data.scopes,
+    authUserId:
+      opts.authUserId !== undefined
+        ? opts.authUserId
+        : existing.data.authUserId,
+    createdAt: existing.data.createdAt,
+  });
+}
+
 export function userHasAdminAccess(user: AppUser | null): boolean {
   return isAdminScopes(user?.data.scopes);
 }

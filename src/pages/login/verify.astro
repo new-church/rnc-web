@@ -42,7 +42,7 @@ if (Astro.request.method === 'POST') {
         });
 
         if (userHasAdminAccess(appUser)) {
-          return Astro.redirect('/admin/users');
+          return Astro.redirect('/admin/contacts');
         }
         return Astro.redirect('/login?error=forbidden');
       }

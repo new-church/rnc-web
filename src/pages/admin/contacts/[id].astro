@@ -1,0 +1,115 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import ContactForm from '../../../components/admin/ContactForm';
+import {
+  deleteContact,
+  getContact,
+  putContact,
+} from '../../../lib/contacts';
+import { contactDataSchema } from '../../../lib/contacts/schema';
+
+const session = Astro.locals.adminSession!;
+const id = Astro.params.id!;
+let error = '';
+let notice = '';
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const intent = String(form.get('intent') ?? 'save');
+
+  if (intent === 'delete') {
+    await deleteContact(id);
+    return Astro.redirect('/admin/contacts');
+  }
+
+  const tags = String(form.get('tags') ?? '')
+    .split(',')
+    .map((t) => t.trim())
+    .filter(Boolean);
+  const existing = await getContact(id);
+  if (!existing) {
+    return Astro.redirect('/admin/contacts');
+  }
+
+  const parsed = contactDataSchema.safeParse({
+    displayName: String(form.get('displayName') ?? ''),
+    email: String(form.get('email') ?? ''),
+    phone: String(form.get('phone') ?? ''),
+    address: {
+      line1: String(form.get('line1') ?? ''),
+      line2: String(form.get('line2') ?? ''),
+      city: String(form.get('city') ?? ''),
+      state: String(form.get('state') ?? ''),
+      postalCode: String(form.get('postalCode') ?? ''),
+      country: String(form.get('country') ?? 'AU'),
+    },
+    tags,
+    notes: String(form.get('notes') ?? ''),
+    mailchimpSyncedAt: existing.data.mailchimpSyncedAt,
+    postgridSyncedAt: existing.data.postgridSyncedAt,
+  });
+
+  if (!parsed.success) {
+    error = parsed.error.issues.map((i) => i.message).join('; ');
+  } else {
+    await putContact({
+      id,
+      data: parsed.data,
+      createdAt: existing.data.createdAt,
+    });
+    notice = 'Saved.';
+  }
+}
+
+const contact = await getContact(id);
+if (!contact) {
+  return Astro.redirect('/admin/contacts');
+}
+---
+
+<AdminLayout
+  title={contact.data.displayName}
+  currentPath={Astro.url.pathname}
+  email={session.email}
+>
+  <p class="mb-6">
+    <a
+      href="/admin/contacts"
+      class="text-sm text-accent-primary-strong no-underline hover:underline"
+    >
+      ← Contacts
+    </a>
+  </p>
+  {
+    error && (
+      <p class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-900 text-sm">
+        {error}
+      </p>
+    )
+  }
+  {
+    notice && (
+      <p class="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-900 text-sm">
+        {notice}
+      </p>
+    )
+  }
+  <ContactForm
+    client:load
+    action={`/admin/contacts/${id}`}
+    initial={contact.data}
+    submitLabel="Save changes"
+  />
+  <form method="POST" action={`/admin/contacts/${id}`} class="mt-10">
+    <input type="hidden" name="intent" value="delete" />
+    <button
+      type="submit"
+      class="font-display text-sm text-status-error underline"
+      onclick="return confirm('Delete this contact?')"
+    >
+      Delete contact
+    </button>
+  </form>
+</AdminLayout>

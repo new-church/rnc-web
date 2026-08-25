@@ -85,6 +85,15 @@ const linkBase =
       <Button variant="gold" size="sm" href="/contact" class="ml-2">
         Contact us
       </Button>
+      <a
+        href="/login"
+        class:list={[
+          linkBase,
+          'text-[13px] px-2.5 pt-2 pb-1.5 ml-1 text-text-muted hover:text-text-heading',
+        ]}
+      >
+        Log in
+      </a>
     </nav>
 
     <!-- Mobile / tablet: compact CTA + menu toggle -->
@@ -174,10 +183,19 @@ const linkBase =
       >
         Swedenborg Centre
       </a>
-      <div class="pt-2 pb-1 px-1">
+      <div class="pt-2 pb-1 px-1 flex flex-col gap-2">
         <Button variant="gold" size="md" href="/contact" class="w-full">
           Contact us
         </Button>
+        <a
+          href="/login"
+          class:list={[
+            linkBase,
+            'text-[15px] px-4 py-3 text-center text-text-muted hover:text-text-heading hover:bg-violet-50',
+          ]}
+        >
+          Log in
+        </a>
       </div>
     </div>
   </nav>

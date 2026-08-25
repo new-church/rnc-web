@@ -1,0 +1,63 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { listActionMetas } from '../../lib/actions';
+
+const session = Astro.locals.adminSession!;
+const actions = await listActionMetas();
+---
+
+<AdminLayout
+  title="Actions"
+  currentPath={Astro.url.pathname}
+  email={session.email}
+>
+  <p class="text-ink-muted mb-6 max-w-2xl leading-relaxed">
+    Backend jobs for integrations. Connect API keys later; running an action
+    today only records a stub job in the items table.
+  </p>
+
+  <div class="grid gap-4 md:grid-cols-2 max-w-3xl">
+    {
+      actions.map((a) => (
+        <article class="rounded-lg border border-border-soft bg-white p-5 space-y-3">
+          <h2 class="font-display text-lg font-semibold text-text-heading">
+            {a.label}
+          </h2>
+          <p class="text-sm text-ink-muted leading-relaxed">{a.description}</p>
+          <dl class="text-xs text-ink-muted space-y-1">
+            <div>
+              <dt class="inline font-display font-semibold">Last status: </dt>
+              <dd class="inline">{a.lastStatus ?? 'never run'}</dd>
+            </div>
+            {
+              a.lastRunAt && (
+                <div>
+                  <dt class="inline font-display font-semibold">Last run: </dt>
+                  <dd class="inline">{new Date(a.lastRunAt).toLocaleString()}</dd>
+                </div>
+              )
+            }
+            {
+              a.lastMessage && (
+                <div>
+                  <dt class="inline font-display font-semibold">Note: </dt>
+                  <dd class="inline">{a.lastMessage}</dd>
+                </div>
+              )
+            }
+          </dl>
+          <form method="POST" action={`/api/admin/actions/${a.id}`}>
+            <button
+              type="submit"
+              class="inline-flex items-center justify-center font-display font-semibold tracking-[0.04em] rounded-pill bg-accent-primary text-text-on-accent px-[22px] pt-[11px] pb-[9px] text-[14px] leading-none hover:bg-accent-primary-strong"
+            >
+              Run now
+            </button>
+          </form>
+        </article>
+      ))
+    }
+  </div>
+</AdminLayout>

@@ -89,7 +89,19 @@ In Supabase **Authentication → URL configuration**:
 - Site URL: `http://localhost:4321` (local) or your Vercel URL  
 - Redirect URLs: `http://localhost:4321/login/callback` and `https://<your-domain>/login/callback`
 
-User item keys: see `src/lib/auth/user-keys.ts` (`EMAIL#` GSI1, `USERS#rnc` list on GSI2, `AUTH#{uid}` on GSI3).
+## Admin app
+
+After login, admins use a separate shell (left nav) at `/admin/*`:
+
+| Route | Purpose |
+|---|---|
+| `/admin/contacts` | CRM contacts (`MEMBER#` / `PROFILE`) — TanStack Table |
+| `/admin/contacts/new`, `/admin/contacts/[id]` | Create / edit contact |
+| `/admin/actions` | Stub Mailchimp / PostGrid jobs |
+| `/admin/users` | Login accounts + scopes |
+| `/admin/account` | Your display name |
+
+Requires `admin` or `super_admin` on the `USER#` item. Middleware gates `/admin` and `/api/admin`.
 
 ### Migrations day-to-day
 

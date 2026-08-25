@@ -6,6 +6,7 @@ export {
   getAppUserByAuthId,
   getAppUserByEmail,
   listAppUsers,
+  updateAppUser,
   userHasAdminAccess,
   userHasScope,
 } from "./users";

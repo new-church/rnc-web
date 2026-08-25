@@ -1,0 +1,77 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import UserScopesForm from '../../../components/admin/UserScopesForm';
+import {
+  getAppUserByEmail,
+  updateAppUser,
+} from '../../../lib/auth/users';
+import { SCOPES } from '../../../lib/auth/scopes';
+
+const session = Astro.locals.adminSession!;
+const email = decodeURIComponent(Astro.params.email ?? '');
+let error = '';
+let notice = '';
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const scopes = form
+    .getAll('scopes')
+    .map(String)
+    .filter((s) => s === SCOPES.admin || s === SCOPES.superAdmin);
+  const displayName = String(form.get('displayName') ?? '').trim();
+
+  try {
+    await updateAppUser({
+      email,
+      scopes,
+      displayName: displayName || undefined,
+    });
+    notice = 'Saved.';
+  } catch (err) {
+    error = err instanceof Error ? err.message : String(err);
+  }
+}
+
+const user = await getAppUserByEmail(email);
+if (!user) {
+  return Astro.redirect('/admin/users');
+}
+---
+
+<AdminLayout
+  title="Edit user"
+  currentPath="/admin/users"
+  email={session.email}
+>
+  <p class="mb-6">
+    <a
+      href="/admin/users"
+      class="text-sm text-accent-primary-strong no-underline hover:underline"
+    >
+      ← Users
+    </a>
+  </p>
+  {
+    error && (
+      <p class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-900 text-sm">
+        {error}
+      </p>
+    )
+  }
+  {
+    notice && (
+      <p class="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-900 text-sm">
+        {notice}
+      </p>
+    )
+  }
+  <UserScopesForm
+    client:load
+    email={user.data.email}
+    displayName={user.data.displayName}
+    scopes={user.data.scopes}
+    action={`/admin/users/${encodeURIComponent(user.data.email)}`}
+  />
+</AdminLayout>

@@ -1,0 +1,29 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import ContactsTable from '../../../components/admin/ContactsTable';
+import { listContacts } from '../../../lib/contacts';
+
+const session = Astro.locals.adminSession!;
+const contacts = await listContacts();
+const rows = contacts.map((c) => ({
+  id: c.id,
+  displayName: c.data.displayName,
+  email: c.data.email ?? '',
+  phone: c.data.phone ?? '',
+  tags: c.data.tags ?? [],
+}));
+---
+
+<AdminLayout
+  title="Contacts"
+  currentPath={Astro.url.pathname}
+  email={session.email}
+>
+  <p class="text-ink-muted mb-6 max-w-2xl leading-relaxed">
+    Church directory contacts (<code class="text-sm">MEMBER#… / PROFILE</code>).
+    Separate from login users under Users.
+  </p>
+  <ContactsTable client:load contacts={rows} />
+</AdminLayout>
