@@ -4,6 +4,10 @@ export {
   ItemsStore,
 } from "./store";
 export {
+  SAMPLE_MEMBER_ID,
+  createItemsStoreFromEnv,
+} from "./client";
+export {
   KEY_SEP,
   beginsWithUpperBound,
   key,

@@ -1,0 +1,108 @@
+---
+export const prerender = false;
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import {
+  DirectoryKeys,
+  MemberKeys,
+  SAMPLE_MEMBER_ID,
+  createItemsStoreFromEnv,
+} from '../../lib/items-table';
+
+type CheckState =
+  | { ok: true; byGet: unknown; byEmail: unknown; byDirectory: unknown }
+  | { ok: false; error: string };
+
+let state: CheckState;
+
+try {
+  const items = createItemsStoreFromEnv();
+  const pk = MemberKeys.pk(SAMPLE_MEMBER_ID);
+  const sk = MemberKeys.profileSk();
+
+  const byGet = await items.get({ pk, sk });
+
+  const emailPage = await items.query({
+    index: 'gsi1',
+    pk: MemberKeys.emailGsi1('ada.sample@example.com').pk,
+    sk: { op: 'eq', sk: 'MEMBER' },
+    limit: 5,
+  });
+
+  const dirPage = await items.query({
+    index: 'gsi2',
+    pk: DirectoryKeys.gsi2pk(),
+    sk: { op: 'begins_with', prefix: 'NAME#lovelace' },
+    limit: 5,
+  });
+
+  state = {
+    ok: true,
+    byGet,
+    byEmail: emailPage.items,
+    byDirectory: dirPage.items,
+  };
+} catch (err) {
+  state = {
+    ok: false,
+    error: err instanceof Error ? err.message : String(err),
+  };
+}
+---
+
+<BaseLayout
+  title="Items table check"
+  description="Dev smoke test for the Supabase single-table store."
+  currentPath="/dev/items-check"
+>
+  <main class="container-site px-4 sm:px-6 md:px-8 py-10 md:py-14 max-w-3xl">
+    <p class="font-display text-sm tracking-wide text-violet-700 mb-2">Dev</p>
+    <h1 class="font-display text-3xl md:text-4xl text-ink mb-4">
+      Items table check
+    </h1>
+    <p class="text-ink-muted mb-8 leading-relaxed">
+      Loads the sample member <code class="text-sm">MEMBER#sample-ada</code> /
+      <code class="text-sm">PROFILE</code> via get and GSI queries. Not linked in
+      the main nav.
+    </p>
+
+    {
+      state.ok ? (
+        <div class="space-y-6">
+          <p
+            class:list={[
+              'rounded-lg px-4 py-3 font-display font-semibold',
+              state.byGet
+                ? 'bg-green-50 text-green-900 border border-green-200'
+                : 'bg-amber-50 text-amber-950 border border-amber-200',
+            ]}
+          >
+            {state.byGet
+              ? 'Connected — sample row found.'
+              : 'Connected, but sample row missing. Run npm run db:push.'}
+          </p>
+
+          <section>
+            <h2 class="font-display text-xl text-ink mb-2">get (table)</h2>
+            <pre class="overflow-x-auto rounded-lg bg-stone-100 p-4 text-sm text-ink">{JSON.stringify(state.byGet, null, 2)}</pre>
+          </section>
+
+          <section>
+            <h2 class="font-display text-xl text-ink mb-2">query GSI1 (email)</h2>
+            <pre class="overflow-x-auto rounded-lg bg-stone-100 p-4 text-sm text-ink">{JSON.stringify(state.byEmail, null, 2)}</pre>
+          </section>
+
+          <section>
+            <h2 class="font-display text-xl text-ink mb-2">query GSI2 (directory)</h2>
+            <pre class="overflow-x-auto rounded-lg bg-stone-100 p-4 text-sm text-ink">{JSON.stringify(state.byDirectory, null, 2)}</pre>
+          </section>
+        </div>
+      ) : (
+        <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-900">
+          <p class="font-display font-semibold mb-2">Failed</p>
+          <pre class="whitespace-pre-wrap text-sm">{state.error}</pre>
+        </div>
+      )
+    }
+  </main>
+</BaseLayout>

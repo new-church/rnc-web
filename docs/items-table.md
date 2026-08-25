@@ -3,15 +3,33 @@
 Dynamo-style **one table**, **PK + SK**, **three sparse GSIs**, **keyset pagination**, and **TTL**. The website CMS stays in git; this is for members / CRM / sessions.
 
 Client: `src/lib/items-table/`  
-Schema: `src/lib/items-table/sql/`
+Migrations: `supabase/migrations/`  
+RLS example (manual): `supabase/seed/rls.example.sql`
 
 ## Setup
 
-1. Create a Supabase project.
-2. Run [`sql/001_items.sql`](../src/lib/items-table/sql/001_items.sql) in the SQL editor.
-3. Run [`sql/002_ttl_cron.sql`](../src/lib/items-table/sql/002_ttl_cron.sql) after enabling the **pg_cron** extension (Dashboard → Database → Extensions).
-4. Add RLS policies before using the user `anon` / `authenticated` keys. Example: [`sql/003_rls.example.sql`](../src/lib/items-table/sql/003_rls.example.sql). The **service role** bypasses RLS (server-only).
-5. Env — **two values**, from **Project Settings → API** (not Database → Connection string):
+1. Create a Supabase project in the [dashboard](https://supabase.com/dashboard).
+2. Install deps (`npm install`) — includes the `supabase` CLI as a devDependency.
+3. Log in and link (one-time; opens a browser for login):
+
+```bash
+npm run db:login
+npm run db:link -- --project-ref <your-project-ref>
+```
+
+Project ref is the id in the dashboard URL: `https://supabase.com/dashboard/project/<ref>`.
+
+4. Push migrations (creates `items`, RPCs, indexes, TTL cron):
+
+```bash
+npm run db:push
+```
+
+If the TTL migration fails on `pg_cron`, enable **pg_cron** under Dashboard → Database → Extensions, then run `npm run db:push` again.
+
+5. (Optional) Apply example RLS from `supabase/seed/rls.example.sql` in the SQL editor after you decide auth rules. Service role bypasses RLS; the anon/user key needs policies.
+
+6. Env for the **app** — **two values**, from **Project Settings → API** (not Database → Connection string):
 
 ```bash
 SUPABASE_URL="https://xxxx.supabase.co"
@@ -29,11 +47,31 @@ const items = createItemsStoreFromApi(
 );
 ```
 
-That is the Data API (HTTPS + API key), same idea as Dynamo’s SDK. You do **not** set `DATABASE_URL`, host, port, user, password, or the pooler.
+That is the Data API (HTTPS + API key), same idea as Dynamo’s SDK. The **app** does **not** need `DATABASE_URL`, host, port, user, password, or the pooler.
 
-Never ship the secret / `service_role` key to the browser. Schema setup is the dashboard SQL editor (or CLI), not a Postgres client from the app.
+## Smoke test
 
-Dashboard copy-paste: **Project URL** + **`service_role`** (legacy) or **secret** key. Ignore “URI”, “Direct connection”, and “Session/Transaction pooler” unless you later add an ORM that talks SQL over the wire.
+1. `npm run db:push` (includes sample member `MEMBER#sample-ada`).
+2. Ensure `.env.local` has `SUPABASE_URL` and `SUPABASE_SECRET_KEY`.
+3. Open [`/dev/items-check`](http://localhost:4321/dev/items-check) with the dev server running.
+
+That page is SSR-only (`prerender = false`), not in the main nav.
+
+### Migrations day-to-day
+
+| Command | Purpose |
+|---|---|
+| `npm run db:login` | Auth the CLI (browser) |
+| `npm run db:link -- --project-ref …` | Bind this repo to a remote project |
+| `npm run db:push` | Apply pending files in `supabase/migrations/` |
+| `npm run db:status` | List local vs remote migrations |
+| `npx supabase migration new <name>` | Scaffold a new SQL migration |
+
+New schema changes go in a new file under `supabase/migrations/`, then `db:push`. Do not edit old migrations after they have been applied to production.
+
+`link` / `db push` use Supabase’s management API (your CLI login). That is separate from the app’s URL + API key. You only need a Postgres URI if you later add tools that speak the wire protocol (Prisma, `psql`, etc.).
+
+Dashboard copy-paste for the **app**: **Project URL** + **`service_role`** (legacy) or **secret** key. Ignore “URI”, “Direct connection”, and “Session/Transaction pooler” unless you later add an ORM that talks SQL over the wire.
 
 ## Table shape
 
@@ -229,15 +267,9 @@ Tighten before production (notes, households, etc.). RPCs are `SECURITY INVOKER`
 ## Files
 
 ```
-src/lib/items-table/
-  index.ts          public API
-  store.ts          get / put / delete / query
-  types.ts
-  keys.ts           key() + begins_with bounds
-  cursor.ts         pagination tokens
-  ttl.ts
-  design.ts         recommended key helpers
-  sql/001_items.sql
-  sql/002_ttl_cron.sql
-  sql/003_rls.example.sql
+src/lib/items-table/     TypeScript client (get/put/query/TTL helpers)
+supabase/
+  config.toml
+  migrations/            Applied via npm run db:push
+  seed/rls.example.sql   Optional policies (manual)
 ```
