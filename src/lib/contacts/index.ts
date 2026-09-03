@@ -8,7 +8,7 @@ import { normalizeEmail } from "../auth/scopes";
 import {
   type ContactData,
   contactDataSchema,
-  sortNameFromDisplayName,
+  sortNameFromContact,
 } from "./schema";
 
 export type Contact = {
@@ -26,14 +26,18 @@ function memberIdFromPk(pk: string): string {
 }
 
 function parseContact(row: ItemRow): Contact {
-  const parsed = contactDataSchema.safeParse(row.data);
+  const raw = row.data as Record<string, unknown>;
+  // Migrate legacy single `phone` field into phones.mobile if needed.
+  if (!raw.phones && typeof raw.phone === "string" && raw.phone) {
+    raw.phones = { home: "", mobile: raw.phone, work: "" };
+  }
+  const parsed = contactDataSchema.safeParse(raw);
   const data = parsed.success
     ? parsed.data
     : contactDataSchema.parse({
-        displayName: String(row.data.displayName ?? "Unknown"),
-        email: String(row.data.email ?? ""),
-        phone: String(row.data.phone ?? ""),
-        notes: String(row.data.notes ?? row.data.note ?? ""),
+        displayName: String(raw.displayName ?? "Unknown"),
+        email: String(raw.email ?? ""),
+        notes: String(raw.notes ?? raw.note ?? ""),
       });
   return {
     id: memberIdFromPk(row.pk),
@@ -49,7 +53,7 @@ export async function listContacts(
     index: "gsi2",
     pk: DirectoryKeys.gsi2pk(),
     sk: { op: "begins_with", prefix: "NAME#" },
-    limit: 500,
+    limit: 1000,
   });
   return items
     .filter((row) => row.entity_type === "member" && row.sk === "PROFILE")
@@ -84,7 +88,7 @@ export async function putContact(opts: {
     createdAt: opts.createdAt ?? opts.data.createdAt ?? now,
   };
 
-  const sortName = sortNameFromDisplayName(payload.displayName);
+  const sortName = sortNameFromContact(payload);
   const row = await store.put({
     pk: MemberKeys.pk(opts.id),
     sk: MemberKeys.profileSk(),
@@ -110,3 +114,17 @@ export async function deleteContact(
     sk: MemberKeys.profileSk(),
   });
 }
+
+export {
+  SSNC_CSV_HEADERS,
+  contactDataFromSsncCsvRow,
+  contactDataToSsncCsvRow,
+  contactsToSsncCsv,
+} from "./csv";
+export {
+  buildDisplayName,
+  contactDataFromFormData,
+  contactDataSchema,
+  sortNameFromContact,
+} from "./schema";
+export type { ContactData } from "./schema";

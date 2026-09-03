@@ -10,8 +10,12 @@ const contacts = await listContacts();
 const rows = contacts.map((c) => ({
   id: c.id,
   displayName: c.data.displayName,
+  firstName: c.data.firstName ?? '',
+  lastName: c.data.lastName ?? '',
   email: c.data.email ?? '',
-  phone: c.data.phone ?? '',
+  mobile: c.data.phones?.mobile ?? '',
+  city: c.data.address?.city ?? '',
+  state: c.data.address?.state ?? '',
   tags: c.data.tags ?? [],
 }));
 ---

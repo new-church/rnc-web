@@ -3,40 +3,20 @@ export const prerender = false;
 
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import ContactForm from '../../../components/admin/ContactForm';
-import { putContact } from '../../../lib/contacts';
-import { contactDataSchema } from '../../../lib/contacts/schema';
+import { putContact, contactDataFromFormData } from '../../../lib/contacts';
 
 const session = Astro.locals.adminSession!;
 let error = '';
 
 if (Astro.request.method === 'POST') {
-  const form = await Astro.request.formData();
-  const tags = String(form.get('tags') ?? '')
-    .split(',')
-    .map((t) => t.trim())
-    .filter(Boolean);
-  const parsed = contactDataSchema.safeParse({
-    displayName: String(form.get('displayName') ?? ''),
-    email: String(form.get('email') ?? ''),
-    phone: String(form.get('phone') ?? ''),
-    address: {
-      line1: String(form.get('line1') ?? ''),
-      line2: String(form.get('line2') ?? ''),
-      city: String(form.get('city') ?? ''),
-      state: String(form.get('state') ?? ''),
-      postalCode: String(form.get('postalCode') ?? ''),
-      country: String(form.get('country') ?? 'AU'),
-    },
-    tags,
-    notes: String(form.get('notes') ?? ''),
-  });
-
-  if (!parsed.success) {
-    error = parsed.error.issues.map((i) => i.message).join('; ');
-  } else {
+  try {
+    const form = await Astro.request.formData();
+    const data = contactDataFromFormData(form);
     const id = crypto.randomUUID();
-    await putContact({ id, data: parsed.data });
+    await putContact({ id, data });
     return Astro.redirect(`/admin/contacts/${id}`);
+  } catch (err) {
+    error = err instanceof Error ? err.message : String(err);
   }
 }
 ---

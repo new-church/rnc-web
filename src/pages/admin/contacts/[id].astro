@@ -4,11 +4,11 @@ export const prerender = false;
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import ContactForm from '../../../components/admin/ContactForm';
 import {
+  contactDataFromFormData,
   deleteContact,
   getContact,
   putContact,
 } from '../../../lib/contacts';
-import { contactDataSchema } from '../../../lib/contacts/schema';
 
 const session = Astro.locals.adminSession!;
 const id = Astro.params.id!;
@@ -24,42 +24,23 @@ if (Astro.request.method === 'POST') {
     return Astro.redirect('/admin/contacts');
   }
 
-  const tags = String(form.get('tags') ?? '')
-    .split(',')
-    .map((t) => t.trim())
-    .filter(Boolean);
   const existing = await getContact(id);
   if (!existing) {
     return Astro.redirect('/admin/contacts');
   }
 
-  const parsed = contactDataSchema.safeParse({
-    displayName: String(form.get('displayName') ?? ''),
-    email: String(form.get('email') ?? ''),
-    phone: String(form.get('phone') ?? ''),
-    address: {
-      line1: String(form.get('line1') ?? ''),
-      line2: String(form.get('line2') ?? ''),
-      city: String(form.get('city') ?? ''),
-      state: String(form.get('state') ?? ''),
-      postalCode: String(form.get('postalCode') ?? ''),
-      country: String(form.get('country') ?? 'AU'),
-    },
-    tags,
-    notes: String(form.get('notes') ?? ''),
-    mailchimpSyncedAt: existing.data.mailchimpSyncedAt,
-    postgridSyncedAt: existing.data.postgridSyncedAt,
-  });
-
-  if (!parsed.success) {
-    error = parsed.error.issues.map((i) => i.message).join('; ');
-  } else {
+  try {
+    const data = contactDataFromFormData(form);
+    data.mailchimpSyncedAt = existing.data.mailchimpSyncedAt;
+    data.postgridSyncedAt = existing.data.postgridSyncedAt;
     await putContact({
       id,
-      data: parsed.data,
+      data,
       createdAt: existing.data.createdAt,
     });
     notice = 'Saved.';
+  } catch (err) {
+    error = err instanceof Error ? err.message : String(err);
   }
 }
 
