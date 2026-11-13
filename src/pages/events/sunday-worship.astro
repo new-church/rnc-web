@@ -3,6 +3,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Button from '../../components/Button.astro';
 import SoftPhoto from '../../components/SoftPhoto.astro';
 import Card from '../../components/Card.astro';
+import { formatServiceDate, getUpcomingSundayTheme } from '../../lib/site/sunday-theme';
+
+export const prerender = false;
+
+const sunday = await getUpcomingSundayTheme();
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
 
 const testimonials = [
   {
@@ -56,6 +62,15 @@ const testimonials = [
         >← Events</a
       >
     </p>
+
+    {
+      sunday && (
+        <Card variant="tint" class="mb-8" eyebrow={formatServiceDate(sunday.serviceDate)} title="Next service">
+          <p class="m-0 font-display text-lg text-text-heading">{sunday.theme}</p>
+          {sunday.note && <p class="mt-2 mb-0 text-sm text-text-muted">{sunday.note}</p>}
+        </Card>
+      )
+    }
 
     <article class="prose-rnc">
       <div

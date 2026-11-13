@@ -3,11 +3,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Button from '../components/Button.astro';
 import Card from '../components/Card.astro';
 import Badge from '../components/Badge.astro';
-import EventsCalendar from '../components/EventsCalendar.astro';
+import { formatServiceDate, getUpcomingSundayTheme } from '../lib/site/sunday-theme';
 
-const icsUrl =
-  import.meta.env.PUBLIC_CALENDAR_ICS_URL ||
-  'https://outlook.office365.com/owa/calendar/d3aab09d67bf4025ae539869196ad552@rosevillenewchurch.com.au/e57651adf65b458bb5d1e3154770ba4517495040307124971130/calendar.ics';
+export const prerender = false;
+
+const sunday = await getUpcomingSundayTheme();
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
 ---
 
 <BaseLayout
@@ -107,6 +108,11 @@ const icsUrl =
         >
           Worship, readings and reflection at 2B Shirley Rd — everyone is
           welcome. Stay afterwards for refreshments and conversation.
+          {sunday && (
+            <span class="mt-3 block text-sm">
+              <strong>{formatServiceDate(sunday.serviceDate)}:</strong> {sunday.theme}
+            </span>
+          )}
           <Badge slot="footer" tone="gold">Morning tea after</Badge>
         </Card>
         <Card
@@ -132,17 +138,6 @@ const icsUrl =
       </div>
     </section>
 
-    <!-- Live church calendar -->
-    <section class="container-site px-6 md:px-8">
-      <EventsCalendar icsUrl={icsUrl} />
-      <p class="m-0 mt-2 mb-0 text-sm text-text-muted">
-        See the{' '}
-        <a href="/events" class="text-link hover:text-link-hover"
-          >events page</a
-        >{' '}
-        for our regular weekly rhythm as well.
-      </p>
-    </section>
 
     <!-- Our home -->
     <section class="container-site px-6 md:px-8 mt-14 md:mt-[72px] pb-4">
