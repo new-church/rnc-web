@@ -14,7 +14,7 @@ const session = await getSessionContext({
 
 if (session && Astro.url.searchParams.get('error') !== 'forbidden') {
   if (session.appUser?.data.scopes?.length) {
-    return Astro.redirect('/admin/contacts');
+    return Astro.redirect('/admin/actions');
   }
 }
 

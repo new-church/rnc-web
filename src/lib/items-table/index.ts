@@ -4,7 +4,6 @@ export {
   ItemsStore,
 } from "./store";
 export {
-  SAMPLE_MEMBER_ID,
   createItemsStoreFromEnv,
 } from "./client";
 export {
@@ -16,12 +15,6 @@ export {
 } from "./keys";
 export { encodeCursor, decodeCursor } from "./cursor";
 export { ttlToIso } from "./ttl";
-export {
-  DirectoryKeys,
-  HouseholdKeys,
-  MemberKeys,
-  SessionKeys,
-} from "./design";
 export type {
   Cursor,
   GetInput,

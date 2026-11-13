@@ -10,7 +10,7 @@ Brand reference and design tokens live in [`design-system-claude/`](design-syste
 - [Tailwind CSS v4](https://tailwindcss.com) via `@tailwindcss/vite`
 - Self-hosted fonts: Josefin Sans + Lora (`@fontsource`)
 - Icons: [`@lucide/astro`](https://lucide.dev)
-- Optional member/CRM store: [`docs/items-table.md`](docs/items-table.md) (Supabase single-table)
+- App users, sync state and results: [`docs/items-table.md`](docs/items-table.md) (Supabase single-table). Contacts live in Planning Center; syncs: [`docs/sync.md`](docs/sync.md)
 
 ## Calendar
 

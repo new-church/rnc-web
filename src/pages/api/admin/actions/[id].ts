@@ -1,31 +1,26 @@
 import type { APIRoute } from "astro";
-import {
-  ACTION_IDS,
-  recordActionRun,
-  type ActionId,
-} from "../../../../lib/actions";
+import { ACTION_IDS, type ActionId } from "../../../../lib/actions";
+import { runJob } from "../../../../lib/sync/runner";
 
 export const prerender = false;
 
 const allowed = new Set<string>(Object.values(ACTION_IDS));
 
-export const POST: APIRoute = async ({ params, locals, redirect }) => {
+/** Run a sync from the admin page. `?dry=1` reports what would change without writing. */
+export const POST: APIRoute = async ({ params, locals, redirect, url }) => {
   const session = locals.adminSession;
   if (!session) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-    });
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
   const id = params.id ?? "";
   if (!allowed.has(id)) {
-    return new Response(JSON.stringify({ error: "Unknown action" }), {
-      status: 404,
-    });
+    return new Response(JSON.stringify({ error: "Unknown action" }), { status: 404 });
   }
 
-  await recordActionRun({
-    actionId: id as ActionId,
+  await runJob(id as ActionId, {
+    apply: url.searchParams.get("dry") !== "1",
+    trigger: "admin",
     actorEmail: session.email,
   });
 

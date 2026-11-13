@@ -1,6 +1,6 @@
 # Single-table store (Supabase / Postgres)
 
-Dynamo-style **one table**, **PK + SK**, **three sparse GSIs**, **keyset pagination**, and **TTL**. The website CMS stays in git; this is for members / CRM / sessions.
+Dynamo-style **one table**, **PK + SK**, **three sparse GSIs**, **keyset pagination**, and **TTL**. The website CMS stays in git; this now holds app users and scopes, sync results and state. (The old members / CRM contacts were removed from the app on 2026-11-13: Planning Center is the contacts master.)
 
 Client: `src/lib/items-table/`  
 Migrations: `supabase/migrations/`  
@@ -95,32 +95,11 @@ After login, admins use a separate shell (left nav) at `/admin/*`:
 
 | Route | Purpose |
 |---|---|
-| `/admin/contacts` | CRM contacts (`MEMBER#` / `PROFILE`) — TanStack Table |
-| `/admin/contacts/new`, `/admin/contacts/[id]` | Create / edit contact |
-| `/admin/actions` | Stub Mailchimp / PostGrid jobs |
+| `/admin/actions` | Planning Center to Mailchimp / PostGrid syncs: Run now, Dry run, last result (see `docs/sync.md`) |
 | `/admin/users` | Login accounts + scopes |
 | `/admin/account` | Your display name |
 
 Requires `admin` or `super_admin` on the `USER#` item. Middleware gates `/admin` and `/api/admin`.
-
-### Import contacts CSV
-
-SSNC export (`tmp/SSNC Contacts …_all.csv`) maps into the contact schema via:
-
-```bash
-npm run contacts:import -- --dry-run "tmp/SSNC Contacts ….csv"
-npm run contacts:import -- "tmp/SSNC Contacts ….csv"
-```
-
-Ids are stable hashes so re-running upserts the same rows. Invalid emails are cleared rather than rejecting the row.
-
-### PostGrid address autocomplete
-
-Contact create/edit uses PostGrid International Address Verification:
-
-- UI: find-as-you-type on the address section, with **Enter address manually** fallback
-- API: `GET` / `POST` `/api/admin/addresses/complete` (admin session + `POSTGRID_API_KEY`)
-- Set `POSTGRID_API_KEY` in `.env.local` and Vercel (Address Verification secret key from PostGrid Developers)
 
 ### Migrations day-to-day
 

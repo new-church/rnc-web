@@ -23,16 +23,12 @@ const {
 const pageTitle = `${title} · Admin · Roseville New Church`;
 
 const nav: NavItem[] = [
-  { href: '/admin/contacts', label: 'Contacts' },
   { href: '/admin/actions', label: 'Actions' },
   { href: '/admin/users', label: 'Users' },
   { href: '/admin/account', label: 'Account' },
 ];
 
 function isActive(href: string) {
-  if (href === '/admin/contacts') {
-    return currentPath === '/admin/contacts' || currentPath.startsWith('/admin/contacts/');
-  }
   return currentPath === href || currentPath.startsWith(href + '/');
 }
 ---

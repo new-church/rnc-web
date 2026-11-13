@@ -14,8 +14,10 @@ const actions = await listActionMetas();
   email={session.email}
 >
   <p class="text-ink-muted mb-6 max-w-2xl leading-relaxed">
-    Backend jobs for integrations. Connect API keys later; running an action
-    today only records a stub job in the items table.
+    Planning Center is the master. These syncs run daily on their own; use
+    <strong>Dry run</strong> to see what would change without writing anything,
+    or <strong>Run now</strong> to apply it. Results and anything that needs a
+    look are shown below and emailed when email alerts are set up.
   </p>
 
   <div class="grid gap-4 md:grid-cols-2 max-w-3xl">
@@ -48,14 +50,51 @@ const actions = await listActionMetas();
               )
             }
           </dl>
-          <form method="POST" action={`/api/admin/actions/${a.id}`}>
-            <button
-              type="submit"
-              class="inline-flex items-center justify-center font-display font-semibold tracking-[0.04em] rounded-pill bg-accent-primary text-text-on-accent px-[22px] pt-[11px] pb-[9px] text-[14px] leading-none hover:bg-accent-primary-strong"
-            >
-              Run now
-            </button>
-          </form>
+          {
+            a.lastResult && (a.lastResult.errors?.length || a.lastResult.attention?.length) ? (
+              <div class="text-xs space-y-1">
+                {a.lastResult.errors?.length ? (
+                  <ul class="list-disc pl-4 text-red-700">
+                    {a.lastResult.errors.slice(0, 8).map((e) => <li>{e}</li>)}
+                  </ul>
+                ) : null}
+                {a.lastResult.attention?.length ? (
+                  <ul class="list-disc pl-4 text-ink-muted">
+                    {a.lastResult.attention.slice(0, 12).map((e) => <li>{e}</li>)}
+                  </ul>
+                ) : null}
+              </div>
+            ) : null
+          }
+          {
+            a.lastDryRun && (
+              <details class="text-xs text-ink-muted">
+                <summary class="cursor-pointer font-display font-semibold">
+                  Last dry run ({new Date(a.lastDryRun.at).toLocaleString()})
+                </summary>
+                <p class="mt-1">{a.lastDryRun.summary}</p>
+                <pre class="mt-1 whitespace-pre-wrap">{a.lastDryRun.lines.join("\n")}</pre>
+              </details>
+            )
+          }
+          <div class="flex gap-3">
+            <form method="POST" action={`/api/admin/actions/${a.id}`}>
+              <button
+                type="submit"
+                class="inline-flex items-center justify-center font-display font-semibold tracking-[0.04em] rounded-pill bg-accent-primary text-text-on-accent px-[22px] pt-[11px] pb-[9px] text-[14px] leading-none hover:bg-accent-primary-strong"
+              >
+                Run now
+              </button>
+            </form>
+            <form method="POST" action={`/api/admin/actions/${a.id}?dry=1`}>
+              <button
+                type="submit"
+                class="inline-flex items-center justify-center font-display font-semibold tracking-[0.04em] rounded-pill border border-border-soft bg-white px-[22px] pt-[11px] pb-[9px] text-[14px] leading-none hover:bg-gray-50"
+              >
+                Dry run
+              </button>
+            </form>
+          </div>
         </article>
       ))
     }

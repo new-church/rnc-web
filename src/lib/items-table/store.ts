@@ -40,7 +40,9 @@ export class ItemsStore {
       p_hide_expired: hideExpired,
     });
     if (error) throw new Error(`items_get: ${error.message}`);
-    return (data as ItemRow | null) ?? null;
+    // The items_get RPC returns an all-null composite row (not SQL NULL) when nothing matches.
+    const row = data as ItemRow | null;
+    return row && row.pk ? row : null;
   }
 
   async put(item: PutItem): Promise<ItemRow> {

@@ -23,23 +23,35 @@ export type ActionMeta = {
   lastRunAt?: string | null;
   lastActorEmail?: string | null;
   lastMessage?: string | null;
+  lastResult?: {
+    attention?: string[];
+    errors?: string[];
+    lines?: string[];
+  } | null;
+  lastDryRun?: {
+    at: string;
+    summary: string;
+    attention: string[];
+    errors: string[];
+    lines: string[];
+  } | null;
 };
 
 export const ACTION_CATALOG: Omit<
   ActionMeta,
-  "lastStatus" | "lastRunAt" | "lastActorEmail" | "lastMessage"
+  "lastStatus" | "lastRunAt" | "lastActorEmail" | "lastMessage" | "lastResult" | "lastDryRun"
 >[] = [
   {
     id: ACTION_IDS.mailchimpSync,
     label: "Sync to Mailchimp",
     description:
-      "Push contacts to Mailchimp. Connect API keys later; for now this records a job.",
+      "Planning Center to Mailchimp: add and update contacts, rename changed emails, set type: and tag: tags, pull unsubscribes back into Planning Center, and turn a cleared Unsubscribed flag into a resubscribe request. Runs daily.",
   },
   {
     id: ACTION_IDS.postgridSync,
     label: "Sync to PostGrid",
     description:
-      "Push postal contacts to PostGrid for mailouts. Stub records a job until keys are connected.",
+      "Planning Center to PostGrid: one contact per household and a mailing list per print run (Society news, Candela) and country hub. Nothing is mailed. Runs daily.",
   },
 ];
 
@@ -55,12 +67,21 @@ export async function getActionMeta(
     sk: ActionKeys.metaSk(),
   });
   const data = (row?.data ?? {}) as Record<string, unknown>;
+  const dry = await store.get({ pk: ActionKeys.pk(actionId), sk: "DRYRUN" });
+  const dryData = (dry?.data ?? null) as {
+    at: string;
+    result: { summary: string; attention: string[]; errors: string[]; lines: string[] };
+  } | null;
   return {
     ...catalog,
+    lastDryRun: dryData
+      ? { at: dryData.at, summary: dryData.result.summary, attention: dryData.result.attention, errors: dryData.result.errors, lines: dryData.result.lines }
+      : null,
     lastStatus: data.lastStatus ? String(data.lastStatus) : null,
     lastRunAt: data.lastRunAt ? String(data.lastRunAt) : null,
     lastActorEmail: data.lastActorEmail ? String(data.lastActorEmail) : null,
     lastMessage: data.lastMessage ? String(data.lastMessage) : null,
+    lastResult: (data.lastResult as ActionMeta["lastResult"]) ?? null,
   };
 }
 
@@ -68,48 +89,4 @@ export async function listActionMetas(
   store: ItemsStore = createItemsStoreFromEnv(),
 ): Promise<ActionMeta[]> {
   return Promise.all(ACTION_CATALOG.map((a) => getActionMeta(a.id, store)));
-}
-
-/** Stub: write META + a RUN item. No external API calls. */
-export async function recordActionRun(opts: {
-  actionId: ActionId;
-  actorEmail: string;
-  store?: ItemsStore;
-}): Promise<ActionMeta> {
-  const store = opts.store ?? createItemsStoreFromEnv();
-  const catalog = ACTION_CATALOG.find((a) => a.id === opts.actionId);
-  if (!catalog) throw new Error(`Unknown action: ${opts.actionId}`);
-
-  const now = new Date().toISOString();
-  const runId = crypto.randomUUID().slice(0, 8);
-  const message =
-    "Stub run recorded. Wire Mailchimp/PostGrid API keys to perform a real sync.";
-
-  await store.put({
-    pk: ActionKeys.pk(opts.actionId),
-    sk: ActionKeys.metaSk(),
-    entityType: "action",
-    data: {
-      id: opts.actionId,
-      label: catalog.label,
-      lastStatus: "stub_ok",
-      lastRunAt: now,
-      lastActorEmail: opts.actorEmail,
-      lastMessage: message,
-    },
-  });
-
-  await store.put({
-    pk: ActionKeys.pk(opts.actionId),
-    sk: ActionKeys.runSk(now, runId),
-    entityType: "action_run",
-    data: {
-      status: "stub_ok",
-      actorEmail: opts.actorEmail,
-      message,
-      createdAt: now,
-    },
-  });
-
-  return getActionMeta(opts.actionId, store);
 }

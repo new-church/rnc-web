@@ -1,9 +1,8 @@
 /// <reference types="astro/client" />
 
-import type { SessionContext } from "./lib/auth/session";
-
 declare namespace App {
   interface Locals {
-    adminSession?: SessionContext;
+    // inline import() keeps this file a global declaration (a top-level import would make it a module)
+    adminSession?: import("./lib/auth/session").SessionContext;
   }
 }
