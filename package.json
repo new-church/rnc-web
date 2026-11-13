@@ -12,6 +12,7 @@
     "astro": "astro",
     "newsletters:download": "node scripts/download-newsletters.mjs",
     "newsletters:upload-blob": "node scripts/upload-newsletters-to-blob.mjs",
+    "calendar": "node --env-file=.env scripts/calendar.mjs",
     "db:login": "supabase login",
     "db:link": "supabase link",
     "db:push": "supabase db push",
