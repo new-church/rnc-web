@@ -6,7 +6,7 @@ author: "howard-thompson"
 series: "Prayer"
 tags: ["faith", "prayer", "anxiety"]
 relatedPosts: ["how-god-answers-prayer", "why-prayer-sometimes-seems-unanswered"]
-draft: false
+draft: true
 ---
 
 Faith is easiest when life is smooth. The harder question is how to stay open to the Lord when plans collapse, health falters, or relationships strain.

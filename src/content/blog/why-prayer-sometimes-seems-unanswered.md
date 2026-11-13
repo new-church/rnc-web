@@ -7,7 +7,7 @@ series: "Prayer"
 tags: ["prayer", "faith", "spiritual-life"]
 relatedPosts: ["how-god-answers-prayer", "how-can-i-keep-my-faith-when-life-falls-apart"]
 relatedArticle: "thoughts-on-repentance"
-draft: false
+draft: true
 ---
 
 Sometimes we pray earnestly and nothing seems to change. Silence can feel like absence. New Church teaching invites a wider view: the Lord never withholds love, yet never forces the will. Timing, freedom, and the deeper needs of the soul may mean that the answer is different from the one we first imagined.

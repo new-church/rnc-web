@@ -6,7 +6,7 @@ author: "julian-duckworth"
 series: "Life After Death"
 tags: ["afterlife", "heaven", "swedenborg"]
 relatedPosts: ["is-heaven-a-place", "what-is-the-spiritual-world"]
-draft: false
+draft: true
 ---
 
 One of the most common spiritual questions is also one of the most personal: what happens when we die?

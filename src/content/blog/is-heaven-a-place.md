@@ -7,7 +7,7 @@ series: "Life After Death"
 tags: ["heaven", "afterlife", "swedenborg"]
 relatedPosts: ["what-happens-when-we-die", "what-is-the-spiritual-world"]
 relatedArticle: "we-can-earn-heaven"
-draft: false
+draft: true
 ---
 
 We often picture heaven as a location somewhere “up there.” Swedenborg’s teaching keeps the helpful imagery of place while insisting on something deeper: heaven is primarily a state of life — a community of people whose ruling love is love to the Lord and useful love toward the neighbour.

@@ -6,7 +6,7 @@ author: "roseville-editorial"
 series: "Prayer"
 tags: ["prayer", "spiritual-life"]
 relatedPosts: ["how-can-i-keep-my-faith-when-life-falls-apart", "why-prayer-sometimes-seems-unanswered"]
-draft: false
+draft: true
 ---
 
 Prayer is less a transaction and more a relationship. Answers may come as changed desires, clearer insight, unexpected help from others, or a deepened capacity to love under pressure.

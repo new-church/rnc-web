@@ -6,7 +6,10 @@ import Badge from '../../../components/Badge.astro';
 
 export async function getStaticPaths() {
   const authors = await getCollection('authors');
-  return authors.map((author) => ({
+  const published = (await getCollection('blog')).filter((p) => !p.data.draft);
+  return authors
+    .filter((author) => published.some((p) => p.data.author === author.id))
+    .map((author) => ({
     params: { slug: author.id },
     props: { author },
   }));

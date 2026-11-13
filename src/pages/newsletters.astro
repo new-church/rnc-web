@@ -33,7 +33,7 @@ function formatSize(bytes?: number) {
   return mb >= 10 ? `${mb.toFixed(0)} MB` : `${mb.toFixed(1)} MB`;
 }
 
-const articles = await getCollection('articles');
+const articles = (await getCollection('articles')).filter((a) => !a.data.draft);
 const articleById = new Map(articles.map((a) => [a.id, a]));
 ---
 
@@ -53,10 +53,7 @@ const articleById = new Map(articles.map((a) => [a.id, a]));
       <p class="text-lg text-text-muted -mt-1 mb-6">
         There's always something going on. Browse past issues and download the
         PDF — reflections, schedules, garden updates, and Swedenborg Centre
-        news. Standalone essays extracted from newsletters live in{' '}
-        <a href="/articles" class="text-link hover:text-link-hover"
-          >Articles</a
-        >.
+        news.
       </p>
       {
         allTags.length > 0 && (

@@ -4,7 +4,7 @@ description: "On regeneration, usefulness, and the New Church idea of heaven beg
 date: 2025-06-01
 tags: ["heaven", "regeneration", "swedenborg"]
 sourceNewsletter: "june-july-2025"
-draft: false
+draft: true
 ---
 
 Heaven, in Swedenborg’s teaching, is not a reward arbitrarily granted but a life of love and wisdom that we freely grow into. This article explores what it means — and does not mean — to “earn” heaven.

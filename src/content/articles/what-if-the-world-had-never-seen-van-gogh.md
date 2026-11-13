@@ -4,7 +4,7 @@ description: "A cultural reflection connecting Van Gogh with spiritual seeing."
 date: 2025-11-01
 tags: ["culture", "art", "spiritual-life"]
 sourceNewsletter: "november-2025"
-draft: false
+draft: true
 ---
 
 Art can awaken us to beauty we might otherwise miss. This piece asks what is lost when a unique vision never reaches the world — and what that suggests about the gifts each person is invited to offer.
