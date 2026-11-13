@@ -25,6 +25,19 @@ CALENDAR_ICS_URL="https://outlook.office365.com/owa/calendar/.../calendar.ics"
 
 Publish the calendar from Outlook on the web: **Settings → Calendar → Shared calendars → Publish a calendar** (permission: *Can view all details*). Prefer **AUS Eastern Standard Time** on the mailbox so times match Sydney.
 
+### Managing events from the command line
+
+The published calendar is the "Roseville New Church Events" calendar in the admin@ mailbox. `scripts/calendar.mjs` lists, adds, updates and deletes events there through Microsoft Graph, using the Entra app "RNC Calendar Manager" (client credentials in `.env`: `M365_TENANT_ID`, `M365_CLIENT_ID`, `M365_CLIENT_SECRET`; local only, never on Vercel). Writes are a dry run unless you pass `--apply`.
+
+```bash
+npm run calendar -- list --from 2026-11-01 --days 60
+npm run calendar -- add "Service" 2026-11-22 10:00 11:00 --body "Led by ..." --apply
+npm run calendar -- update <eventId> --title "..." --apply
+npm run calendar -- delete <eventId> --apply
+```
+
+The client secret expires; renew it in Entra (App registrations → RNC Calendar Manager → Certificates & secrets) and update `.env`.
+
 ## Local development
 
 ```bash
