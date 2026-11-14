@@ -4,6 +4,7 @@
 //
 //   npm run calendar -- list [--from 2026-11-01] [--days 60]
 //   npm run calendar -- add "Service" 2026-11-15 10:00 11:00 [--body "..."] [--location "..."] [--apply]
+//   npm run calendar -- add "Annual camp" 2027-01-22 2027-01-26 --all-day [--body "..."] [--location "..."] [--apply]   (last day inclusive)
 //   npm run calendar -- update <eventId> [--title ".."] [--date YYYY-MM-DD --start HH:MM --end HH:MM] [--body ".."] [--location ".."] [--apply]
 //   npm run calendar -- delete <eventId> [--apply]
 //
@@ -92,6 +93,7 @@ const { values: opts, positionals } = parseArgs({
     end: { type: 'string' },
     body: { type: 'string' },
     location: { type: 'string' },
+    'all-day': { type: 'boolean', default: false },
     apply: { type: 'boolean', default: false },
   },
 });
@@ -112,16 +114,30 @@ if (command === 'list') {
   const { value } = await graph(`${base}/calendarView?${q}`);
   console.log(value.length ? value.map(fmt).join('\n') : 'No events in that range.');
 } else if (command === 'add') {
-  const [title, date, start, end] = args;
-  if (!title || !dateOk(date) || !timeOk(start) || !timeOk(end)) {
-    fail('Usage: add "Title" YYYY-MM-DD HH:MM HH:MM [--body ..] [--location ..] [--apply]');
+  const allDay = opts['all-day'];
+  const [title, date, a3, a4] = args;
+  let startDt, endDt;
+  if (allDay) {
+    // add "Title" firstDay lastDay --all-day: the last day is inclusive; Outlook wants the day after.
+    if (!title || !dateOk(date) || !dateOk(a3)) fail('Usage: add "Title" YYYY-MM-DD YYYY-MM-DD --all-day [--body ..] [--location ..] [--apply]');
+    const next = new Date(`${a3}T00:00:00Z`);
+    next.setUTCDate(next.getUTCDate() + 1);
+    startDt = `${date}T00:00:00`;
+    endDt = `${next.toISOString().slice(0, 10)}T00:00:00`;
+  } else {
+    if (!title || !dateOk(date) || !timeOk(a3) || !timeOk(a4)) {
+      fail('Usage: add "Title" YYYY-MM-DD HH:MM HH:MM [--body ..] [--location ..] [--apply]');
+    }
+    startDt = `${date}T${a3}:00`;
+    endDt = `${date}T${a4}:00`;
   }
   const event = {
     subject: title,
-    start: { dateTime: `${date}T${start}:00`, timeZone: TZ },
-    end: { dateTime: `${date}T${end}:00`, timeZone: TZ },
+    isAllDay: allDay,
+    start: { dateTime: startDt, timeZone: TZ },
+    end: { dateTime: endDt, timeZone: TZ },
     location: { displayName: opts.location ?? DEFAULT_LOCATION },
-    showAs: 'busy',
+    showAs: allDay ? 'free' : 'busy',
     ...(opts.body ? { body: { contentType: 'text', content: opts.body } } : {}),
   };
   console.log(`${opts.apply ? 'Adding' : 'Dry run, would add'} to "${CALENDAR_NAME}":\n${JSON.stringify(event, null, 2)}`);
