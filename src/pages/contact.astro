@@ -83,7 +83,15 @@ import Input from '../components/Input.astro';
             >
           </p>
           <p class="mt-2 mb-0">
-            Email:{' '}
+            Email the office:{' '}
+            <a
+              href="mailto:admin@rosevillenewchurch.com.au"
+              class="text-link hover:text-link-hover break-all"
+              >admin@rosevillenewchurch.com.au</a
+            >
+          </p>
+          <p class="mt-2 mb-0">
+            Email the minister:{' '}
             <a
               href="mailto:pastor@rosevillenewchurch.com.au"
               class="text-link hover:text-link-hover break-all"
@@ -103,6 +111,7 @@ import Input from '../components/Input.astro';
             label="Your name"
             id="contact-name"
             name="name"
+            autocomplete="name"
             required
             placeholder="Your name"
           />
@@ -111,6 +120,7 @@ import Input from '../components/Input.astro';
             id="contact-email"
             name="email"
             type="email"
+            autocomplete="email"
             required
             placeholder="you@example.com"
           />
@@ -164,7 +174,7 @@ import Input from '../components/Input.astro';
     }
 
     const body = `Name: ${name}\nEmail: ${email}\n\n${message}`;
-    const mailto = `mailto:pastor@rosevillenewchurch.com.au?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const mailto = `mailto:admin@rosevillenewchurch.com.au?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.location.href = mailto;
   });
 </script>
