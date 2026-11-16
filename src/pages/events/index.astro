@@ -52,6 +52,15 @@ const events = [
     desc: 'Five days at The Tops Conference Centre, Stanwell Tops — worship, talks, activities and fellowship for all ages.',
   },
   {
+    title: 'Prayer circle',
+    date: 'Ongoing · online',
+    category: 'Community',
+    where: 'Online' as const,
+    href: '/contact',
+    cta: 'Get in touch to join',
+    desc: 'Our online community on WhatsApp includes a prayer circle, a way of holding one another in prayer between services. Get in touch and we will send you an invitation.',
+  },
+  {
     title: 'Church garden working bee',
     date: 'As announced',
     category: 'Community',
@@ -102,12 +111,12 @@ const tabs = ['All', 'Worship', 'Study', 'Community'];
             <Card eyebrow={event.date} title={event.title}>
               {event.desc}
               <div slot="footer" class="flex flex-wrap gap-2.5 items-center">
-                <Badge tone={event.where === 'On Zoom' ? 'info' : 'success'}>
+                <Badge tone={event.where === 'In person' ? 'success' : 'info'}>
                   {event.where}
                 </Badge>
                 {event.href && (
                   <Button size="sm" variant="secondary" href={event.href}>
-                    Learn more
+                    {event.cta ?? 'Learn more'}
                   </Button>
                 )}
               </div>
