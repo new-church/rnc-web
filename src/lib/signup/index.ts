@@ -195,11 +195,20 @@ export async function subscribeInPlanningCenter(s: Subscription): Promise<{ crea
   const prefsId = fieldId('Communication preferences');
   if (!prefsId) throw new Error('Planning Center field "Communication preferences" not found');
 
-  // Find an existing person by email; with several (a shared address), prefer the matching first name.
-  const found = await pco('GET', `/emails?where[address]=${encodeURIComponent(s.email)}&include=person&per_page=25`);
-  const people: J[] = found.included ?? [];
-  const match = people.find((p) => (p.attributes.first_name ?? '').toLowerCase() === s.first.toLowerCase()) ?? people[0];
-  let personId: string = match?.id;
+  // Find an existing person by email. (The emails endpoint ignores include=person, so read the relationship.)
+  // With several people on one address (a shared email), prefer the one whose first name matches.
+  const found = await pco('GET', `/emails?where[address]=${encodeURIComponent(s.email)}&per_page=25`);
+  const ids = [...new Set<string>((found.data as J[]).map((e) => e.relationships?.person?.data?.id).filter(Boolean))];
+  let personId: string | undefined = ids[0];
+  if (ids.length > 1) {
+    for (const id of ids.slice(0, 5)) {
+      const p = (await pco('GET', `/people/${id}`)).data;
+      if ((p.attributes.first_name ?? '').toLowerCase() === s.first.toLowerCase()) {
+        personId = id;
+        break;
+      }
+    }
+  }
   let created = false;
 
   if (!personId) {
