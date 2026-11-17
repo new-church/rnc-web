@@ -1,0 +1,21 @@
+/** Per-site settings for the mailing list signup (the code in index.ts is shared with sc-www). */
+export const signupConfig = {
+  siteName: 'Roseville New Church',
+  /** Production origin, used in confirmation links (other environments use the request origin). */
+  siteUrl: 'https://www.rosevillenewchurch.com.au',
+  from: 'Roseville New Church <admin@rosevillenewchurch.com.au>',
+  replyTo: 'admin@rosevillenewchurch.com.au',
+  contactPhone: '02 9416 7026',
+  /** rnc-web paths have no trailing slash; sc-www uses trailing slashes everywhere. */
+  trailingSlash: false,
+  /**
+   * The lists people can pick. `option` is the exact option name of the "Communication preferences"
+   * checkbox field in Planning Center.
+   */
+  lists: [
+    { id: 'society', label: 'Society news', hint: 'News and notices from the Sydney Society of the New Church', option: 'Society news', checked: true },
+    { id: 'centre', label: 'Swedenborg Centre news', hint: 'The monthly Swedenborg Centre enews', option: 'Swedenborg Centre news', checked: false },
+    { id: 'candela', label: 'Candela', hint: 'The Candela magazine, by email', option: 'Candela', checked: false },
+  ],
+};
+export type SignupList = (typeof signupConfig.lists)[number];

@@ -29,3 +29,6 @@ pnpm-debug.log*
 data/newsletters/pdfs/
 
 .env.local
+.vercel
+.env.*
+!.env.example

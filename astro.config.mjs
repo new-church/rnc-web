@@ -31,7 +31,7 @@ export default defineConfig({
     // articles indexes while they have no published posts (they redirect home).
     // Remove them from this filter when posts are published again.
     sitemap({
-      filter: (page) => !/\/(admin|login|api|blog|articles)(\/|$)/.test(page),
+      filter: (page) => !/\/(admin|login|api|blog|articles|subscribe\/confirm(ed)?)(\/|$)/.test(page),
     }),
   ],
 });
