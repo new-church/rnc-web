@@ -1,0 +1,49 @@
+---
+// Google tag for the GA4 stream (measurement ID G-WQG7KKW8M5), loaded through
+// the stream's Google tag container GTM-55WPCHXW. This is the snippet GA gives
+// under Data streams > View tag instructions; the GA4 configuration lives in
+// the container, so there is no gtag('config') here.
+//
+// Production builds only, so dev and Vercel preview traffic never reaches GA4.
+// A missing VERCEL_ENV still ships the tag, so production cannot silently lose
+// tracking. The script also returns unless the hostname is the live domain,
+// which keeps the *.vercel.app aliases out of the data.
+//
+// The ID is hardcoded on purpose: it is public in the page source, and an env
+// var that went missing would silently drop tracking.
+//
+// A visitor sending Global Privacy Control gets Consent Mode defaults of ad
+// storage, ad user data and ad personalisation denied, with analytics storage
+// still granted, so visits are counted but no ad cookies are set. Login and
+// admin pages (noindex) are not tracked. Only one Google tag per page: do not
+// add a second one.
+// Put <Analytics /> in <head> straight after the charset meta. is:inline keeps
+// the script as written, so it is flush left.
+const isPreviewDeploy = process.env.VERCEL_ENV === 'preview';
+if (!import.meta.env.PROD || isPreviewDeploy) return;
+---
+<script is:inline>
+(function () {
+  var host = location.hostname;
+  if (host !== 'rosevillenewchurch.com.au' && host !== 'www.rosevillenewchurch.com.au') return;
+
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+
+  if (navigator.globalPrivacyControl === true) {
+    gtag('consent', 'default', {
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      analytics_storage: 'granted'
+    });
+  }
+
+  gtag('js', new Date());
+
+  var s = document.createElement('script');
+  s.async = true;
+  s.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-55WPCHXW';
+  document.head.appendChild(s);
+})();
+</script>
