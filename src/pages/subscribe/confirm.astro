@@ -6,6 +6,9 @@ import { apiPath, listsFor, readToken, signupPath } from '../../lib/signup';
 
 export const prerender = false;
 
+// The link holds the person's details, so never pass it on as a Referer (the next page loads Google Analytics).
+Astro.response.headers.set('Referrer-Policy', 'no-referrer');
+
 const t = Astro.url.searchParams.get('t') ?? '';
 const sub = readToken(t);
 const failed = Astro.url.searchParams.get('error') === 'failed';
