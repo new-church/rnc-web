@@ -5,6 +5,8 @@ export const signupConfig = {
   siteUrl: 'https://www.rosevillenewchurch.com.au',
   from: 'Roseville New Church <admin@rosevillenewchurch.com.au>',
   replyTo: 'admin@rosevillenewchurch.com.au',
+  /** Staff alerts (new subscribers, problems). ALERT_EMAIL_TO in Vercel overrides this. */
+  alertTo: 'admin@rosevillenewchurch.com.au',
   contactPhone: '02 9416 7026',
   /** rnc-web paths have no trailing slash; sc-www uses trailing slashes everywhere. */
   trailingSlash: false,

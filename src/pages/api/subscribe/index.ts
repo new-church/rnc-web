@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { signupConfig } from '../../../lib/signup/config';
+import { alertStaff } from '../../../lib/signup/alert';
 import { isProduction, parseForm, signupPath, sendConfirmation, signToken, verifyTurnstile } from '../../../lib/signup';
 
 export const prerender = false;
@@ -22,6 +23,10 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     await sendConfirmation(parsed.value, link);
   } catch (err) {
     console.error('[signup] confirmation email failed', err);
+    await alertStaff('problem', 'a confirmation email could not be sent', [
+      `Someone tried to subscribe as ${parsed.value.first} ${parsed.value.last} <${parsed.value.email}> but the confirmation email failed.`,
+      `Error: ${String((err as Error).message ?? err).slice(0, 300)}`,
+    ]);
     return back('error=send');
   }
   return back('sent=1');

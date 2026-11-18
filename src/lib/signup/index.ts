@@ -183,10 +183,10 @@ const resource = (type: string, attributes: object, relationships?: object) => (
  * Finds the person by email (or creates them), ticks the chosen mailing options, and clears the
  * "Unsubscribed" flag (keeping its date, see below): the confirmed link is fresh consent. Existing names are never overwritten.
  */
-export async function subscribeInPlanningCenter(s: Subscription): Promise<{ created: boolean }> {
+export async function subscribeInPlanningCenter(s: Subscription): Promise<{ created: boolean; resubscribed: boolean }> {
   if (!isLive()) {
     console.log(`[signup] (not written: not live) would subscribe ${s.email} to ${s.lists.join(', ')}`);
-    return { created: false };
+    return { created: false, resubscribed: false };
   }
   if (!env('PLANNING_CENTER_PAT') || !env('PLANNING_CENTER_PAT_SECRET')) throw new Error('Missing Planning Center token');
 
@@ -231,6 +231,7 @@ export async function subscribeInPlanningCenter(s: Subscription): Promise<{ crea
   // "flag cleared, date kept" as a resubscribe request and sets the person to pending in Mailchimp (which
   // sends its own confirmation email). Without the date it would re-flag them as unsubscribed instead.
   const unsubId = fieldId('Unsubscribed');
-  if (unsubId) for (const r of has(unsubId)) await pco('DELETE', `/people/${personId}/field_data/${r.id}`);
-  return { created };
+  const flags = unsubId ? has(unsubId) : [];
+  for (const r of flags) await pco('DELETE', `/people/${personId}/field_data/${r.id}`);
+  return { created, resubscribed: flags.length > 0 };
 }
