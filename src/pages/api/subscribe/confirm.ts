@@ -21,7 +21,7 @@ export const POST: APIRoute = async ({ request }) => {
       `${sub.first} ${sub.last} <${sub.email}> confirmed their subscription but it was not saved. Please add them by hand.`,
       `Lists: ${listsFor(sub.lists).map((l) => l.label).join(', ')}`,
       `Error: ${String((err as Error).message ?? err).slice(0, 300)}`,
-    ]);
+    ], ['A confirmed signup could not be saved in Planning Center. Someone needs to add them by hand.']);
     return go('/confirm', `?error=failed&t=${encodeURIComponent(token)}`);
   }
   await alertStaff('subscriber', `${sub.first} ${sub.last}`, [

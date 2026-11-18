@@ -26,7 +26,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     await alertStaff('problem', 'a confirmation email could not be sent', [
       `Someone tried to subscribe as ${parsed.value.first} ${parsed.value.last} <${parsed.value.email}> but the confirmation email failed.`,
       `Error: ${String((err as Error).message ?? err).slice(0, 300)}`,
-    ]);
+    ], ['A confirmation email could not be sent, so people cannot finish subscribing. Check Postmark.']);
     return back('error=send');
   }
   return back('sent=1');
