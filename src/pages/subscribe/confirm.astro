@@ -6,8 +6,10 @@ import { apiPath, listsFor, readToken, signupPath } from '../../lib/signup';
 
 export const prerender = false;
 
-// The link holds the person's details, so never pass it on as a Referer (the next page loads Google Analytics).
-Astro.response.headers.set('Referrer-Policy', 'no-referrer');
+// The link holds the person's details, so never pass its path or token on as a Referer (the next page loads
+// Google Analytics): send only the site's origin. Do NOT use 'no-referrer': it makes browsers send "Origin: null" on
+// the Confirm form post, and Astro's cross-site check then rejects it ("Cross-site POST form submissions are forbidden").
+Astro.response.headers.set('Referrer-Policy', 'strict-origin');
 
 const t = Astro.url.searchParams.get('t') ?? '';
 const sub = readToken(t);
