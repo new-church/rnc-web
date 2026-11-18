@@ -1,8 +1,39 @@
 ---
+import Button from './Button.astro';
+
 const year = new Date().getFullYear();
+// The signup block is the footer's main call to action; hide it on the signup pages themselves.
+const showSignup = !Astro.url.pathname.startsWith('/subscribe');
 ---
 
 <footer class="bg-gradient-dusk text-text-on-dark mt-24">
+  {
+    showSignup && (
+      <div class="border-b border-white/10">
+        <div class="container-site px-6 md:px-8 py-10 md:py-12 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div class="max-w-[620px]">
+            <div class="font-display text-[12px] tracking-eyebrow uppercase text-gold-300 mb-2">
+              Stay in touch
+            </div>
+            <div class="font-display font-semibold text-h2 tracking-display text-text-on-dark">
+              Join the Roseville New Church mailing list
+            </div>
+            <p class="mt-2 mb-0 text-text-on-dark/80">
+              News and notices from the church, and the Swedenborg Centre enews and Candela magazine if you’d like them. Free, and you can unsubscribe at any time.
+            </p>
+          </div>
+          <Button
+            variant="gold"
+            size="lg"
+            href="/subscribe"
+            class="self-start md:self-auto shrink-0"
+          >
+            Join the mailing list
+          </Button>
+        </div>
+      </div>
+    )
+  }
   <div
     class="container-site px-6 md:px-8 pt-14 pb-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr] gap-10"
   >
@@ -69,11 +100,6 @@ const year = new Date().getFullYear();
         href="mailto:admin@rosevillenewchurch.com.au"
         class="text-violet-200 no-underline hover:text-gold-300 break-all"
         >admin@rosevillenewchurch.com.au</a
-      ><br />
-      <a
-        href="/subscribe"
-        class="text-violet-200 no-underline hover:text-gold-300"
-        >Join our mailing list</a
       >
     </div>
     <div class="text-[15px] leading-[1.65]">
