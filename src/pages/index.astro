@@ -55,7 +55,7 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-re
               meaning in their lives.
             </p>
             <div
-              class="mt-7 md:mt-8 w-full sm:w-auto flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-center md:justify-start"
+              class="mt-7 md:mt-8 w-full sm:w-auto flex flex-col sm:flex-row sm:flex-wrap gap-3 items-stretch sm:items-center justify-center md:justify-start"
             >
               <Button size="lg" href="/events" class="w-full sm:w-auto"
                 >What's on</Button
@@ -65,6 +65,12 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-re
                 variant="secondary"
                 href="/about"
                 class="w-full sm:w-auto">About us</Button
+              >
+              <Button
+                size="lg"
+                variant="gold"
+                href="/subscribe"
+                class="w-full sm:w-auto">Join the mailing list</Button
               >
             </div>
           </div>
