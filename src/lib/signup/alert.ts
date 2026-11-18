@@ -1,13 +1,17 @@
 /**
- * Staff alerts by email (Postmark): new subscribers, and problems with the signup flow.
+ * Staff alerts.
  *
- * Recipients: ALERT_EMAIL_TO (comma separated, set in Vercel) or, if that is not set, the site's own monitored
- * address from config.ts. Alerts never throw: a failed alert must not break a signup. Outside production they are
- * logged instead of sent (SIGNUP_LIVE=1 overrides, as for the signup emails).
+ *   - New subscriber: posted to a Microsoft Teams channel only (no email).
+ *   - Problem (a confirmation email that could not be sent, a confirmed signup that could not be saved in Planning
+ *     Center): emailed to staff (Postmark) AND posted to Teams, so someone can act quickly.
  *
- * Problems (not new-subscriber notices) are also posted to a Microsoft Teams channel, so someone can act quickly:
- * set TEAMS_ALERT_WEBHOOK to the URL of a Teams Workflow ("Send webhook alerts to a channel"). Subscriber details
- * are never sent to Teams; the problem email to staff carries them instead.
+ * Teams: TEAMS_ALERT_WEBHOOK is the URL of a Teams Workflow ("Send webhook alerts to a channel") for the private
+ * Website alerts team. Email: ALERT_EMAIL_TO (comma separated, set in Vercel) or, if not set, the site's address from
+ * config.ts (the alerts@ssnc.au distribution group, whose members are managed in Microsoft 365).
+ *
+ * Alerts never throw: a failed alert must not break a signup. Outside production they are logged instead of sent
+ * (SIGNUP_LIVE=1 overrides, as for the signup emails). Subscriber names and email addresses appear in the Teams
+ * channel, so keep that team limited to staff.
  * This file is duplicated in rnc-web and sc-www; only config.ts differs.
  */
 import { signupConfig } from './config';
@@ -21,6 +25,7 @@ function env(name: string): string | undefined {
 }
 
 export async function alertStaff(kind: Kind, subject: string, lines: string[], teamsLines?: string[]): Promise<void> {
+  // Subscriber updates are Teams only; problems also go by email.
   const tag = kind === 'problem' ? 'PROBLEM' : 'New subscriber';
   const fullSubject = `[${signupConfig.siteName}] ${tag}: ${subject}`;
   const text = [...lines, '', `Sent automatically by the ${signupConfig.siteName} website.`].join('\n');
@@ -29,7 +34,8 @@ export async function alertStaff(kind: Kind, subject: string, lines: string[], t
     console.log(`[alert] (not sent: not live) ${fullSubject}\n${text}`);
     return;
   }
-  if (kind === 'problem') await postToTeams(subject, teamsLines ?? []);
+  await postToTeams(kind, subject, kind === 'subscriber' ? lines : (teamsLines ?? []));
+  if (kind === 'subscriber') return;
   try {
     const token = env('POSTMARK_TOKEN') ?? env('POSTMARK_SERVER_TOKEN');
     if (!token) throw new Error('Missing POSTMARK_TOKEN');
@@ -56,7 +62,7 @@ export async function alertStaff(kind: Kind, subject: string, lines: string[], t
 }
 
 /** Posts an adaptive card to the Teams channel behind TEAMS_ALERT_WEBHOOK. Never throws. */
-async function postToTeams(subject: string, lines: string[]): Promise<void> {
+async function postToTeams(kind: Kind, subject: string, lines: string[]): Promise<void> {
   const url = env('TEAMS_ALERT_WEBHOOK');
   if (!url) return;
   try {
@@ -71,10 +77,10 @@ async function postToTeams(subject: string, lines: string[]): Promise<void> {
             type: 'AdaptiveCard',
             version: '1.4',
             body: [
-              { type: 'TextBlock', text: `${signupConfig.siteName} website: problem`, weight: 'Bolder', color: 'Attention', size: 'Medium', wrap: true },
-              { type: 'TextBlock', text: subject, weight: 'Bolder', wrap: true },
+              { type: 'TextBlock', text: kind === 'problem' ? `${signupConfig.siteName} website: problem` : `${signupConfig.siteName}: new subscriber`, weight: 'Bolder', color: kind === 'problem' ? 'Attention' : 'Good', size: 'Medium', wrap: true },
+              ...(kind === 'problem' ? [{ type: 'TextBlock', text: subject, weight: 'Bolder', wrap: true }] : []),
               ...lines.map((text) => ({ type: 'TextBlock', text, wrap: true, spacing: 'Small' })),
-              { type: 'TextBlock', text: 'Details are in the email to the alerts group.', isSubtle: true, wrap: true, spacing: 'Small' },
+              ...(kind === 'problem' ? [{ type: 'TextBlock', text: 'Details are in the email to the alerts group.', isSubtle: true, wrap: true, spacing: 'Small' }] : []),
             ],
           },
         },
