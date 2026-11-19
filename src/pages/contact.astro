@@ -38,7 +38,7 @@ const messages: Record<string, string> = {
       </p>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 max-w-[960px]">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
       <div class="flex flex-col gap-5">
         <SoftPhoto
           src="/images/church/exterior.jpg"
@@ -129,7 +129,7 @@ const messages: Record<string, string> = {
         </Card>
       </div>
 
-      <Card variant="tint" title="General enquiry">
+      <Card variant="tint" title="General enquiry" class="lg:sticky lg:top-24">
         <div id="enquiry"></div>
         {
           sent ? (
