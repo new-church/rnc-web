@@ -19,6 +19,8 @@ export default defineConfig({
     '/join/read-and-reflect': '/events/read-and-reflect',
     '/join/meditation': '/events/meditation',
     '/join/family-retreat-2027': '/events/family-retreat-2027',
+    // Old Wix blog URLs (/post/<slug>) keep their slugs under /blog.
+    '/post/[slug]': '/blog/[slug]',
   },
 
   vite: {
@@ -27,11 +29,11 @@ export default defineConfig({
 
   integrations: [
     react(),
-    // Keep sign-in, admin and API routes out of the sitemap, and the blog and
-    // articles indexes while they have no published posts (they redirect home).
-    // Remove them from this filter when posts are published again.
+    // Keep sign-in, admin and API routes out of the sitemap, and the articles
+    // index while it has no published posts (it redirects home). The blog holds
+    // the migrated Wix posts, so it stays in.
     sitemap({
-      filter: (page) => !/\/(admin|login|api|blog|articles|subscribe\/confirm(ed)?)(\/|$)/.test(page),
+      filter: (page) => !/\/(admin|login|api|articles|subscribe\/confirm(ed)?)(\/|$)/.test(page),
     }),
   ],
 });
