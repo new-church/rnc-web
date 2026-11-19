@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Button from '../components/Button.astro';
 import Card from '../components/Card.astro';
 import Input from '../components/Input.astro';
+import SoftPhoto from '../components/SoftPhoto.astro';
 import { turnstileKeys } from '../lib/signup';
 
 export const prerender = false;
@@ -39,6 +40,11 @@ const messages: Record<string, string> = {
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 max-w-[960px]">
       <div class="flex flex-col gap-5">
+        <SoftPhoto
+          src="/images/church/exterior.jpg"
+          alt="Roseville New Church exterior on Shirley Road"
+          aspect="aspect-[16/10]"
+        />
         <Card title="Roseville New Church">
           <p class="m-0">
             2B Shirley Rd<br />
