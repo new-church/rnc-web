@@ -10,6 +10,7 @@ type CalendarEvent = {
   cancelled: boolean;
   /** The event's own page. */
   href?: string;
+  image?: string;
 };
 
 interface Props {
@@ -17,109 +18,81 @@ interface Props {
   events: CalendarEvent[];
   /** The calendar could not be read on the server. */
   failed?: boolean;
+  class?: string;
 }
 
-const { icsUrl, events, failed = false } = Astro.props;
+const { icsUrl, events, failed = false, class: className = '' } = Astro.props;
+const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
 // Embedded as JSON so the browser never has to fetch the calendar itself. "<" is escaped so the data can't end the tag.
 const eventsJson = JSON.stringify(events).replace(/</g, '\\u003c');
-const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
 ---
 
 <section
-  class="mt-10 mb-4"
+  class:list={['rounded-2xl border border-border-soft bg-surface-card/80 p-4 sm:p-5 shadow-[0_1px_0_rgba(46,26,71,0.04)]', className]}
   data-events-calendar
-  data-ics-url={icsUrl}
-  data-webcal-url={webcalUrl}
   aria-label="Events calendar"
 >
-  <div
-    class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-5"
-  >
-    <div>
-      <h2 class="m-0 text-h2">Calendar</h2>
-      <p class="m-0 mt-1.5 text-text-muted max-w-[36rem]">
-        Updated from the church Outlook calendar. Times shown in Sydney time.
-        Cancelled events are marked in red.
-      </p>
-    </div>
-    <div class="flex flex-wrap gap-2.5">
-      <a
-        data-subscribe
-        href={webcalUrl}
-        class="inline-flex items-center justify-center gap-2 font-display font-semibold tracking-[0.04em] rounded-pill border border-transparent transition-[background,transform,color] duration-150 ease-[var(--ease-gentle)] active:scale-[0.98] px-[18px] pt-[9px] pb-[7px] text-[13px] leading-none bg-accent-primary text-text-on-accent hover:bg-accent-primary-strong no-underline"
-      >
-        Add to my calendar
-      </a>
-    </div>
-  </div>
-
-  <div
-    class="rounded-2xl border border-border-soft bg-surface-card/80 p-4 sm:p-5 shadow-[0_1px_0_rgba(46,26,71,0.04)]"
-  >
-    <div class="flex items-center justify-between gap-3 mb-4">
-      <button
-        type="button"
-        data-prev
-        class="font-display font-semibold text-[14px] text-accent-primary-strong px-3 py-2 rounded-lg hover:bg-violet-50 transition-colors"
-        aria-label="Previous month"
-      >
-        ←
-      </button>
-      <h3
-        data-month-label
-        class="m-0 font-display font-semibold text-[18px] text-text-heading tracking-wide"
-      >
-        …
-      </h3>
-      <button
-        type="button"
-        data-next
-        class="font-display font-semibold text-[14px] text-accent-primary-strong px-3 py-2 rounded-lg hover:bg-violet-50 transition-colors"
-        aria-label="Next month"
-      >
-        →
-      </button>
-    </div>
-
-    <div class="relative" data-calendar-board>
-      <!-- Continuous Sat/Sun column wash (behind headers + days) -->
-      <div
-        class="pointer-events-none absolute inset-0 grid grid-cols-7 gap-1"
-        aria-hidden="true"
-      >
-        <div></div><div></div><div></div><div></div><div></div>
-        <div class="bg-stone-100/90 rounded-sm"></div>
-        <div class="bg-stone-100/90 rounded-sm"></div>
-      </div>
-
-      <div
-        class="relative grid grid-cols-7 gap-1 mb-1 text-center font-display text-[11px] font-semibold tracking-[0.14em] uppercase text-text-muted"
-        aria-hidden="true"
-      >
-        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span
-          >Fri</span
-        ><span class="text-stone-500">Sat</span><span class="text-stone-500"
-          >Sun</span
-        >
-      </div>
-
-      <div data-grid class="relative grid grid-cols-7 gap-1" role="grid"></div>
-    </div>
-
-    <p
-      data-status
-      class="m-0 mt-4 text-sm text-text-muted"
-      aria-live="polite"
+  <div class="flex items-center justify-between gap-3 mb-3">
+    <button
+      type="button"
+      data-prev
+      class="font-display font-semibold text-[14px] text-accent-primary-strong px-3 py-2 rounded-lg hover:bg-violet-50 transition-colors"
+      aria-label="Previous month"
     >
-      {
-        failed
-          ? 'Could not load the live calendar. You can still subscribe with the button above.'
-          : ''
-      }
-    </p>
-
-    <ul data-list class="m-0 mt-3 p-0 list-none flex flex-col gap-3"></ul>
+      ←
+    </button>
+    <h2
+      data-month-label
+      class="m-0 font-display font-semibold text-[17px] text-text-heading tracking-wide"
+    >
+      …
+    </h2>
+    <button
+      type="button"
+      data-next
+      class="font-display font-semibold text-[14px] text-accent-primary-strong px-3 py-2 rounded-lg hover:bg-violet-50 transition-colors"
+      aria-label="Next month"
+    >
+      →
+    </button>
   </div>
+
+  <div class="relative">
+    <div
+      class="pointer-events-none absolute inset-0 grid grid-cols-7 gap-0.5"
+      aria-hidden="true"
+    >
+      <div></div><div></div><div></div><div></div><div></div>
+      <div class="bg-stone-100/90 rounded-sm"></div>
+      <div class="bg-stone-100/90 rounded-sm"></div>
+    </div>
+
+    <div
+      class="relative grid grid-cols-7 gap-0.5 mb-1 text-center font-display text-[10px] font-semibold tracking-[0.12em] uppercase text-text-muted"
+      aria-hidden="true"
+    >
+      <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span class="text-stone-500">Sa</span><span class="text-stone-500">Su</span>
+    </div>
+
+    <div data-grid class="relative grid grid-cols-7 gap-0.5" role="grid"></div>
+  </div>
+
+  <p data-status class="m-0 mt-3 text-sm text-text-muted" aria-live="polite">
+    {failed ? 'Could not load the live calendar. You can still subscribe below.' : ''}
+  </p>
+  <ul data-list class="m-0 mt-2 p-0 list-none flex flex-col gap-2.5"></ul>
+
+  <div class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border-soft pt-3">
+    <span class="text-[12px] text-text-muted">Cancelled events show in red.</span>
+    <a
+      data-subscribe
+      href={webcalUrl}
+      class="inline-flex items-center justify-center gap-2 font-display font-semibold tracking-[0.04em] rounded-pill border border-transparent px-[16px] pt-[8px] pb-[6px] text-[12px] leading-none bg-accent-primary text-text-on-accent hover:bg-accent-primary-strong no-underline"
+    >
+      Add to my calendar
+    </a>
+  </div>
+
   <script
     is:inline
     type="application/json"
@@ -139,6 +112,7 @@ const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
     allDay: boolean;
     cancelled: boolean;
     href?: string;
+    image?: string;
   };
 
   const root = document.querySelector<HTMLElement>('[data-events-calendar]');
@@ -149,258 +123,138 @@ const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
     const monthLabel = root.querySelector<HTMLElement>('[data-month-label]')!;
     const tz = 'Australia/Sydney';
 
-    let cursor = new Date();
-    cursor = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+    // Set by the server when the calendar could not be read.
+    const serverMessage = status.textContent?.trim() ?? '';
     let events: CalendarEvent[] = [];
     try {
-      events = JSON.parse(
-        root.querySelector('[data-events-json]')?.textContent || '[]',
-      );
+      events = JSON.parse(root.querySelector('[data-events-json]')?.textContent || '[]');
     } catch {
       events = [];
     }
-    let selectedKey: string | null = null;
 
     const ymdInTz = (iso: string, allDay: boolean) => {
       if (allDay && /^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso;
-      const d = new Date(iso);
-      return new Intl.DateTimeFormat('en-CA', {
-        timeZone: tz,
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      }).format(d);
+      return new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(iso));
     };
-
-    /** Shift a YYYY-MM-DD by N days (UTC date arithmetic — fine for civil dates). */
     const shiftYmd = (ymd: string, days: number) => {
       const [y, m, d] = ymd.split('-').map(Number);
-      const dt = new Date(Date.UTC(y!, m! - 1, d! + days));
-      return dt.toISOString().slice(0, 10);
+      return new Date(Date.UTC(y!, m! - 1, d! + days)).toISOString().slice(0, 10);
     };
-
-    /**
-     * ICS all-day DTEND is exclusive (day after the last day).
-     * Return the inclusive last day for display / spanning.
-     */
-    const inclusiveAllDayEnd = (event: CalendarEvent) => {
-      const start = ymdInTz(event.start, true);
-      const endExclusive = ymdInTz(event.end || event.start, true);
-      if (endExclusive <= start) return start;
-      return shiftYmd(endExclusive, -1);
+    /** All-day DTEND is exclusive; this is the inclusive last day. */
+    const lastDay = (e: CalendarEvent) => {
+      const start = ymdInTz(e.start, true);
+      const endExclusive = ymdInTz(e.end || e.start, true);
+      return endExclusive <= start ? start : shiftYmd(endExclusive, -1);
     };
+    const spans = (e: CalendarEvent, key: string) =>
+      e.allDay ? key >= ymdInTz(e.start, true) && key <= lastDay(e) : ymdInTz(e.start, false) === key;
+    const eventsForDay = (key: string) => events.filter((e) => spans(e, key));
 
-    const formatTime = (iso: string, allDay: boolean) => {
-      if (allDay) return 'All day';
-      return new Intl.DateTimeFormat('en-AU', {
-        timeZone: tz,
-        hour: 'numeric',
-        minute: '2-digit',
-      }).format(new Date(iso));
-    };
-
-    const formatDayHeading = (key: string) => {
+    const clock = (iso: string) =>
+      new Intl.DateTimeFormat('en-AU', { timeZone: tz, hour: 'numeric', minute: '2-digit' })
+        .format(new Date(iso))
+        .replace(':00', '')
+        .replace(/\s/g, '')
+        .toLowerCase();
+    const dayHeading = (key: string) => {
       const [y, m, d] = key.split('-').map(Number);
-      const date = new Date(y!, m! - 1, d!);
-      return new Intl.DateTimeFormat('en-AU', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-      }).format(date);
+      return new Intl.DateTimeFormat('en-AU', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(y!, m! - 1, d!));
     };
+    const escapeHtml = (s: string) =>
+      s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 
-    const formatWhen = (event: CalendarEvent) => {
-      if (!event.allDay) {
-        return `${formatDayHeading(ymdInTz(event.start, false))} · ${formatTime(event.start, false)}`;
-      }
-      const start = ymdInTz(event.start, true);
-      const end = inclusiveAllDayEnd(event);
-      if (start === end) return formatDayHeading(start);
-      return `${formatDayHeading(start)} – ${formatDayHeading(end)}`;
-    };
-
-    const monthKey = (y: number, m: number) =>
-      `${y}-${String(m + 1).padStart(2, '0')}`;
-
-    const eventSpansDay = (event: CalendarEvent, key: string) => {
-      if (!event.allDay) return ymdInTz(event.start, false) === key;
-      const start = ymdInTz(event.start, true);
-      const end = inclusiveAllDayEnd(event);
-      return key >= start && key <= end;
-    };
-
-    const eventsForDay = (key: string) =>
-      events.filter((e) => eventSpansDay(e, key));
+    let cursor = new Date();
+    cursor = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+    let selectedKey: string | null = null;
 
     const eventsInMonth = (y: number, m: number) => {
-      const prefix = monthKey(y, m);
-      const monthStart = `${prefix}-01`;
-      const lastDay = new Date(y, m + 1, 0).getDate();
-      const monthEnd = `${prefix}-${String(lastDay).padStart(2, '0')}`;
+      const prefix = `${y}-${String(m + 1).padStart(2, '0')}`;
+      const days = new Date(y, m + 1, 0).getDate();
       return events.filter((e) => {
-        if (!e.allDay) return ymdInTz(e.start, false).startsWith(prefix);
-        const start = ymdInTz(e.start, true);
-        const end = inclusiveAllDayEnd(e);
-        return start <= monthEnd && end >= monthStart;
+        for (let d = 1; d <= days; d++) if (spans(e, `${prefix}-${String(d).padStart(2, '0')}`)) return true;
+        return false;
       });
     };
 
     const renderList = () => {
+      list.innerHTML = '';
       const y = cursor.getFullYear();
       const m = cursor.getMonth();
-      const monthEvents = eventsInMonth(y, m);
-      const shown = selectedKey
-        ? eventsForDay(selectedKey)
-        : monthEvents;
-
-      list.innerHTML = '';
-      if (!shown.length) {
-        status.textContent = selectedKey
-          ? `No events on ${formatDayHeading(selectedKey)}.`
-          : 'No events this month yet.';
+      if (serverMessage && !events.length) {
+        status.textContent = serverMessage;
         return;
       }
-
-      status.textContent = selectedKey
-        ? formatDayHeading(selectedKey)
-        : `${shown.length} event${shown.length === 1 ? '' : 's'} this month`;
-
-      for (const event of shown) {
+      if (!selectedKey) {
+        const n = eventsInMonth(y, m).length;
+        status.textContent = n
+          ? `${n} event${n === 1 ? '' : 's'} this month. Pick a day to see what's on.`
+          : 'Nothing coming up this month.';
+        return;
+      }
+      const shown = eventsForDay(selectedKey);
+      status.textContent = shown.length ? dayHeading(selectedKey) : `Nothing on ${dayHeading(selectedKey)}.`;
+      for (const e of shown) {
         const li = document.createElement('li');
-        li.className = `rounded-xl border px-4 py-3.5 animate-[fadeRise_0.35s_ease_both] ${event.cancelled ? 'border-status-error/40 bg-status-error-bg/60' : 'border-border-soft bg-surface-page'}`;
-        const when = formatWhen(event);
+        li.className = `rounded-xl border px-3.5 py-3 ${e.cancelled ? 'border-status-error/40 bg-status-error-bg/60' : 'border-border-soft bg-surface-page'}`;
+        const when = e.allDay ? 'All day' : clock(e.start);
+        const name = e.href
+          ? `<a href="${escapeHtml(e.href)}" class="text-text-heading no-underline hover:text-link-hover">${escapeHtml(e.title)}</a>`
+          : escapeHtml(e.title);
         li.innerHTML = `
-          <div class="font-display text-[12px] font-semibold tracking-[0.14em] uppercase ${event.cancelled ? 'text-status-error' : 'text-accent-primary'} mb-1">
-            ${event.cancelled ? '<span class="inline-block rounded-pill bg-status-error text-white px-2 pt-[3px] pb-[1px] mr-2 tracking-[0.08em]">Cancelled</span>' : ''}
-            <span class="${event.cancelled ? 'line-through' : ''}">${when}</span>
-          </div>
-          <div class="font-display font-semibold text-[17px] text-text-heading ${event.cancelled ? 'line-through decoration-status-error/60' : ''}">${event.href ? `<a href="${escapeHtml(event.href)}" class="text-text-heading no-underline hover:text-link-hover">${escapeHtml(event.title)}</a>` : escapeHtml(event.title)}</div>
-          ${event.location ? `<div class="mt-1 text-sm text-text-muted">${escapeHtml(event.location)}</div>` : ''}
-          ${event.description ? `<p class="mt-2 mb-0 text-sm text-text-body whitespace-pre-line">${escapeHtml(event.description.split('\n\n')[0])}</p>` : ''}
-          ${event.href ? `<a href="${escapeHtml(event.href)}" class="mt-2 inline-block text-sm font-display font-semibold">Details →</a>` : ''}
-        `;
+          <div class="font-display text-[11px] font-semibold tracking-[0.12em] uppercase ${e.cancelled ? 'text-status-error line-through' : 'text-accent-primary'}">${when}</div>
+          <div class="font-display font-semibold text-[15px] text-text-heading ${e.cancelled ? 'line-through decoration-status-error/60' : ''}">${name}</div>
+          ${e.description ? `<p class="mt-1 mb-0 text-[13px] text-text-body">${escapeHtml(e.description.split('\n\n')[0]!)}</p>` : ''}`;
         list.appendChild(li);
       }
     };
-
-    const escapeHtml = (s: string) =>
-      s
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;');
-
     const renderGrid = () => {
       const y = cursor.getFullYear();
       const m = cursor.getMonth();
-      monthLabel.textContent = new Intl.DateTimeFormat('en-AU', {
-        month: 'long',
-        year: 'numeric',
-      }).format(cursor);
-
-      // Monday-first: JS getDay() is Sun=0…Sat=6 → Mon=0…Sun=6
+      monthLabel.textContent = new Intl.DateTimeFormat('en-AU', { month: 'long', year: 'numeric' }).format(cursor);
       const firstDow = (new Date(y, m, 1).getDay() + 6) % 7;
       const daysInMonth = new Date(y, m + 1, 0).getDate();
       const todayKey = ymdInTz(new Date().toISOString(), false);
 
       grid.innerHTML = '';
-      for (let i = 0; i < firstDow; i++) {
-        const cell = document.createElement('div');
-        cell.className = 'min-h-[4.75rem] sm:min-h-[5.5rem]';
-        grid.appendChild(cell);
-      }
+      for (let i = 0; i < firstDow; i++) grid.appendChild(document.createElement('div'));
 
       for (let day = 1; day <= daysInMonth; day++) {
         const key = `${y}-${String(m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const dayEvents = eventsForDay(key);
-        const count = dayEvents.length;
+        const isSelected = selectedKey === key;
+        const isToday = todayKey === key;
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.setAttribute('role', 'gridcell');
         btn.dataset.day = key;
-        const isSelected = selectedKey === key;
-        const isToday = todayKey === key;
         btn.className = [
-          'min-h-[4.75rem] sm:min-h-[5.5rem] rounded-md border text-sm font-display transition-[background,transform,border-color] duration-150',
-          'flex flex-col items-stretch gap-0.5 px-1 pt-1 pb-1 text-left',
+          'flex min-h-[3rem] flex-col items-center gap-1 rounded-md border pt-1.5 pb-1 font-display text-[13px] font-semibold transition-colors duration-150',
           isSelected
             ? 'bg-violet-700 text-text-on-dark border-violet-700'
             : isToday
               ? 'bg-violet-50 border-violet-200 text-text-heading'
-              : 'bg-transparent border-transparent text-text-heading hover:bg-black/[0.03]',
+              : 'bg-transparent border-transparent text-text-heading hover:bg-black/[0.04]',
         ].join(' ');
-
-        const shortTime = (iso: string) => {
-          const raw = new Intl.DateTimeFormat('en-AU', {
-            timeZone: tz,
-            hour: 'numeric',
-            minute: '2-digit',
-          }).format(new Date(iso));
-          // "7:00 pm" → "7pm"
-          return raw.replace(':00', '').replace(/\s/g, '').toLowerCase();
-        };
-
-        /** Label for a grid pill: timed shows time; multi-day all-day is start / mid / end. */
-        const pillLabel = (event: CalendarEvent, dayKey: string) => {
-          if (!event.allDay) {
-            return `${shortTime(event.start)} ${event.title}`;
-          }
-          const start = ymdInTz(event.start, true);
-          const end = inclusiveAllDayEnd(event);
-          if (start === end) return event.title;
-          if (dayKey === start) return `${event.title} →`;
-          if (dayKey === end) return '→|';
-          return '→';
-        };
-
-        const maxPills = 2;
-        const visible = dayEvents.slice(0, maxPills);
-        const overflow = count - visible.length;
-        const pillsHtml = visible
-          .map((event) => {
-            const start = event.allDay ? ymdInTz(event.start, true) : '';
-            const end = event.allDay ? inclusiveAllDayEnd(event) : '';
-            const isMulti = event.allDay && start !== end;
-            const isMid = isMulti && key !== start && key !== end;
-            const isEnd = isMulti && key === end;
-            const pillClass = event.cancelled
-              ? 'bg-status-error-bg text-status-error line-through'
-              : isSelected
-              ? isMid || isEnd
-                ? 'bg-gold-300/70 text-violet-950'
-                : 'bg-gold-300/95 text-violet-950'
-              : isMid || isEnd
-                ? 'bg-violet-100/80 text-violet-700'
-                : 'bg-violet-100 text-violet-800';
-            const label = pillLabel(event, key);
-            const align =
-              isEnd || isMid ? 'text-center' : 'text-left';
-            return `<span class="block w-full truncate rounded-full px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold leading-tight tracking-normal normal-case ${align} ${pillClass}" title="${escapeHtml((event.cancelled ? 'Cancelled: ' : '') + event.title)}">${escapeHtml(label)}</span>`;
+        const dots = dayEvents
+          .slice(0, 3)
+          .map((e) => {
+            const tone = e.cancelled ? 'bg-status-error' : isSelected ? 'bg-gold-300' : 'bg-violet-500';
+            return `<span class="block h-1.5 w-1.5 rounded-full ${tone}"></span>`;
           })
           .join('');
-        const moreHtml =
-          overflow > 0
-            ? `<span class="block px-0.5 text-[9px] sm:text-[10px] font-semibold leading-tight ${isSelected ? 'text-violet-100' : 'text-violet-600'}">+${overflow} more</span>`
-            : '';
-
-        btn.innerHTML = `
-          <span class="block text-[12px] sm:text-[13px] font-semibold leading-none px-0.5 ${isSelected ? 'text-text-on-dark' : 'text-text-heading'}">${day}</span>
-          <span class="flex flex-col gap-0.5 w-full min-h-0">${pillsHtml}${moreHtml}</span>
-        `;
+        btn.innerHTML = `<span class="leading-none">${day}</span><span class="flex h-1.5 gap-0.5">${dots}</span>`;
         btn.setAttribute(
           'aria-label',
-          count
-            ? `${formatDayHeading(key)}, ${count} event${count === 1 ? '' : 's'}: ${dayEvents.map((e) => (e.cancelled ? 'cancelled ' : '') + e.title).join(', ')}`
-            : formatDayHeading(key),
+          dayEvents.length
+            ? `${dayHeading(key)}, ${dayEvents.length} event${dayEvents.length === 1 ? '' : 's'}: ${dayEvents.map((e) => (e.cancelled ? 'cancelled ' : '') + e.title).join(', ')}`
+            : dayHeading(key),
         );
         btn.addEventListener('click', () => {
           selectedKey = selectedKey === key ? null : key;
           renderGrid();
-          renderList();
         });
         grid.appendChild(btn);
       }
-
       renderList();
     };
 
@@ -418,16 +272,3 @@ const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
     renderGrid();
   }
 </script>
-
-<style>
-  @keyframes fadeRise {
-    from {
-      opacity: 0;
-      transform: translateY(6px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-</style>

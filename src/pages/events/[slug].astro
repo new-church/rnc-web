@@ -3,7 +3,6 @@ import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Button from '../../components/Button.astro';
 import Badge from '../../components/Badge.astro';
-import SoftPhoto from '../../components/SoftPhoto.astro';
 import UpcomingDates from '../../components/UpcomingDates.astro';
 import { getEvents, whenLabel } from '../../lib/events';
 
@@ -55,9 +54,14 @@ const description = info ? info.data.summary : occurrence!.description.slice(0, 
             <Content />
           </article>
           {info.data.image && (
-            <div class="mt-8">
-              <SoftPhoto src={info.data.image} alt={info.data.imageAlt ?? ''} aspect="aspect-[16/10]" />
-            </div>
+            <figure class="mt-8 mb-0">
+              <img
+                src={info.data.image}
+                alt={info.data.imageAlt ?? ''}
+                loading="lazy"
+                class="block max-h-[420px] w-auto max-w-full rounded-lg shadow-card"
+              />
+            </figure>
           )}
           {(info.data.buttons.length > 0 || info.data.zoomlink) && (
             <div class="mt-8 flex flex-wrap gap-3">

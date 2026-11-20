@@ -1,0 +1,66 @@
+---
+import Badge from './Badge.astro';
+
+interface Props {
+  href: string;
+  eyebrow: string;
+  title: string;
+  text?: string;
+  image?: string;
+  imageAlt?: string;
+  cancelled?: boolean;
+  badges?: { label: string; tone: 'violet' | 'gold' | 'success' | 'warning' | 'error' | 'info' }[];
+}
+
+const { href, eyebrow, title, text, image, imageAlt = '', cancelled = false, badges = [] } = Astro.props;
+---
+
+<a
+  href={href}
+  class:list={[
+    'group flex items-stretch gap-4 rounded-lg border p-3 sm:p-4 no-underline shadow-card transition-all duration-[280ms] ease-[var(--ease-gentle)] hover:shadow-lift hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-primary',
+    cancelled ? 'border-status-error/40 bg-status-error-bg/50' : 'border-border-soft bg-surface-card',
+  ]}
+>
+  {
+    image && (
+      <img
+        src={image}
+        alt={imageAlt}
+        loading="lazy"
+        decoding="async"
+        class:list={[
+          'h-24 w-24 sm:h-28 sm:w-28 shrink-0 rounded-md object-cover self-center',
+          cancelled && 'opacity-50 grayscale',
+        ]}
+      />
+    )
+  }
+  <div class="min-w-0 flex-1 self-center">
+    <div
+      class:list={[
+        'font-display text-eyebrow font-semibold tracking-eyebrow uppercase mb-1',
+        cancelled ? 'text-status-error' : 'text-accent-primary',
+      ]}
+    >
+      {cancelled && <span class="inline-block rounded-pill bg-status-error text-white px-2 pt-[3px] pb-[1px] mr-2 tracking-[0.08em]">Cancelled</span>}
+      <span class:list={[cancelled && 'line-through']}>{eyebrow}</span>
+    </div>
+    <div
+      class:list={[
+        'font-display text-h3 font-semibold tracking-display text-text-heading group-hover:text-link-hover',
+        cancelled && 'line-through decoration-status-error/60',
+      ]}
+    >
+      {title}
+    </div>
+    {text && <p class="mt-1.5 mb-0 font-body text-sm leading-[1.6] text-text-body">{text}</p>}
+    {
+      badges.length > 0 && (
+        <div class="mt-2.5 flex flex-wrap gap-2">
+          {badges.map((b) => <Badge tone={b.tone}>{b.label}</Badge>)}
+        </div>
+      )
+    }
+  </div>
+</a>

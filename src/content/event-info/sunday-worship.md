@@ -4,6 +4,8 @@ shortTitle: Sunday worship
 match: ["service", "worship"]
 exclude: ["hurstville"]
 summary: Worship, readings and reflection at 2B Shirley Rd. Everyone is welcome; stay afterwards for refreshments and conversation.
+image: /images/church/stained-glass.jpg
+imageAlt: The stained glass window in the church
 category: Worship
 where: In person
 featured: 1

@@ -12,6 +12,8 @@ export type SiteEvent = RawEvent & {
   /** Title as shown (the calendar title, minus a trailing clock time in brackets). */
   displayTitle: string;
   where: 'In person' | 'On Zoom' | 'Online';
+  image?: string;
+  imageAlt?: string;
   category: 'Worship' | 'Study' | 'Community';
   /** Anything specific to this date that was typed into the calendar entry (the standard text and link are removed). */
   note: string;
@@ -46,7 +48,7 @@ export function whenLabel(e: Pick<SiteEvent, 'start' | 'allDay'>): string {
 const parseStart = (e: Pick<SiteEvent, 'start' | 'allDay'>) => new Date(e.allDay ? `${e.start}T00:00:00Z` : e.start);
 const endMs = (e: RawEvent) => (e.allDay ? new Date(`${e.end}T00:00:00Z`).getTime() : new Date(e.end).getTime());
 
-const stripTime = (t: string) => t.replace(/\s*\([^)]*\b\d{1,2}(?::\d{2})?\s*(?:am|pm)\b[^)]*\)\s*$/i, '').trim() || t;
+const stripTime = (t: string) => t.replace(/^\s*(?:cancell?ed|postponed)\s*[:\-–]\s*/i, '').replace(/\s*\([^)]*\b\d{1,2}(?::\d{2})?\s*(?:am|pm)\b[^)]*\)\s*$/i, '').trim() || t;
 
 /**
  * The info entry for a calendar title. An entry matches when its file name (e.g. "meditation") or one of its `match`
@@ -110,6 +112,8 @@ export async function getEvents(opts: { since?: Date } = {}): Promise<SiteEvent[
         displayTitle: stripTime(e.title),
         href: info ? (info.data.page ?? `/events/${info.id}`) : `/events/${slug}`,
         where: info?.data.where ?? (isZoom(e) ? 'On Zoom' : 'In person'),
+        image: info?.data.image,
+        imageAlt: info?.data.imageAlt,
         category: info?.data.category ?? 'Community',
         summary: note || info?.data.summary || '',
       } satisfies SiteEvent;

@@ -3,6 +3,8 @@ title: Monday's Meditation with Kathryn Baker
 shortTitle: Meditation
 match: ["meditation"]
 summary: Quiet meditation in the church sanctuary with Kathryn Baker, usually during the school term.
+image: /images/church/interior.jpg
+imageAlt: The quiet sanctuary at Roseville New Church
 category: Community
 where: In person
 buttons:

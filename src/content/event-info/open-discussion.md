@@ -3,6 +3,8 @@ title: Join our Weekly Open Discussion Sessions
 shortTitle: Talk on Tuesday
 match: ["open discussion", "swedenborg tuesday", "talk on tuesday"]
 summary: Hosted by the Swedenborg Centre. Delve deeper into Swedenborg's writings and relate them to our lives.
+image: /images/events/swedenborg-portrait.jpg
+imageAlt: Emanuel Swedenborg, painted by Per Krafft the Elder
 category: Study
 where: On Zoom
 featured: 2

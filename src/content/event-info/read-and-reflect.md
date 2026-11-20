@@ -3,6 +3,8 @@ title: Join our Weekly Swedenborg Reading and Exploration Sessions
 shortTitle: Swedenborg Reading Group
 match: ["reading group", "read and reflect", "reading and exploration"]
 summary: Hosted by the Swedenborg Centre. Reading slowly through one of Swedenborg's works, together.
+image: /images/events/swedenborg-portrait.jpg
+imageAlt: Emanuel Swedenborg, painted by Per Krafft the Elder
 category: Study
 where: On Zoom
 featured: 3

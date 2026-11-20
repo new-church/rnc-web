@@ -1,9 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Tabs from '../../components/Tabs.astro';
-import Card from '../../components/Card.astro';
-import Badge from '../../components/Badge.astro';
-import Button from '../../components/Button.astro';
+import EventCard from '../../components/EventCard.astro';
 import EventsCalendar from '../../components/EventsCalendar.astro';
 import { getEvents, icsUrl, whenLabel } from '../../lib/events';
 
@@ -13,13 +11,9 @@ export const prerender = false;
 // and the page is cached at the edge too. Write-ups come from src/content/event-info, matched by calendar title.
 Astro.response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600');
 
-// From the start of this month so the calendar grid is complete, a day and a half earlier to be safe across zones.
-const monthStart = new Date();
-monthStart.setDate(1);
-monthStart.setHours(0, 0, 0, 0);
-const all = await getEvents({ since: new Date(monthStart.getTime() - 36 * 3600_000) });
-const upcoming = all.filter((e) => new Date(e.allDay ? `${e.end}T00:00:00Z` : e.end).getTime() >= Date.now());
-const calendarEvents = all.map((e) => ({
+// Only what is still to come: anything that has already finished is left out (of the list and the calendar).
+const upcoming = (await getEvents()).filter((e) => new Date(e.allDay ? `${e.end}T00:00:00Z` : e.end).getTime() >= Date.now());
+const calendarEvents = upcoming.map((e) => ({
   uid: e.uid,
   title: e.displayTitle,
   description: e.summary,
@@ -47,15 +41,8 @@ const tabs = ['All', 'Worship', 'Study', 'Community'];
     <h1 class="mt-0 text-h1">Upcoming events</h1>
     <p class="text-text-muted -mt-1.5 max-w-[640px]">
       Sunday worship is on the <strong>1st and 3rd Sundays</strong> of each month
-      at 10am (Sydney time). Browse dated events on the calendar, or the list
-      below — each item links through to full details.
-    </p>
-
-    <EventsCalendar icsUrl={icsUrl} events={calendarEvents} failed={all.length === 0} />
-
-    <h2 class="mt-14 mb-2 text-h2">Coming up</h2>
-    <p class="text-text-muted mt-0 mb-5 max-w-[640px]">
-      Everything here comes straight from the church calendar. The midweek Zoom
+      at 10am (Sydney time). Everything here comes straight from the church
+      calendar, and each event links through to full details. The midweek Zoom
       groups are run by the{' '}
       <a
         href="https://swedenborg.com.au/"
@@ -64,48 +51,45 @@ const tabs = ['All', 'Worship', 'Study', 'Community'];
       >.
     </p>
 
-    <Tabs tabs={tabs} active="All" class="my-[18px] mb-[26px]" />
+    <div class="mt-10 grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
+      <div>
+        <Tabs tabs={tabs} active="All" class="mb-6" />
 
-    {upcoming.length === 0 && (
-      <p class="text-text-muted">No upcoming events are listed right now. Please check back soon.</p>
-    )}
-    <div class="flex flex-col gap-4 max-w-[760px]">
-      {
-        upcoming.slice(0, 24).map((event) => (
-          <div data-category={event.category}>
-            <Card
-              eyebrow={whenLabel(event)}
-              title={event.displayTitle}
-              class={event.cancelled ? 'border-status-error/40 !bg-status-error-bg/50' : ''}
-            >
-              {event.cancelled ? (event.note || 'This event has been cancelled.') : (event.note || event.info?.data.summary || '')}
-              <div slot="footer" class="flex flex-wrap gap-2.5 items-center">
-                {event.cancelled && <Badge tone="error">Cancelled</Badge>}
-                <Badge tone={event.where === 'In person' ? 'success' : 'info'}>
-                  {event.where}
-                </Badge>
-                <Button size="sm" variant="secondary" href={event.href}>
-                  Details
-                </Button>
+        {upcoming.length === 0 && (
+          <p class="text-text-muted">No upcoming events are listed right now. Please check back soon.</p>
+        )}
+        <div class="flex flex-col gap-4">
+          {
+            upcoming.slice(0, 30).map((event) => (
+              <div data-category={event.category}>
+                <EventCard
+                  href={event.href}
+                  eyebrow={whenLabel(event)}
+                  title={event.displayTitle}
+                  text={event.cancelled ? (event.note || 'This event has been cancelled.') : (event.note || event.info?.data.summary || '')}
+                  image={event.image}
+                  imageAlt={event.imageAlt}
+                  cancelled={event.cancelled}
+                  badges={[{ label: event.where, tone: event.where === 'In person' ? 'success' : 'info' }]}
+                />
               </div>
-            </Card>
+            ))
+          }
+          <div data-category="Community">
+            <EventCard
+              href="/contact"
+              eyebrow="Ongoing · online"
+              title="Prayer circle"
+              text="Our online community on WhatsApp includes a prayer circle, a way of holding one another in prayer between services. Get in touch and we will send you an invitation."
+              badges={[{ label: 'Online', tone: 'info' }]}
+            />
           </div>
-        ))
-      }
-    </div>
-
-    <div class="mt-10 max-w-[760px]">
-      <Card eyebrow="Ongoing · online" title="Prayer circle">
-        Our online community on WhatsApp includes a prayer circle, a way of
-        holding one another in prayer between services. Get in touch and we will
-        send you an invitation.
-        <div slot="footer" class="flex flex-wrap gap-2.5 items-center">
-          <Badge tone="info">Online</Badge>
-          <Button size="sm" variant="secondary" href="/contact">
-            Get in touch to join
-          </Button>
         </div>
-      </Card>
+      </div>
+
+      <aside class="lg:sticky lg:top-24" aria-label="Calendar">
+        <EventsCalendar icsUrl={icsUrl} events={calendarEvents} failed={upcoming.length === 0} />
+      </aside>
     </div>
   </main>
 </BaseLayout>
