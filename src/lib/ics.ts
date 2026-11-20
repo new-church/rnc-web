@@ -10,6 +10,12 @@ export type CalendarEvent = {
   /** ISO end. */
   end: string;
   allDay: boolean;
+  /**
+   * Cancelled on purpose: "Cancelled" (or "Postponed") in the title, a title starting "No ...", or STATUS:CANCELLED.
+   * To announce a cancellation, rename the event in Outlook, e.g. "Cancelled: Meditation". A deleted event simply
+   * disappears, which is how to tidy the calendar, so deleting is NOT a cancellation.
+   */
+  cancelled: boolean;
 };
 
 export type CalendarPayload = {
@@ -47,6 +53,9 @@ function toIanaTimeZone(tzid: string | undefined): string {
     return DEFAULT_TZ;
   }
 }
+
+export const isCancelledTitle = (t: string) =>
+  /\b(cancell?ed|postponed)\b/i.test(t) || /^\s*NO\s+[A-Za-z]/.test(t);
 
 function unfold(ics: string): string {
   return ics.replace(/\r\n[ \t]/g, '').replace(/\n[ \t]/g, '');
@@ -169,9 +178,13 @@ export function parseIcs(ics: string): CalendarPayload {
       ? parseIcsDate(props.DTEND, props.DTEND_RAW, true)
       : start;
 
+    const title = unescapeText(props.SUMMARY ?? 'Event');
     events.push({
       uid: props.UID ?? `${props.SUMMARY}-${props.DTSTART}`,
-      title: unescapeText(props.SUMMARY ?? 'Event'),
+      title,
+      cancelled:
+        (props.STATUS ?? '').trim().toUpperCase() === 'CANCELLED' ||
+        isCancelledTitle(title),
       description: unescapeText(props.DESCRIPTION ?? '').trim(),
       location: unescapeText(props.LOCATION ?? '').trim(),
       start: start.iso,
@@ -189,21 +202,37 @@ export function parseIcs(ics: string): CalendarPayload {
   };
 }
 
-export async function fetchCalendar(
-  icsUrl: string,
-  init?: RequestInit,
-): Promise<CalendarPayload> {
+async function fetchCalendar(icsUrl: string): Promise<CalendarPayload> {
   const res = await fetch(icsUrl, {
-    ...init,
+    cache: 'no-store',
+    signal: AbortSignal.timeout(8000),
     headers: {
       Accept: 'text/calendar, text/plain, */*',
       'User-Agent': 'RosevilleNewChurchWeb/1.0',
-      ...init?.headers,
     },
   });
   if (!res.ok) {
     throw new Error(`Calendar fetch failed (${res.status})`);
   }
   const body = await res.text();
+  if (!body.includes('BEGIN:VCALENDAR')) throw new Error('Not a calendar');
   return parseIcs(body);
+}
+
+// The calendar is fetched on the server and kept for five minutes per server instance, and the page is also cached
+// at the edge (see events/index.astro), so visitors never hit Outlook directly. If Outlook is briefly unavailable,
+// the last good copy keeps being served.
+const TTL_MS = 5 * 60_000;
+let cache: { url: string; at: number; payload: CalendarPayload } | undefined;
+
+export async function getCalendar(icsUrl: string): Promise<CalendarPayload | undefined> {
+  if (cache && cache.url === icsUrl && Date.now() - cache.at < TTL_MS) return cache.payload;
+  try {
+    const payload = await fetchCalendar(icsUrl);
+    cache = { url: icsUrl, at: Date.now(), payload };
+    return payload;
+  } catch (err) {
+    console.error('[calendar] fetch failed, using last good copy:', err);
+    return cache?.url === icsUrl ? cache.payload : undefined;
+  }
 }

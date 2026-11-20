@@ -1,9 +1,16 @@
 ---
+import type { CalendarEvent } from '../lib/ics';
+
 interface Props {
   icsUrl: string;
+  events: CalendarEvent[];
+  /** The calendar could not be read on the server. */
+  failed?: boolean;
 }
 
-const { icsUrl } = Astro.props;
+const { icsUrl, events, failed = false } = Astro.props;
+// Embedded as JSON so the browser never has to fetch the calendar itself. "<" is escaped so the data can't end the tag.
+const eventsJson = JSON.stringify(events).replace(/</g, '\\u003c');
 const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
 ---
 
@@ -21,6 +28,7 @@ const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
       <h2 class="m-0 text-h2">Calendar</h2>
       <p class="m-0 mt-1.5 text-text-muted max-w-[36rem]">
         Updated from the church Outlook calendar. Times shown in Sydney time.
+        Cancelled events are marked in red.
       </p>
     </div>
     <div class="flex flex-wrap gap-2.5">
@@ -92,11 +100,21 @@ const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
       class="m-0 mt-4 text-sm text-text-muted"
       aria-live="polite"
     >
-      Loading calendar…
+      {
+        failed
+          ? 'Could not load the live calendar. You can still subscribe with the button above.'
+          : ''
+      }
     </p>
 
     <ul data-list class="m-0 mt-3 p-0 list-none flex flex-col gap-3"></ul>
   </div>
+  <script
+    is:inline
+    type="application/json"
+    data-events-json
+    set:html={eventsJson}
+  />
 </section>
 
 <script>
@@ -108,6 +126,7 @@ const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
     start: string;
     end: string;
     allDay: boolean;
+    cancelled: boolean;
   };
 
   const root = document.querySelector<HTMLElement>('[data-events-calendar]');
@@ -121,6 +140,13 @@ const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
     let cursor = new Date();
     cursor = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
     let events: CalendarEvent[] = [];
+    try {
+      events = JSON.parse(
+        root.querySelector('[data-events-json]')?.textContent || '[]',
+      );
+    } catch {
+      events = [];
+    }
     let selectedKey: string | null = null;
 
     const ymdInTz = (iso: string, allDay: boolean) => {
@@ -229,12 +255,14 @@ const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
 
       for (const event of shown) {
         const li = document.createElement('li');
-        li.className =
-          'rounded-xl border border-border-soft bg-surface-page px-4 py-3.5 animate-[fadeRise_0.35s_ease_both]';
+        li.className = `rounded-xl border px-4 py-3.5 animate-[fadeRise_0.35s_ease_both] ${event.cancelled ? 'border-status-error/40 bg-status-error-bg/60' : 'border-border-soft bg-surface-page'}`;
         const when = formatWhen(event);
         li.innerHTML = `
-          <div class="font-display text-[12px] font-semibold tracking-[0.14em] uppercase text-accent-primary mb-1">${when}</div>
-          <div class="font-display font-semibold text-[17px] text-text-heading">${escapeHtml(event.title)}</div>
+          <div class="font-display text-[12px] font-semibold tracking-[0.14em] uppercase ${event.cancelled ? 'text-status-error' : 'text-accent-primary'} mb-1">
+            ${event.cancelled ? '<span class="inline-block rounded-pill bg-status-error text-white px-2 pt-[3px] pb-[1px] mr-2 tracking-[0.08em]">Cancelled</span>' : ''}
+            <span class="${event.cancelled ? 'line-through' : ''}">${when}</span>
+          </div>
+          <div class="font-display font-semibold text-[17px] text-text-heading ${event.cancelled ? 'line-through decoration-status-error/60' : ''}">${escapeHtml(event.title)}</div>
           ${event.location ? `<div class="mt-1 text-sm text-text-muted">${escapeHtml(event.location)}</div>` : ''}
           ${event.description ? `<p class="mt-2 mb-0 text-sm text-text-body whitespace-pre-line">${escapeHtml(event.description)}</p>` : ''}
         `;
@@ -322,7 +350,9 @@ const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
             const isMulti = event.allDay && start !== end;
             const isMid = isMulti && key !== start && key !== end;
             const isEnd = isMulti && key === end;
-            const pillClass = isSelected
+            const pillClass = event.cancelled
+              ? 'bg-status-error-bg text-status-error line-through'
+              : isSelected
               ? isMid || isEnd
                 ? 'bg-gold-300/70 text-violet-950'
                 : 'bg-gold-300/95 text-violet-950'
@@ -332,7 +362,7 @@ const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
             const label = pillLabel(event, key);
             const align =
               isEnd || isMid ? 'text-center' : 'text-left';
-            return `<span class="block w-full truncate rounded-full px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold leading-tight tracking-normal normal-case ${align} ${pillClass}" title="${escapeHtml(event.title)}">${escapeHtml(label)}</span>`;
+            return `<span class="block w-full truncate rounded-full px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold leading-tight tracking-normal normal-case ${align} ${pillClass}" title="${escapeHtml((event.cancelled ? 'Cancelled: ' : '') + event.title)}">${escapeHtml(label)}</span>`;
           })
           .join('');
         const moreHtml =
@@ -347,7 +377,7 @@ const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
         btn.setAttribute(
           'aria-label',
           count
-            ? `${formatDayHeading(key)}, ${count} event${count === 1 ? '' : 's'}: ${dayEvents.map((e) => e.title).join(', ')}`
+            ? `${formatDayHeading(key)}, ${count} event${count === 1 ? '' : 's'}: ${dayEvents.map((e) => (e.cancelled ? 'cancelled ' : '') + e.title).join(', ')}`
             : formatDayHeading(key),
         );
         btn.addEventListener('click', () => {
@@ -372,22 +402,7 @@ const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
       renderGrid();
     });
 
-    const load = async () => {
-      try {
-        const res = await fetch('/api/calendar');
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Failed to load');
-        events = Array.isArray(data.events) ? data.events : [];
-        status.textContent = '';
-        renderGrid();
-      } catch {
-        status.textContent =
-          'Could not load the live calendar. You can still subscribe with the button above.';
-        renderGrid();
-      }
-    };
-
-    load();
+    renderGrid();
   }
 </script>
 

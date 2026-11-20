@@ -6,7 +6,7 @@ Brand reference and design tokens live in [`design-system-claude/`](design-syste
 
 ## Stack
 
-- [Astro](https://astro.build) (static pages + Vercel adapter for `/api/calendar`)
+- [Astro](https://astro.build) (static pages plus server-rendered pages on the Vercel adapter; `/events` reads the Outlook calendar on the server and caches it for five minutes)
 - [Tailwind CSS v4](https://tailwindcss.com) via `@tailwindcss/vite`
 - Self-hosted fonts: Josefin Sans + Lora (`@fontsource`)
 - Icons: [`@lucide/astro`](https://lucide.dev)
@@ -71,7 +71,7 @@ Past issues are listed at `/newsletters`, driven by Markdown in `src/content/new
 1. Import the GitHub repo [`new-church/rnc-web`](https://github.com/new-church/rnc-web) in the [Vercel dashboard](https://vercel.com/new).
 2. Framework preset: **Astro**.
 3. Add `PUBLIC_CALENDAR_ICS_URL` and `CALENDAR_ICS_URL` (same published `.ics` link).
-4. Deploy. The Vercel adapter serves static pages plus `/api/calendar`.
+4. Deploy. The Vercel adapter serves the static and server-rendered pages.
 
 Optional CLI:
 

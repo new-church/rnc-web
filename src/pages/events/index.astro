@@ -5,10 +5,18 @@ import Card from '../../components/Card.astro';
 import Badge from '../../components/Badge.astro';
 import Button from '../../components/Button.astro';
 import EventsCalendar from '../../components/EventsCalendar.astro';
+import { getCalendar } from '../../lib/ics';
+
+export const prerender = false;
 
 const icsUrl =
   import.meta.env.PUBLIC_CALENDAR_ICS_URL ||
   'https://outlook.office365.com/owa/calendar/d3aab09d67bf4025ae539869196ad552@rosevillenewchurch.com.au/e57651adf65b458bb5d1e3154770ba4517495040307124971130/calendar.ics';
+
+// The calendar is read on the server (cached five minutes, see lib/ics.ts) and the page is cached at the edge too.
+const serverIcsUrl = import.meta.env.CALENDAR_ICS_URL || icsUrl;
+const calendar = await getCalendar(serverIcsUrl);
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600');
 
 const events = [
   {
@@ -90,7 +98,7 @@ const tabs = ['All', 'Worship', 'Study', 'Community'];
       rhythm below — each item links through to full details.
     </p>
 
-    <EventsCalendar icsUrl={icsUrl} />
+    <EventsCalendar icsUrl={icsUrl} events={calendar?.events ?? []} failed={!calendar} />
 
     <h2 class="mt-14 mb-2 text-h2">Regular rhythm</h2>
     <p class="text-text-muted mt-0 mb-5 max-w-[640px]">
