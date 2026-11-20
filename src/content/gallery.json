@@ -1,0 +1,100 @@
+[
+  {
+    "id": "sanctuary-chairs-in-a-circle",
+    "src": "/images/gallery/sanctuary-chairs-in-a-circle.jpg",
+    "alt": "Chairs arranged in a circle around a small carved table in the church sanctuary",
+    "caption": "The sanctuary set out in a circle for meditation",
+    "tags": ["sanctuary", "meditation"]
+  },
+  {
+    "id": "carved-table-with-angel",
+    "src": "/images/gallery/carved-table-with-angel.jpg",
+    "alt": "A small carved wooden table with a figure of an angel on top",
+    "caption": "The carved table at the centre of the circle",
+    "tags": ["sanctuary", "meditation"]
+  },
+  {
+    "id": "sanctuary-looking-to-the-entrance",
+    "src": "/images/gallery/sanctuary-looking-to-the-entrance.jpg",
+    "alt": "The church sanctuary looking towards the entrance, with the gable windows above the door",
+    "caption": "Looking back towards the entrance",
+    "tags": ["sanctuary", "meditation"]
+  },
+  {
+    "id": "communion-table-and-kneelers",
+    "src": "/images/gallery/communion-table-and-kneelers.jpg",
+    "alt": "The communion table with an open Bible and two blue kneelers",
+    "caption": "The communion table",
+    "tags": ["sanctuary", "worship", "meditation"]
+  },
+  {
+    "id": "stained-glass-window-tall",
+    "src": "/images/gallery/stained-glass-window-tall.jpg",
+    "alt": "The tall stained glass window above the panelling at the side of the sanctuary",
+    "caption": "The stained glass window",
+    "tags": ["sanctuary", "worship", "meditation"]
+  },
+  {
+    "id": "foundation-stone-campbell-1915",
+    "src": "/images/gallery/foundation-stone-campbell-1915.jpg",
+    "alt": "A foundation stone laid by the Rev. George Campbell on 28 August 1915",
+    "caption": "Foundation stone laid by the Rev. George Campbell, 28 August 1915",
+    "tags": ["history"]
+  },
+  {
+    "id": "foundation-stone-rennie-1915",
+    "src": "/images/gallery/foundation-stone-rennie-1915.jpg",
+    "alt": "A foundation stone laid by Geo. E. Rennie Esq. M.D. on 28 August 1915",
+    "caption": "Foundation stone laid by Geo. E. Rennie Esq. M.D., 28 August 1915",
+    "tags": ["history"]
+  },
+  {
+    "id": "foundation-stone-garden",
+    "src": "/images/gallery/foundation-stone-garden.jpg",
+    "alt": "A foundation stone in the church garden, set in a low stone base",
+    "caption": "A foundation stone in the garden",
+    "tags": ["history", "garden"]
+  },
+  {
+    "id": "foundation-stone-garden-closeup",
+    "src": "/images/gallery/foundation-stone-garden-closeup.jpg",
+    "alt": "Close-up of the inscription on the foundation stone in the church garden",
+    "caption": "The foundation stone in the garden, close up",
+    "tags": ["history", "garden"]
+  },
+  {
+    "id": "garden-stone-world-war-ii",
+    "src": "/images/gallery/garden-stone-world-war-ii.jpg",
+    "alt": "A rock in the garden with a plaque dedicating the garden to those who served in World War II",
+    "caption": "The garden is dedicated in gratitude to those who served in World War II",
+    "tags": ["history", "garden"]
+  },
+  {
+    "id": "plaque-church-extension-1936",
+    "src": "/images/gallery/plaque-church-extension-1936.jpg",
+    "alt": "A brass plaque commemorating the extension of the church on 20 June 1936",
+    "caption": "Commemorating the extension of the church, 20 June 1936",
+    "tags": ["history"]
+  },
+  {
+    "id": "plaque-triennial-conference-1955",
+    "src": "/images/gallery/plaque-triennial-conference-1955.jpg",
+    "alt": "A plaque from the 21st Triennial Conference of the New Church in Australia, held in Sydney at Easter 1955",
+    "caption": "Presented at the 21st Triennial Conference, Sydney, Easter 1955",
+    "tags": ["history"]
+  },
+  {
+    "id": "memorial-plaque-roberts-1957",
+    "src": "/images/gallery/memorial-plaque-roberts-1957.jpg",
+    "alt": "A memorial plaque for Frances Mary Roberts, who died on 25 April 1957",
+    "caption": "In memory of Frances Mary Roberts (died 1957)",
+    "tags": ["history"]
+  },
+  {
+    "id": "memorial-plaque-french-1980",
+    "src": "/images/gallery/memorial-plaque-french-1980.jpg",
+    "alt": "A memorial plaque for George William French, 1918 to 1980",
+    "caption": "In memory of George William French (1918 to 1980)",
+    "tags": ["history"]
+  }
+]

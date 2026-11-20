@@ -1,5 +1,5 @@
 import { defineCollection, z } from 'astro:content';
-import { glob } from 'astro/loaders';
+import { glob, file } from 'astro/loaders';
 
 const newsletters = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/newsletters' }),
@@ -78,10 +78,24 @@ const eventInfo = defineCollection({
     image: z.string().optional(),
     imageAlt: z.string().optional(),
     zoomlink: z.string().optional(),
+    /** Ids from src/content/gallery.json, shown as a photo gallery on the page. */
+    gallery: z.array(z.string()).default([]),
     buttons: z
       .array(z.object({ label: z.string(), href: z.string(), secondary: z.boolean().default(false) }))
       .default([]),
   }),
 });
 
-export const collections = { newsletters, articles, authors, blog, 'event-info': eventInfo };
+// Photos of the church, kept in public/images/gallery. To add one: save the picture there and add an entry to
+// src/content/gallery.json. Pages show photos by listing their ids (an event's file uses `gallery:`).
+const gallery = defineCollection({
+  loader: file('./src/content/gallery.json'),
+  schema: z.object({
+    src: z.string(),
+    alt: z.string(),
+    caption: z.string().optional(),
+    tags: z.array(z.string()).default([]),
+  }),
+});
+
+export const collections = { newsletters, articles, authors, blog, 'event-info': eventInfo, gallery };

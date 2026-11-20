@@ -26,4 +26,9 @@ the longer write-up, a picture, buttons and links.
    promoted event its own file (see `christmas-service.md`) with `image`, `summary` and `buttons`. A pinned event
    that is cancelled is not shown.
 
+8. Photos live in `public/images/gallery/`, listed in `src/content/gallery.json` (an id, the file, alt text, a caption and
+   tags). To add one, save the picture there (about 1200 pixels on the long side is plenty) and add an entry. To show
+   photos on an event's page, list their ids under `gallery:` in its file (see `meditation.md`). The older historical
+   photos (foundation stones, plaques) are stored there too, ready for a future history or gallery page.
+
 Files starting with an underscore (like this one) are ignored by the website.

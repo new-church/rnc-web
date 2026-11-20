@@ -4,6 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Button from '../../components/Button.astro';
 import Badge from '../../components/Badge.astro';
 import UpcomingDates from '../../components/UpcomingDates.astro';
+import PhotoGallery from '../../components/PhotoGallery.astro';
 import { getEvents, whenLabel } from '../../lib/events';
 
 export const prerender = false;
@@ -16,6 +17,8 @@ const slug = Astro.params.slug ?? '';
 //   /events/202612061000-advent-service  one dated calendar entry (for events with no write-up)
 const infos = await getCollection('event-info');
 const info = infos.find((i) => i.id === slug && !i.data.page);
+
+const photos = await getCollection('gallery');
 
 let Content;
 let upcoming = [];
@@ -73,6 +76,13 @@ const description = info ? info.data.summary : occurrence!.description.slice(0, 
               ))}
             </div>
           )}
+          <PhotoGallery
+            title="Photos"
+            photos={info.data.gallery
+              .map((id) => photos.find((p) => p.id === id))
+              .filter((p) => p !== undefined)
+              .map((p) => ({ id: p.id, ...p.data }))}
+          />
           <UpcomingDates events={upcoming} title="Coming up" limit={8} />
         </>
       ) : (
