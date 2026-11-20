@@ -9,17 +9,23 @@ interface Props {
   image?: string;
   imageAlt?: string;
   cancelled?: boolean;
+  /** A pinned event: darker, standout card. */
+  featured?: boolean;
   badges?: { label: string; tone: 'violet' | 'gold' | 'success' | 'warning' | 'error' | 'info' }[];
 }
 
-const { href, eyebrow, title, text, image, imageAlt = '', cancelled = false, badges = [] } = Astro.props;
+const { href, eyebrow, title, text, image, imageAlt = '', cancelled = false, featured = false, badges = [] } = Astro.props;
 ---
 
 <a
   href={href}
   class:list={[
     'group flex items-stretch gap-4 rounded-lg border p-3 sm:p-4 no-underline shadow-card transition-all duration-[280ms] ease-[var(--ease-gentle)] hover:shadow-lift hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-primary',
-    cancelled ? 'border-status-error/40 bg-status-error-bg/50' : 'border-border-soft bg-surface-card',
+    cancelled
+      ? 'border-status-error/40 bg-status-error-bg/50'
+      : featured
+        ? 'border-transparent bg-gradient-dusk shadow-lift'
+        : 'border-border-soft bg-surface-card',
   ]}
 >
   {
@@ -30,7 +36,7 @@ const { href, eyebrow, title, text, image, imageAlt = '', cancelled = false, bad
         loading="lazy"
         decoding="async"
         class:list={[
-          'h-24 w-24 sm:h-28 sm:w-28 shrink-0 rounded-md object-cover self-center',
+          'h-24 w-24 sm:h-32 sm:w-32 shrink-0 rounded-md object-cover self-center',
           cancelled && 'opacity-50 grayscale',
         ]}
       />
@@ -40,21 +46,23 @@ const { href, eyebrow, title, text, image, imageAlt = '', cancelled = false, bad
     <div
       class:list={[
         'font-display text-eyebrow font-semibold tracking-eyebrow uppercase mb-1',
-        cancelled ? 'text-status-error' : 'text-accent-primary',
+        cancelled ? 'text-status-error' : featured ? 'text-gold-300' : 'text-accent-primary',
       ]}
     >
+      {featured && <span class="mr-1.5">✦ Featured ·</span>}
       {cancelled && <span class="inline-block rounded-pill bg-status-error text-white px-2 pt-[3px] pb-[1px] mr-2 tracking-[0.08em]">Cancelled</span>}
       <span class:list={[cancelled && 'line-through']}>{eyebrow}</span>
     </div>
     <div
       class:list={[
-        'font-display text-h3 font-semibold tracking-display text-text-heading group-hover:text-link-hover',
+        'font-display text-h3 font-semibold tracking-display',
+        featured ? 'text-text-on-dark' : 'text-text-heading group-hover:text-link-hover',
         cancelled && 'line-through decoration-status-error/60',
       ]}
     >
       {title}
     </div>
-    {text && <p class="mt-1.5 mb-0 font-body text-sm leading-[1.6] text-text-body">{text}</p>}
+    {text && <p class:list={['mt-1.5 mb-0 font-body text-sm leading-[1.6]', featured ? 'text-text-on-dark/85' : 'text-text-body']}>{text}</p>}
     {
       badges.length > 0 && (
         <div class="mt-2.5 flex flex-wrap gap-2">
