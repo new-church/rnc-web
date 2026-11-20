@@ -1,5 +1,16 @@
 ---
-import type { CalendarEvent } from '../lib/ics';
+type CalendarEvent = {
+  uid: string;
+  title: string;
+  description: string;
+  location: string;
+  start: string;
+  end: string;
+  allDay: boolean;
+  cancelled: boolean;
+  /** The event's own page. */
+  href?: string;
+};
 
 interface Props {
   icsUrl: string;
@@ -127,6 +138,7 @@ const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
     end: string;
     allDay: boolean;
     cancelled: boolean;
+    href?: string;
   };
 
   const root = document.querySelector<HTMLElement>('[data-events-calendar]');
@@ -262,9 +274,10 @@ const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
             ${event.cancelled ? '<span class="inline-block rounded-pill bg-status-error text-white px-2 pt-[3px] pb-[1px] mr-2 tracking-[0.08em]">Cancelled</span>' : ''}
             <span class="${event.cancelled ? 'line-through' : ''}">${when}</span>
           </div>
-          <div class="font-display font-semibold text-[17px] text-text-heading ${event.cancelled ? 'line-through decoration-status-error/60' : ''}">${escapeHtml(event.title)}</div>
+          <div class="font-display font-semibold text-[17px] text-text-heading ${event.cancelled ? 'line-through decoration-status-error/60' : ''}">${event.href ? `<a href="${escapeHtml(event.href)}" class="text-text-heading no-underline hover:text-link-hover">${escapeHtml(event.title)}</a>` : escapeHtml(event.title)}</div>
           ${event.location ? `<div class="mt-1 text-sm text-text-muted">${escapeHtml(event.location)}</div>` : ''}
-          ${event.description ? `<p class="mt-2 mb-0 text-sm text-text-body whitespace-pre-line">${escapeHtml(event.description)}</p>` : ''}
+          ${event.description ? `<p class="mt-2 mb-0 text-sm text-text-body whitespace-pre-line">${escapeHtml(event.description.split('\n\n')[0])}</p>` : ''}
+          ${event.href ? `<a href="${escapeHtml(event.href)}" class="mt-2 inline-block text-sm font-display font-semibold">Details →</a>` : ''}
         `;
         list.appendChild(li);
       }

@@ -4,10 +4,21 @@ import Button from '../components/Button.astro';
 import Card from '../components/Card.astro';
 import Badge from '../components/Badge.astro';
 import { formatServiceDate, getUpcomingSundayTheme } from '../lib/site/sunday-theme';
+import { getEvents, getInfos, whenLabel } from '../lib/events';
 
 export const prerender = false;
 
 const sunday = await getUpcomingSundayTheme();
+
+// "Visiting us" comes from the church calendar: the featured event write-ups, each with its next date. Never fatal.
+const calendarEvents = await getEvents().catch(() => []);
+const featured = (await getInfos())
+  .filter((i) => i.data.featured !== undefined)
+  .sort((a, b) => a.data.featured! - b.data.featured!)
+  .map((info) => ({
+    info,
+    next: calendarEvents.find((e) => e.info?.id === info.id && !e.cancelled),
+  }));
 Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
 ---
 
@@ -106,41 +117,26 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-re
         </a>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <Card
-          interactive
-          href="/events/sunday-worship"
-          eyebrow="1st & 3rd Sundays · 10am"
-          title="Sunday worship"
-        >
-          Worship, readings and reflection at 2B Shirley Rd — everyone is
-          welcome. Stay afterwards for refreshments and conversation.
-          {sunday && (
-            <span class="mt-3 block text-sm">
-              <strong>{formatServiceDate(sunday.serviceDate)}:</strong> {sunday.theme}
-            </span>
-          )}
-          <Badge slot="footer" tone="gold">Morning tea after</Badge>
-        </Card>
-        <Card
-          interactive
-          href="/events/open-discussion"
-          eyebrow="Tuesdays · 11am · Zoom"
-          title="Open discussion"
-        >
-          Hosted by the Swedenborg Centre — delve deeper into the writings and
-          relate them to our lives.
-          <Badge slot="footer" tone="info">On Zoom</Badge>
-        </Card>
-        <Card
-          interactive
-          href="/events/read-and-reflect"
-          eyebrow="Wednesdays · 10am · Zoom"
-          title="Read & reflect"
-        >
-          Hosted by the Swedenborg Centre — reading slowly through one of the
-          works, together.
-          <Badge slot="footer" tone="info">On Zoom</Badge>
-        </Card>
+        {
+          featured.map(({ info, next }) => (
+            <Card
+              interactive
+              href={info.data.page ?? `/events/${info.id}`}
+              eyebrow={next ? `Next: ${whenLabel(next)}` : 'See upcoming dates'}
+              title={info.data.shortTitle ?? info.data.title}
+            >
+              {info.data.summary}
+              {info.id === 'sunday-worship' && sunday && (
+                <span class="mt-3 block text-sm">
+                  <strong>{formatServiceDate(sunday.serviceDate)}:</strong> {sunday.theme}
+                </span>
+              )}
+              <Badge slot="footer" tone={info.data.where === 'In person' ? 'gold' : 'info'}>
+                {info.data.where === 'In person' ? 'Morning tea after' : info.data.where}
+              </Badge>
+            </Card>
+          ))
+        }
       </div>
     </section>
 

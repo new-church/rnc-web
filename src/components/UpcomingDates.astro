@@ -1,0 +1,61 @@
+---
+import { whenLabel, type SiteEvent } from '../lib/events';
+
+interface Props {
+  events: SiteEvent[];
+  title?: string;
+  limit?: number;
+}
+
+const { events, title = 'Coming up', limit = 6 } = Astro.props;
+const shown = events.slice(0, limit);
+---
+
+{
+  shown.length > 0 && (
+    <section class="mt-10" aria-label={title}>
+      <h2 class="text-h2 mt-0 mb-4">{title}</h2>
+      <ul class="m-0 p-0 list-none flex flex-col gap-2.5">
+        {shown.map((e) => (
+          <li
+            class:list={[
+              'rounded-xl border px-4 py-3',
+              e.cancelled
+                ? 'border-status-error/40 bg-status-error-bg/60'
+                : 'border-border-soft bg-surface-card',
+            ]}
+          >
+            <div
+              class:list={[
+                'font-display text-[12px] font-semibold tracking-[0.14em] uppercase',
+                e.cancelled ? 'text-status-error' : 'text-accent-primary',
+              ]}
+            >
+              {e.cancelled && (
+                <span class="inline-block rounded-pill bg-status-error text-white px-2 pt-[3px] pb-[1px] mr-2 tracking-[0.08em]">
+                  Cancelled
+                </span>
+              )}
+              <span class:list={[e.cancelled && 'line-through']}>
+                {whenLabel(e)}
+              </span>
+            </div>
+            <div
+              class:list={[
+                'mt-0.5 font-display font-semibold text-text-heading',
+                e.cancelled && 'line-through decoration-status-error/60',
+              ]}
+            >
+              {e.displayTitle}
+            </div>
+            {e.description && (
+              <p class="mt-1 mb-0 text-sm text-text-muted whitespace-pre-line">
+                {e.description.split('\n\n')[0]}
+              </p>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}

@@ -5,78 +5,31 @@ import Card from '../../components/Card.astro';
 import Badge from '../../components/Badge.astro';
 import Button from '../../components/Button.astro';
 import EventsCalendar from '../../components/EventsCalendar.astro';
-import { getCalendar } from '../../lib/ics';
+import { getEvents, icsUrl, whenLabel } from '../../lib/events';
 
 export const prerender = false;
 
-const icsUrl =
-  import.meta.env.PUBLIC_CALENDAR_ICS_URL ||
-  'https://outlook.office365.com/owa/calendar/d3aab09d67bf4025ae539869196ad552@rosevillenewchurch.com.au/e57651adf65b458bb5d1e3154770ba4517495040307124971130/calendar.ics';
-
-// The calendar is read on the server (cached five minutes, see lib/ics.ts) and the page is cached at the edge too.
-const serverIcsUrl = import.meta.env.CALENDAR_ICS_URL || icsUrl;
-const calendar = await getCalendar(serverIcsUrl);
+// The Outlook calendar is the single source of truth: it is read on the server (cached five minutes, see lib/ics.ts)
+// and the page is cached at the edge too. Write-ups come from src/content/event-info, matched by calendar title.
 Astro.response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600');
 
-const events = [
-  {
-    title: 'Sunday worship',
-    date: '1st & 3rd Sundays · 10am',
-    category: 'Worship',
-    where: 'In person' as const,
-    href: '/events/sunday-worship',
-    desc: 'Worship, readings and reflection at 2B Shirley Rd, followed by refreshments and conversation in the hall. A service pamphlet with hymns is provided.',
-  },
-  {
-    title: 'Swedenborg Tuesday: open discussion',
-    date: 'Tuesdays · 11am',
-    category: 'Study',
-    where: 'On Zoom' as const,
-    href: '/events/open-discussion',
-    desc: "Hosted by the Swedenborg Centre — delve a little deeper into concepts in Swedenborg's writing and relate them to our lives.",
-  },
-  {
-    title: "Read and reflect on Swedenborg's writings",
-    date: 'Wednesdays · 10am',
-    category: 'Study',
-    where: 'On Zoom' as const,
-    href: '/events/read-and-reflect',
-    desc: 'Hosted by the Swedenborg Centre — reading slowly through True Christianity, reflecting as we go.',
-  },
-  {
-    title: 'Monday meditation',
-    date: 'Mondays · 10am',
-    category: 'Community',
-    where: 'In person' as const,
-    href: '/events/meditation',
-    desc: 'Quiet meditation in the church sanctuary with Kathryn Baker. Please confirm with Kathryn before your first visit.',
-  },
-  {
-    title: 'New Church Family Retreat 2027',
-    date: '22–26 January 2027',
-    category: 'Community',
-    where: 'In person' as const,
-    href: '/events/family-retreat-2027',
-    desc: 'Five days at The Tops Conference Centre, Stanwell Tops — worship, talks, activities and fellowship for all ages.',
-  },
-  {
-    title: 'Prayer circle',
-    date: 'Ongoing · online',
-    category: 'Community',
-    where: 'Online' as const,
-    href: '/contact',
-    cta: 'Get in touch to join',
-    desc: 'Our online community on WhatsApp includes a prayer circle, a way of holding one another in prayer between services. Get in touch and we will send you an invitation.',
-  },
-  {
-    title: 'Church garden working bee',
-    date: 'As announced',
-    category: 'Community',
-    where: 'In person' as const,
-    desc: 'Help us care for the church garden — tools and morning tea provided. Dates are shared in the newsletter.',
-  },
-];
-
+// From the start of this month so the calendar grid is complete, a day and a half earlier to be safe across zones.
+const monthStart = new Date();
+monthStart.setDate(1);
+monthStart.setHours(0, 0, 0, 0);
+const all = await getEvents({ since: new Date(monthStart.getTime() - 36 * 3600_000) });
+const upcoming = all.filter((e) => new Date(e.allDay ? `${e.end}T00:00:00Z` : e.end).getTime() >= Date.now());
+const calendarEvents = all.map((e) => ({
+  uid: e.uid,
+  title: e.displayTitle,
+  description: e.summary,
+  location: e.location,
+  start: e.start,
+  end: e.end,
+  allDay: e.allDay,
+  cancelled: e.cancelled,
+  href: e.href,
+}));
 const tabs = ['All', 'Worship', 'Study', 'Community'];
 ---
 
@@ -94,44 +47,65 @@ const tabs = ['All', 'Worship', 'Study', 'Community'];
     <h1 class="mt-0 text-h1">Upcoming events</h1>
     <p class="text-text-muted -mt-1.5 max-w-[640px]">
       Sunday worship is on the <strong>1st and 3rd Sundays</strong> of each month
-      at 10am (Sydney time). Browse dated events on the calendar, or the regular
-      rhythm below — each item links through to full details.
+      at 10am (Sydney time). Browse dated events on the calendar, or the list
+      below — each item links through to full details.
     </p>
 
-    <EventsCalendar icsUrl={icsUrl} events={calendar?.events ?? []} failed={!calendar} />
+    <EventsCalendar icsUrl={icsUrl} events={calendarEvents} failed={all.length === 0} />
 
-    <h2 class="mt-14 mb-2 text-h2">Regular rhythm</h2>
+    <h2 class="mt-14 mb-2 text-h2">Coming up</h2>
     <p class="text-text-muted mt-0 mb-5 max-w-[640px]">
-      Midweek Zoom groups are run by the{' '}
+      Everything here comes straight from the church calendar. The midweek Zoom
+      groups are run by the{' '}
       <a
         href="https://swedenborg.com.au/"
         rel="noopener noreferrer"
         target="_blank">Swedenborg Centre</a
-      > — check their site for the latest links and times.
+      >.
     </p>
 
     <Tabs tabs={tabs} active="All" class="my-[18px] mb-[26px]" />
 
+    {upcoming.length === 0 && (
+      <p class="text-text-muted">No upcoming events are listed right now. Please check back soon.</p>
+    )}
     <div class="flex flex-col gap-4 max-w-[760px]">
       {
-        events.map((event) => (
+        upcoming.slice(0, 24).map((event) => (
           <div data-category={event.category}>
-            <Card eyebrow={event.date} title={event.title}>
-              {event.desc}
+            <Card
+              eyebrow={whenLabel(event)}
+              title={event.displayTitle}
+              class={event.cancelled ? 'border-status-error/40 !bg-status-error-bg/50' : ''}
+            >
+              {event.cancelled ? (event.note || 'This event has been cancelled.') : (event.note || event.info?.data.summary || '')}
               <div slot="footer" class="flex flex-wrap gap-2.5 items-center">
+                {event.cancelled && <Badge tone="error">Cancelled</Badge>}
                 <Badge tone={event.where === 'In person' ? 'success' : 'info'}>
                   {event.where}
                 </Badge>
-                {event.href && (
-                  <Button size="sm" variant="secondary" href={event.href}>
-                    {event.cta ?? 'Learn more'}
-                  </Button>
-                )}
+                <Button size="sm" variant="secondary" href={event.href}>
+                  Details
+                </Button>
               </div>
             </Card>
           </div>
         ))
       }
+    </div>
+
+    <div class="mt-10 max-w-[760px]">
+      <Card eyebrow="Ongoing · online" title="Prayer circle">
+        Our online community on WhatsApp includes a prayer circle, a way of
+        holding one another in prayer between services. Get in touch and we will
+        send you an invitation.
+        <div slot="footer" class="flex flex-wrap gap-2.5 items-center">
+          <Badge tone="info">Online</Badge>
+          <Button size="sm" variant="secondary" href="/contact">
+            Get in touch to join
+          </Button>
+        </div>
+      </Card>
     </div>
   </main>
 </BaseLayout>

@@ -7,6 +7,8 @@
 //   npm run calendar -- add "Annual camp" 2027-01-22 2027-01-26 --all-day [--body "..."] [--location "..."] [--apply]   (last day inclusive)
 //   npm run calendar -- update <eventId> [--title ".."] [--date YYYY-MM-DD --start HH:MM --end HH:MM] [--body ".."] [--location ".."] [--apply]
 //   npm run calendar -- delete <eventId> [--apply]
+//   npm run calendar -- details [--days 120] [--apply]   (add each event's summary and a link to its page on the website,
+//                                                         from src/content/event-info; keeps any note already on the event)
 //
 // Writes are a dry run unless --apply is given. Needs M365_TENANT_ID, M365_CLIENT_ID and
 // M365_CLIENT_SECRET in .env (see .env.example).
@@ -153,7 +155,7 @@ if (command === 'list') {
   const patch = {};
   if (opts.title) patch.subject = opts.title;
   if (opts.location) patch.location = { displayName: opts.location };
-  if (opts.body) patch.body = { contentType: 'text', content: opts.body };
+  if (opts.body !== undefined) patch.body = { contentType: 'text', content: opts.body };
   if (opts.date || opts.start || opts.end) {
     if (!dateOk(opts.date) || !timeOk(opts.start) || !timeOk(opts.end)) fail('Changing time needs --date, --start and --end together');
     patch.start = { dateTime: `${opts.date}T${opts.start}:00`, timeZone: TZ };
@@ -178,6 +180,54 @@ if (command === 'list') {
   } else {
     console.log('Add --apply to delete it.');
   }
+} else if (command === 'details') {
+  const { readdirSync, readFileSync } = await import('node:fs');
+  const dir = new URL('../src/content/event-info/', import.meta.url);
+  const SITE = 'https://www.rosevillenewchurch.com.au';
+  const list = (fm, key) => {
+    const m = fm.match(new RegExp(`^${key}:\\s*(\\[.*\\])\\s*$`, 'm'));
+    return m ? JSON.parse(m[1]) : [];
+  };
+  const infos = readdirSync(dir)
+    .filter((f) => f.endsWith('.md') && !f.startsWith('_'))
+    .map((f) => {
+      const fm = readFileSync(new URL(f, dir), 'utf8').split('---')[1] ?? '';
+      const id = f.replace(/\.md$/, '');
+      return {
+        id,
+        match: list(fm, 'match'),
+        exclude: list(fm, 'exclude'),
+        summary: (fm.match(/^summary:\s*(.+)$/m)?.[1] ?? '').trim(),
+        url: SITE + (fm.match(/^page:\s*(\S+)/m)?.[1] ?? `/events/${id}`),
+      };
+    });
+  const find = (title) => {
+    const lower = title.toLowerCase();
+    let best, bestLen = 0;
+    for (const i of infos) {
+      if (i.exclude.some((x) => lower.includes(x.toLowerCase()))) continue;
+      for (const k of [i.id.replace(/-/g, ' '), ...i.match].map((x) => x.toLowerCase())) {
+        if (k && lower.includes(k) && k.length > bestLen) { best = i; bestLen = k.length; }
+      }
+    }
+    return best;
+  };
+  const from = new Date();
+  const to = new Date(from.getTime() + Number(opts.days || 120) * 86400000);
+  const q = new URLSearchParams({ startDateTime: from.toISOString(), endDateTime: to.toISOString(), $orderby: 'start/dateTime', $top: '100' });
+  const { value } = await graph(`${base}/calendarView?${q}`);
+  let changed = 0;
+  for (const e of value) {
+    const info = find(e.subject);
+    if (!info) continue;
+    const existing = (e.body?.contentType === 'html' ? e.body.content.replace(/<[^>]*>/g, ' ') : e.body?.content ?? '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+    if (existing.includes('More information:')) continue;
+    const content = [existing, info.summary, `More information: ${info.url}`].filter(Boolean).join('\n\n');
+    changed++;
+    console.log(`${opts.apply ? 'Updating' : 'Would update'} ${fmt(e).split('\n')[0]}\n${content.split('\n').map((l) => '      ' + l).join('\n')}`);
+    if (opts.apply) await graph(`${base}/events/${encodeURIComponent(e.id)}`, { method: 'PATCH', body: { body: { contentType: 'text', content } } });
+  }
+  console.log(changed ? (opts.apply ? `Updated ${changed}.` : `Add --apply to update ${changed}.`) : 'Nothing to update.');
 } else {
-  fail('Commands: list | add | update | delete (see the header of scripts/calendar.mjs)');
+  fail('Commands: list | add | update | delete | details (see the header of scripts/calendar.mjs)');
 }

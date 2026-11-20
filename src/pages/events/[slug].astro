@@ -1,0 +1,102 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Button from '../../components/Button.astro';
+import Badge from '../../components/Badge.astro';
+import SoftPhoto from '../../components/SoftPhoto.astro';
+import UpcomingDates from '../../components/UpcomingDates.astro';
+import { getEvents, whenLabel } from '../../lib/events';
+
+export const prerender = false;
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600');
+
+const slug = Astro.params.slug ?? '';
+
+// Two kinds of address share this route:
+//   /events/meditation                 the series page, from src/content/event-info/meditation.md
+//   /events/202612061000-advent-service  one dated calendar entry (for events with no write-up)
+const infos = await getCollection('event-info');
+const info = infos.find((i) => i.id === slug && !i.data.page);
+
+let Content;
+let upcoming = [];
+let occurrence;
+if (info) {
+  Content = (await render(info)).Content;
+  upcoming = (await getEvents()).filter((e) => e.info?.id === info.id);
+} else {
+  const all = await getEvents({ since: new Date(Date.now() - 40 * 86400_000) });
+  occurrence = all.find((e) => e.slug === slug);
+  if (!occurrence) return Astro.redirect('/events', 302);
+}
+
+const title = info ? info.data.title : occurrence!.displayTitle;
+const description = info ? info.data.summary : occurrence!.description.slice(0, 160);
+---
+
+<BaseLayout title={title} description={description} currentPath="/events">
+  <main class="container-prose px-6 md:px-8 pt-10 md:pt-14 pb-4">
+    <p class="mb-4">
+      <a
+        href="/events"
+        class="font-display text-sm font-semibold text-accent-primary no-underline hover:underline"
+        >← Events</a
+      >
+    </p>
+
+    {
+      info ? (
+        <>
+          <article class="prose-rnc">
+            <div class="font-display font-semibold text-eyebrow tracking-eyebrow uppercase text-accent-primary mb-2.5 !mt-0">
+              ✦ {info.data.where ?? 'In person'}
+            </div>
+            <h1>{info.data.title}</h1>
+            <Content />
+          </article>
+          {info.data.image && (
+            <div class="mt-8">
+              <SoftPhoto src={info.data.image} alt={info.data.imageAlt ?? ''} aspect="aspect-[16/10]" />
+            </div>
+          )}
+          {(info.data.buttons.length > 0 || info.data.zoomlink) && (
+            <div class="mt-8 flex flex-wrap gap-3">
+              {info.data.zoomlink && <Button href={info.data.zoomlink}>Join on Zoom</Button>}
+              {info.data.buttons.map((b) => (
+                <Button variant={b.secondary ? 'secondary' : 'primary'} href={b.href}>
+                  {b.label}
+                </Button>
+              ))}
+            </div>
+          )}
+          <UpcomingDates events={upcoming} title="Coming up" limit={8} />
+        </>
+      ) : (
+        <article class="prose-rnc">
+          {occurrence!.cancelled && (
+            <div class="not-prose mb-6 rounded-lg border border-status-error/40 bg-status-error-bg px-5 py-4" role="status">
+              <Badge tone="error">Cancelled</Badge>
+              <p class="m-0 mt-2 text-status-error">
+                This event has been cancelled. Please check the{' '}
+                <a href="/events">events page</a> for what is on next.
+              </p>
+            </div>
+          )}
+          <div
+            class:list={[
+              'font-display font-semibold text-eyebrow tracking-eyebrow uppercase mb-2.5 !mt-0',
+              occurrence!.cancelled ? 'text-status-error line-through' : 'text-accent-primary',
+            ]}
+          >
+            ✦ {whenLabel(occurrence!)}
+          </div>
+          <h1>{occurrence!.displayTitle}</h1>
+          {occurrence!.location && <p><strong>{occurrence!.location}</strong></p>}
+          {occurrence!.description
+            ? occurrence!.description.split(/\n{2,}/).map((p) => <p class="whitespace-pre-line">{p}</p>)
+            : <p>More details will be added soon. Please <a href="/contact">get in touch</a> if you have any questions.</p>}
+        </article>
+      )
+    }
+  </main>
+</BaseLayout>

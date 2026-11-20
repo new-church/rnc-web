@@ -4,10 +4,14 @@ import Button from '../../components/Button.astro';
 import SoftPhoto from '../../components/SoftPhoto.astro';
 import Card from '../../components/Card.astro';
 import { formatServiceDate, getUpcomingSundayTheme } from '../../lib/site/sunday-theme';
+import UpcomingDates from '../../components/UpcomingDates.astro';
+import { getEvents } from '../../lib/events';
 
 export const prerender = false;
 
 const sunday = await getUpcomingSundayTheme();
+// Dates come from the church calendar (matched by the event-info file sunday-worship.md).
+const services = (await getEvents().catch(() => [])).filter((e) => e.info?.id === 'sunday-worship');
 Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
 
 const testimonials = [
@@ -131,6 +135,8 @@ const testimonials = [
         <a href="/contact">get in touch</a>. We look forward to welcoming you.
       </p>
     </article>
+
+    <UpcomingDates events={services} title="Coming up" limit={6} />
 
     <div class="mt-10">
       <SoftPhoto

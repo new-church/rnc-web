@@ -1,4 +1,5 @@
-/** Minimal published-ICS parser for Outlook / Exchange calendars. */
+/** Published-ICS reader for Outlook / Exchange calendars, including repeating events. */
+import ICAL from 'ical.js';
 
 export type CalendarEvent = {
   uid: string;
@@ -54,87 +55,6 @@ function toIanaTimeZone(tzid: string | undefined): string {
   }
 }
 
-export const isCancelledTitle = (t: string) =>
-  /\b(cancell?ed|postponed)\b/i.test(t) || /^\s*NO\s+[A-Za-z]/.test(t);
-
-function unfold(ics: string): string {
-  return ics.replace(/\r\n[ \t]/g, '').replace(/\n[ \t]/g, '');
-}
-
-function unescapeText(value: string): string {
-  return value
-    .replace(/\\n/gi, '\n')
-    .replace(/\\,/g, ',')
-    .replace(/\\;/g, ';')
-    .replace(/\\\\/g, '\\');
-}
-
-function parseProps(block: string): Record<string, string> {
-  const props: Record<string, string> = {};
-  for (const line of block.split(/\r?\n/)) {
-    if (!line || line.startsWith('BEGIN:') || line.startsWith('END:')) continue;
-    const sep = line.indexOf(':');
-    if (sep === -1) continue;
-    const keyPart = line.slice(0, sep);
-    const value = line.slice(sep + 1);
-    const key = keyPart.split(';')[0]!.toUpperCase();
-    props[key] = value;
-    props[`${key}_RAW`] = keyPart;
-  }
-  return props;
-}
-
-function parseIcsDate(
-  value: string,
-  rawKey: string | undefined,
-  isEnd = false,
-): { iso: string; allDay: boolean } {
-  const params = (rawKey ?? '')
-    .split(';')
-    .slice(1)
-    .reduce<Record<string, string>>((acc, part) => {
-      const [k, v] = part.split('=');
-      if (k && v) acc[k.toUpperCase()] = v;
-      return acc;
-    }, {});
-
-  if (params.VALUE === 'DATE' || /^\d{8}$/.test(value)) {
-    const y = value.slice(0, 4);
-    const m = value.slice(4, 6);
-    const d = value.slice(6, 8);
-    // Exclusive end dates in ICS all-day: keep as date string for callers.
-    return { iso: `${y}-${m}-${d}`, allDay: true };
-  }
-
-  const match = value.match(
-    /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(Z)?$/,
-  );
-  if (!match) {
-    return { iso: value, allDay: false };
-  }
-
-  const [, y, mo, d, h, mi, s, z] = match;
-  if (z) {
-    return {
-      iso: new Date(
-        Date.UTC(+y!, +mo! - 1, +d!, +h!, +mi!, +s!),
-      ).toISOString(),
-      allDay: false,
-    };
-  }
-
-  const iana = toIanaTimeZone(params.TZID);
-
-  // Interpret wall time in the given zone via Intl offset lookup.
-  const asUtcGuess = Date.UTC(+y!, +mo! - 1, +d!, +h!, +mi!, +s!);
-  const offsetMs = tzOffsetMs(iana, asUtcGuess);
-  void isEnd;
-  return {
-    iso: new Date(asUtcGuess - offsetMs).toISOString(),
-    allDay: false,
-  };
-}
-
 function tzOffsetMs(timeZone: string, utcMs: number): number {
   const dtf = new Intl.DateTimeFormat('en-US', {
     timeZone,
@@ -147,59 +67,97 @@ function tzOffsetMs(timeZone: string, utcMs: number): number {
     second: '2-digit',
   });
   const parts = dtf.formatToParts(new Date(utcMs));
-  const get = (type: Intl.DateTimeFormatPartTypes) =>
-    parts.find((p) => p.type === type)?.value ?? '0';
-  const asLocal = Date.UTC(
-    +get('year'),
-    +get('month') - 1,
-    +get('day'),
-    +get('hour'),
-    +get('minute'),
-    +get('second'),
-  );
+  const get = (type: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === type)?.value ?? '0';
+  const asLocal = Date.UTC(+get('year'), +get('month') - 1, +get('day'), +get('hour'), +get('minute'), +get('second'));
   return asLocal - utcMs;
 }
 
-export function parseIcs(ics: string): CalendarPayload {
-  const text = unfold(ics);
-  const nameMatch = text.match(/X-WR-CALNAME:(.+)/i);
-  const name = nameMatch ? unescapeText(nameMatch[1]!.trim()) : 'Calendar';
+/** A wall-clock time in an IANA zone, as a true instant. */
+function wallToInstant(y: number, mo: number, d: number, h: number, mi: number, s: number, zone: string): Date {
+  const guess = Date.UTC(y, mo - 1, d, h, mi, s);
+  // Two passes so times either side of a daylight-saving change land correctly.
+  const first = guess - tzOffsetMs(zone, guess);
+  return new Date(guess - tzOffsetMs(zone, first));
+}
 
-  const events: CalendarEvent[] = [];
-  const eventBlocks = text.split(/BEGIN:VEVENT/i).slice(1);
+const pad = (n: number) => String(n).padStart(2, '0');
 
-  for (const chunk of eventBlocks) {
-    const block = chunk.split(/END:VEVENT/i)[0] ?? '';
-    const props = parseProps(block);
-    if (!props.DTSTART) continue;
+/** All-day events give "YYYY-MM-DD"; timed events give an ISO instant. */
+function toIso(t: ICAL.Time, tzid: string | undefined): string {
+  if (t.isDate) return `${t.year}-${pad(t.month)}-${pad(t.day)}`;
+  if (t.zone && t.zone.tzid === 'UTC') {
+    return new Date(Date.UTC(t.year, t.month - 1, t.day, t.hour, t.minute, t.second)).toISOString();
+  }
+  return wallToInstant(t.year, t.month, t.day, t.hour, t.minute, t.second, toIanaTimeZone(tzid)).toISOString();
+}
 
-    const start = parseIcsDate(props.DTSTART, props.DTSTART_RAW);
-    const end = props.DTEND
-      ? parseIcsDate(props.DTEND, props.DTEND_RAW, true)
-      : start;
+export const isCancelledTitle = (t: string) =>
+  /\b(cancell?ed|postponed)\b/i.test(t) || /^\s*NO\s+[A-Za-z]/.test(t);
 
-    const title = unescapeText(props.SUMMARY ?? 'Event');
-    events.push({
-      uid: props.UID ?? `${props.SUMMARY}-${props.DTSTART}`,
-      title,
-      cancelled:
-        (props.STATUS ?? '').trim().toUpperCase() === 'CANCELLED' ||
-        isCancelledTitle(title),
-      description: unescapeText(props.DESCRIPTION ?? '').trim(),
-      location: unescapeText(props.LOCATION ?? '').trim(),
-      start: start.iso,
-      end: end.iso,
-      allDay: start.allDay,
-    });
+const tzidOf = (e: ICAL.Event): string | undefined => {
+  const v = e.component.getFirstProperty('dtstart')?.getParameter('tzid');
+  return typeof v === 'string' ? v : undefined;
+};
+
+const PAST_DAYS = 60;
+const HORIZON_DAYS = 540;
+const MAX_OCCURRENCES_PER_SERIES = 400;
+
+export function parseIcs(ics: string, now = new Date()): CalendarPayload {
+  const comp = new ICAL.Component(ICAL.parse(ics));
+  const name = String(comp.getFirstPropertyValue('x-wr-calname') ?? 'Calendar');
+
+  const events = comp.getAllSubcomponents('vevent').map((v) => new ICAL.Event(v));
+  const masters = events.filter((e) => !e.isRecurrenceException());
+  // A single changed occurrence of a repeating event (for example one renamed "Cancelled: ...").
+  for (const ex of events.filter((e) => e.isRecurrenceException())) {
+    masters.find((m) => m.uid === ex.uid)?.relateException(ex);
   }
 
-  events.sort((a, b) => a.start.localeCompare(b.start));
+  const from = now.getTime() - PAST_DAYS * 86400_000;
+  const horizon = now.getTime() + HORIZON_DAYS * 86400_000;
+  const status = (e: ICAL.Event) => String(e.component.getFirstPropertyValue('status') ?? '').toUpperCase();
+  const out: CalendarEvent[] = [];
 
-  return {
-    name,
-    events,
-    fetchedAt: new Date().toISOString(),
-  };
+  for (const ev of masters) {
+    const push = (item: ICAL.Event, start: ICAL.Time, end: ICAL.Time) => {
+      const title = item.summary || ev.summary || 'Event';
+      const tzid = tzidOf(item) ?? tzidOf(ev);
+      const startIso = toIso(start, tzid);
+      const endIso = toIso(end, tzid);
+      const t0 = new Date(start.isDate ? `${startIso}T00:00:00Z` : startIso).getTime();
+      const t1 = new Date(end.isDate ? `${endIso}T00:00:00Z` : endIso).getTime();
+      if (t1 < from || t0 > horizon) return;
+      out.push({
+        uid: `${ev.uid}#${startIso}`,
+        title,
+        cancelled: status(item) === 'CANCELLED' || isCancelledTitle(title),
+        description: (item.description ?? '').trim(),
+        location: (item.location ?? '').trim(),
+        start: startIso,
+        end: endIso,
+        allDay: start.isDate,
+      });
+    };
+
+    if (!ev.isRecurring()) {
+      push(ev, ev.startDate, ev.endDate);
+      continue;
+    }
+    const it = ev.iterator();
+    for (let n = 0, next = it.next(); next && n < MAX_OCCURRENCES_PER_SERIES; n++, next = it.next()) {
+      const d = ev.getOccurrenceDetails(next);
+      const tz = tzidOf(d.item) ?? tzidOf(ev);
+      const startMs = d.startDate.isDate
+        ? Date.UTC(d.startDate.year, d.startDate.month - 1, d.startDate.day)
+        : new Date(toIso(d.startDate, tz)).getTime();
+      if (startMs > horizon) break;
+      push(d.item, d.startDate, d.endDate);
+    }
+  }
+
+  out.sort((a, b) => a.start.localeCompare(b.start));
+  return { name, events: out, fetchedAt: new Date().toISOString() };
 }
 
 async function fetchCalendar(icsUrl: string): Promise<CalendarPayload> {

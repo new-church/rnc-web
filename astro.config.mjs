@@ -18,7 +18,8 @@ export default defineConfig({
     '/join/open-discussion': '/events/open-discussion',
     '/join/read-and-reflect': '/events/read-and-reflect',
     '/join/meditation': '/events/meditation',
-    '/join/family-retreat-2027': '/events/family-retreat-2027',
+    '/join/family-retreat-2027': '/events/family-retreat',
+    '/events/family-retreat-2027': '/events/family-retreat',
     // Old Wix blog URLs (/post/<slug>) keep their slugs under /blog.
     '/post/[slug]': '/blog/[slug]',
   },
