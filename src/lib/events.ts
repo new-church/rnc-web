@@ -15,6 +15,8 @@ export type SiteEvent = RawEvent & {
   image?: string;
   imageAlt?: string;
   category: 'Worship' | 'Study' | 'Community';
+  /** Promoted on the home page: the calendar entry has a line "Pin to home page". */
+  pinned: boolean;
   /** Anything specific to this date that was typed into the calendar entry (the standard text and link are removed). */
   note: string;
   /** Card text: this date's note if there is one, otherwise the info summary. */
@@ -73,8 +75,13 @@ export function findInfo(infos: Info[], title: string): Info | undefined {
 }
 
 /** The calendar description without the standard summary and "More information" link added by `npm run calendar -- details`. */
+const PIN_LINE = /^\s*(\[?pin(ned)?\]?|pin to (the )?home ?page)\s*$/i;
+
 function noteOf(description: string, info?: Info): string {
   return description
+    .split('\n')
+    .filter((l) => !PIN_LINE.test(l))
+    .join('\n')
     .split(/\n{2,}/)
     .map((p) => p.trim())
     .filter((p) => p && !/^More information:/i.test(p) && p !== info?.data.summary)
@@ -103,10 +110,12 @@ export async function getEvents(opts: { since?: Date } = {}): Promise<SiteEvent[
       const date = parseStart(e).toISOString().slice(0, 16).replace(/[-:T]/g, '');
       const slug = `${date}-${slugify(e.title)}`;
       const note = noteOf(e.description, info);
+      const pinned = e.description.split('\n').some((l) => PIN_LINE.test(l));
       return {
         ...e,
         description: note,
         note,
+        pinned,
         slug,
         info,
         displayTitle: stripTime(e.title),

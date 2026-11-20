@@ -12,6 +12,10 @@ const sunday = await getUpcomingSundayTheme();
 
 // "Visiting us" comes from the church calendar: the featured event write-ups, each with its next date. Never fatal.
 const calendarEvents = await getEvents().catch(() => []);
+// Promoted: calendar entries with a "Pin to home page" line, soonest first, while they are still to come.
+const pinned = calendarEvents
+  .filter((e) => e.pinned && !e.cancelled && new Date(e.allDay ? `${e.end}T00:00:00Z` : e.end).getTime() >= Date.now())
+  .slice(0, 3);
 const featured = (await getInfos())
   .filter((i) => i.data.featured !== undefined)
   .sort((a, b) => a.data.featured! - b.data.featured!)
@@ -102,6 +106,56 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-re
         </div>
       </div>
     </section>
+
+    <!-- Promoted events: pinned in the church calendar (a "Pin to home page" line in the entry) -->
+    {
+      pinned.length > 0 && (
+        <section class="container-site px-6 md:px-8 pt-12 md:pt-16" aria-label="Featured events">
+          <div class="flex flex-col gap-6">
+            {pinned.map((e) => {
+              const extra = e.info?.data.buttons.find((b) => !b.secondary);
+              return (
+                <article class="group relative grid overflow-hidden rounded-2xl bg-gradient-dusk shadow-lift md:grid-cols-[5fr_6fr]">
+                  {e.image && (
+                    <div class="relative min-h-[220px] md:min-h-[300px]">
+                      <img
+                        src={e.image}
+                        alt={e.imageAlt ?? ''}
+                        loading="lazy"
+                        decoding="async"
+                        class="absolute inset-0 h-full w-full object-cover transition-transform duration-[600ms] ease-[var(--ease-gentle)] group-hover:scale-[1.03]"
+                      />
+                    </div>
+                  )}
+                  <div class:list={['flex flex-col justify-center p-7 sm:p-9 md:p-11', !e.image && 'md:col-span-2']}>
+                    <div class="font-display text-eyebrow font-semibold uppercase tracking-eyebrow text-gold-300">
+                      ✦ {whenLabel(e)}
+                    </div>
+                    <h2 class="mt-3 mb-0 font-light text-h1 tracking-display text-text-on-dark">
+                      {e.displayTitle}
+                    </h2>
+                    <p class="mt-4 mb-0 max-w-[34rem] text-base leading-[1.65] text-text-on-dark/85">
+                      {(e.note || e.info?.data.summary || '').split('\n\n')[0]}
+                    </p>
+                    <div class="mt-7 flex flex-wrap gap-3">
+                      <Button variant="gold" href={e.href}>Find out more</Button>
+                      {extra && (
+                        <a
+                          href={extra.href}
+                          class="inline-flex items-center justify-center whitespace-nowrap rounded-pill border border-white/60 px-[22px] pt-[11px] pb-[9px] font-display text-[15px] font-semibold leading-none tracking-[0.04em] text-text-on-dark no-underline transition-colors duration-150 hover:bg-white/15"
+                        >
+                          {extra.label}
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      )
+    }
 
     <!-- Visiting / events shortcuts -->
     <section class="container-site px-6 md:px-8 pt-14 md:pt-[72px]">

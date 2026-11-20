@@ -19,4 +19,11 @@ the longer write-up, a picture, buttons and links.
 6. Put what people need in the Outlook entry too, plus the web address of the page, so people who only use the
    calendar subscription still see it. Use `npm run calendar -- details` to fill that in from these files.
 
+7. To promote an event on the home page (a big one that might be months away, like the Christmas service), add a line
+   `Pin to home page` to its calendar entry, or run `npm run calendar -- update <eventId> --pin --apply`
+   (`--unpin` removes it). The line itself is not shown on the website. Up to three pinned events show, soonest first,
+   until they have finished. The picture, wording and any extra button come from the event's file here, so give a
+   promoted event its own file (see `christmas-service.md`) with `image`, `summary` and `buttons`. A pinned event
+   that is cancelled is not shown.
+
 Files starting with an underscore (like this one) are ignored by the website.

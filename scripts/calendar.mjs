@@ -6,6 +6,7 @@
 //   npm run calendar -- add "Service" 2026-11-15 10:00 11:00 [--body "..."] [--location "..."] [--apply]
 //   npm run calendar -- add "Annual camp" 2027-01-22 2027-01-26 --all-day [--body "..."] [--location "..."] [--apply]   (last day inclusive)
 //   npm run calendar -- update <eventId> [--title ".."] [--date YYYY-MM-DD --start HH:MM --end HH:MM] [--body ".."] [--location ".."] [--apply]
+//   npm run calendar -- update <eventId> --pin [--apply]      (promote an event on the website home page; --unpin removes it)
 //   npm run calendar -- delete <eventId> [--apply]
 //   npm run calendar -- details [--days 120] [--apply]   (add each event's summary and a link to its page on the website,
 //                                                         from src/content/event-info; keeps any note already on the event)
@@ -20,6 +21,7 @@ const CALENDAR_NAME = process.env.M365_CALENDAR_NAME || 'Roseville New Church Ev
 const TZ = 'AUS Eastern Standard Time'; // Outlook's name for Sydney; matches the published feed
 const DEFAULT_LOCATION = '2b Shirley Rd';
 const GRAPH = 'https://graph.microsoft.com/v1.0';
+const PIN_LINE = /^\s*(\[?pin(ned)?\]?|pin to (the )?home ?page)\s*$/i;
 
 function fail(message) {
   console.error(message);
@@ -95,6 +97,8 @@ const { values: opts, positionals } = parseArgs({
     end: { type: 'string' },
     body: { type: 'string' },
     location: { type: 'string' },
+    pin: { type: 'boolean', default: false },
+    unpin: { type: 'boolean', default: false },
     'all-day': { type: 'boolean', default: false },
     apply: { type: 'boolean', default: false },
   },
@@ -161,6 +165,13 @@ if (command === 'list') {
     patch.start = { dateTime: `${opts.date}T${opts.start}:00`, timeZone: TZ };
     patch.end = { dateTime: `${opts.date}T${opts.end}:00`, timeZone: TZ };
   }
+  if (opts.pin || opts.unpin) {
+    // Outlook's published feed drops categories, so a pin is a line in the description: "Pin to home page".
+    const cur = await graph(`${base}/events/${encodeURIComponent(id)}`);
+    const text = (cur.body?.contentType === 'html' ? cur.body.content.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ') : cur.body?.content ?? '').replace(/\r\n/g, '\n').trim();
+    const without = text.split('\n').filter((l) => !PIN_LINE.test(l)).join('\n').trim();
+    patch.body = { contentType: 'text', content: opts.pin ? `${without}${without ? '\n\n' : ''}Pin to home page` : without };
+  }
   if (!Object.keys(patch).length) fail('Nothing to change.');
   console.log(`${opts.apply ? 'Updating' : 'Dry run, would update'} ${id}:\n${JSON.stringify(patch, null, 2)}`);
   if (opts.apply) {
@@ -220,7 +231,8 @@ if (command === 'list') {
   for (const e of value) {
     const info = find(e.subject);
     if (!info) continue;
-    const existing = (e.body?.contentType === 'html' ? e.body.content.replace(/<[^>]*>/g, ' ') : e.body?.content ?? '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+    const raw = e.body?.contentType === 'html' ? e.body.content.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ') : e.body?.content ?? '';
+    const existing = raw.replace(/\r\n/g, '\n').trim();
     if (existing.includes('More information:')) continue;
     const content = [existing, info.summary, `More information: ${info.url}`].filter(Boolean).join('\n\n');
     changed++;
