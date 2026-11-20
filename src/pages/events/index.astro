@@ -87,7 +87,7 @@ const tabs = ['All', 'Worship', 'Study', 'Community'];
         </div>
       </div>
 
-      <aside class="lg:sticky lg:top-24" aria-label="Calendar">
+      <aside class="order-first lg:order-none lg:sticky lg:top-24" aria-label="Calendar">
         <EventsCalendar icsUrl={icsUrl} events={calendarEvents} failed={upcoming.length === 0} />
       </aside>
     </div>
