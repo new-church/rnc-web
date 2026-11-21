@@ -22,6 +22,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - run: npx astro sync
       - run: npm run check
       - run: npm run build
 
