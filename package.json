@@ -15,8 +15,8 @@
     "calendar": "node --env-file=.env scripts/calendar.mjs",
     "db:login": "supabase login",
     "db:link": "supabase link",
-    "db:push": "supabase db push",
-    "db:status": "supabase migration list",
+    "db:push": "supabase db push --remote",
+    "db:status": "supabase migration list --remote",
     "check": "tsc --noEmit"
   },
   "dependencies": {
