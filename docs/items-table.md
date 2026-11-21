@@ -107,8 +107,8 @@ Requires `admin` or `super_admin` on the `USER#` item. Middleware gates `/admin`
 |---|---|
 | `npm run db:login` | Auth the CLI (browser) |
 | `npm run db:link -- --project-ref …` | Bind this repo to a remote project |
-| `npm run db:push` | Apply pending files in `supabase/migrations/` |
-| `npm run db:status` | List local vs remote migrations |
+| `npm run db:push` | Apply pending files in `supabase/migrations/` to the linked remote project (CLI v3 asks for confirmation; default is No) |
+| `npm run db:status` | List local vs remote migrations (runs `migration list --remote`) |
 | `npx supabase migration new <name>` | Scaffold a new SQL migration |
 
 New schema changes go in a new file under `supabase/migrations/`, then `db:push`. Do not edit old migrations after they have been applied to production.
