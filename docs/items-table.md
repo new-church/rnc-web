@@ -38,7 +38,7 @@ SUPABASE_SECRET_KEY="..."     # server items store (or SERVICE_ROLE_KEY)
 ```
 
 ```ts
-import { createItemsStoreFromApi, MemberKeys } from "../lib/items-table";
+import { createItemsStoreFromApi } from "../lib/items-table";
 
 const items = createItemsStoreFromApi(
   import.meta.env.SUPABASE_URL,
@@ -50,11 +50,9 @@ That is the Data API (HTTPS + API key), same idea as Dynamo’s SDK. The **app**
 
 ## Smoke test
 
-1. `npm run db:push` (includes sample member `MEMBER#sample-ada`).
+1. `npm run db:push` (applies pending migrations to the linked project; see Migrations day-to-day).
 2. Ensure `.env.local` has `SUPABASE_URL` and `SUPABASE_SECRET_KEY`.
-3. Open [`/dev/items-check`](http://localhost:4321/dev/items-check) with the dev server running.
-
-That page is SSR-only (`prerender = false`), not in the main nav.
+3. Run `npm run dev`, then sign in at `/login` and open `/admin`. A working login proves the items store can read the `USER#{email} / PROFILE` row.
 
 ## Auth (OTP) + app users
 
@@ -146,9 +144,9 @@ Every **Query** must be: **equality on the partition key of that index** + optio
 - `TYPE#value` or `TYPE#value#value` (extra segments for uniqueness / sort).
 - Sortable time: **ISO-8601 UTC** (`2026-08-25T03:00:00.000Z`).
 - Emails: **trim + lowercase** before they go in a key.
-- Human names in a sort key: lowercase; put `memberId` last so ties are stable.
+- Human names in a sort key: lowercase; put the record id last so ties are stable.
 
-Use `key("MEMBER", id)` rather than string concat.
+Use `key("USER", email)` rather than string concat.
 
 ### What lives where
 
@@ -156,25 +154,23 @@ Use `key("MEMBER", id)` rather than string concat.
 - **Flexible fields** → `data` JSON  
 - **TTL** → `expires_at`, not a field inside `data`
 
-### Recommended access patterns (membership)
+### Access patterns in use
 
 | Pattern | Index | `pk` | `sk` |
 |---|---|---|---|
-| Get member profile | table | `MEMBER#{id}` | `PROFILE` |
-| Notes for a member (time order) | table | `MEMBER#{id}` | `NOTE#{iso}#{noteId}` (`begins_with NOTE#`) |
-| Household + members | table | `HOUSEHOLD#{id}` | `META` / `MEMBER#{memberId}` |
-| Lookup by email | **GSI1** | `EMAIL#{email}` | `MEMBER` |
-| Directory by name | **GSI2** | `DIR#rnc` | `NAME#{sortName}#{memberId}` |
-| Sessions for a member | **GSI3** | `MEMBER#{id}` | `SESSION#{expiresIso}#{sessionId}` |
-| Session get / TTL | table | `SESSION#{id}` | `META` |
+| Get app user | table | `USER#{email}` | `PROFILE` |
+| Lookup user by email | **GSI1** | `EMAIL#{email}` | `USER` |
+| List users | **GSI2** | `USERS#rnc` | `EMAIL#{email}` |
+| User by Supabase auth uid | **GSI3** | `AUTH#{uid}` | `USER` |
+| Site setting (e.g. Sunday theme) | table | `SITE#sunday` | `THEME` |
 
-Helpers: `MemberKeys`, `HouseholdKeys`, `SessionKeys`, `DirectoryKeys` in `design.ts`.
+Helpers: `UserKeys` in `src/lib/auth/user-keys.ts`; build other keys with `key()` from `keys.ts`.
 
 **GSI budget (3):** invert a unique lookup (email), one collection scan (directory), one extra collection (sessions / activity). A fourth pattern needs a new physical index (change the SQL), not another JSON field.
 
 ### Entity types
 
-Set `entityType` on every `put` (`member`, `member_note`, `household`, `session`, …). Do not overload `sk = PROFILE` for two entity types under the same `pk`.
+Set `entityType` on every `put` (`user`, `site_setting`, …). Do not overload `sk = PROFILE` for two entity types under the same `pk`.
 
 ## API
 
@@ -183,22 +179,17 @@ Set `entityType` on every `put` (`member`, `member_note`, `household`, `session`
 Same as Dynamo `PutItem`: omitted GSI keys are **cleared**. Always pass every GSI the item should have.
 
 ```ts
-import { MemberKeys, DirectoryKeys } from "../lib/items-table";
+import { UserKeys } from "../lib/auth/user-keys";
 
-const id = crypto.randomUUID();
-const email = "ada@example.com";
-const sortName = "lovelace ada";
+const email = "someone@example.com";
 
 await items.put({
-  pk: MemberKeys.pk(id),
-  sk: MemberKeys.profileSk(),
-  entityType: "member",
-  data: { displayName: "Ada Lovelace", email, phone: null },
-  gsi1: MemberKeys.emailGsi1(email),
-  gsi2: {
-    pk: DirectoryKeys.gsi2pk(),
-    sk: DirectoryKeys.gsi2sk(sortName, id),
-  },
+  pk: UserKeys.pk(email),
+  sk: UserKeys.profileSk(),
+  entityType: "user",
+  data: { email, scopes: ["admin"] },
+  gsi1: UserKeys.emailGsi1(email),
+  gsi2: UserKeys.listGsi2(email),
   // no gsi3, no ttl
 });
 ```
@@ -207,8 +198,8 @@ await items.put({
 
 ```ts
 const row = await items.get({
-  pk: MemberKeys.pk(id),
-  sk: MemberKeys.profileSk(),
+  pk: UserKeys.pk(email),
+  sk: UserKeys.profileSk(),
 });
 // row.data, or null if missing / expired
 ```
@@ -221,14 +212,16 @@ Expired rows are **hidden** by default (`hideExpired: true`), which is stricter 
 
 ```ts
 const page1 = await items.query({
-  pk: MemberKeys.pk(id),
-  sk: { op: "begins_with", prefix: "NOTE#" },
+  index: "gsi2",
+  pk: UserKeys.listGsi2Pk(),
+  sk: { op: "begins_with", prefix: "EMAIL#" },
   limit: 20,
 });
 
 const page2 = await items.query({
-  pk: MemberKeys.pk(id),
-  sk: { op: "begins_with", prefix: "NOTE#" },
+  index: "gsi2",
+  pk: UserKeys.listGsi2Pk(),
+  sk: { op: "begins_with", prefix: "EMAIL#" },
   limit: 20,
   exclusiveStartKey: page1.lastEvaluatedKey,
 });
@@ -239,21 +232,9 @@ GSI:
 ```ts
 const byEmail = await items.query({
   index: "gsi1",
-  pk: MemberKeys.emailGsi1(email).pk,
-  sk: { op: "eq", sk: "MEMBER" },
+  pk: UserKeys.emailGsi1(email).pk,
+  sk: { op: "eq", sk: "USER" },
   limit: 1,
-});
-```
-
-Directory page:
-
-```ts
-await items.query({
-  index: "gsi2",
-  pk: DirectoryKeys.gsi2pk(),
-  sk: { op: "begins_with", prefix: "NAME#" },
-  limit: 50,
-  scanIndexForward: true,
 });
 ```
 
@@ -264,7 +245,7 @@ Sort-key ops: `any` | `eq` | `begins_with` | `between` (inclusive) | `lt` | `lte
 ### `delete`
 
 ```ts
-await items.delete({ pk: MemberKeys.pk(id), sk: MemberKeys.profileSk() });
+await items.delete({ pk: UserKeys.pk(email), sk: UserKeys.profileSk() });
 ```
 
 ## TTL
@@ -273,11 +254,10 @@ On `put`:
 
 ```ts
 await items.put({
-  pk: SessionKeys.pk(sessionId),
-  sk: SessionKeys.sk(),
-  entityType: "session",
-  data: { memberId },
-  gsi3: SessionKeys.memberGsi(memberId, expires.toISOString(), sessionId),
+  pk: jobPk, // the sync job's key (see src/lib/sync/runner.ts)
+  sk: "LOCK",
+  entityType: "lock",
+  data: { startedAt: new Date().toISOString() },
   ttl: expires, // Date, ISO string, Unix seconds, or Unix ms
 });
 ```
@@ -296,14 +276,14 @@ This is not a callback. If you need “on expire” side effects, add them in yo
 
 Example policies in `003_rls.example.sql`:
 
-- Authenticated user: only `MEMBER#{auth.uid()} / PROFILE`
+- Authenticated user: only their own row (the example file still uses the old `MEMBER#{auth.uid()}` keys; adapt it to the `USER#` keys before using it)
 - Admin: `app_metadata.role === "admin"`
 
-Tighten before production (notes, households, etc.). RPCs are `SECURITY INVOKER`, so they obey RLS.
+Tighten before enabling any browser access. RPCs are `SECURITY INVOKER`, so they obey RLS.
 
 ## What this is not
 
-- Not ElectroDB: you compose keys in app code (`MemberKeys`).
+- Not ElectroDB: you compose keys in app code (`key()`, `UserKeys`).
 - Not a CMS and not an admin GUI.
 - Not Dynamo `BatchGet` / `TransactWrite` (add later if needed).
 - `FilterExpression` on `data` is intentionally omitted so queries stay on indexes.

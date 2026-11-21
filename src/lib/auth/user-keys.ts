@@ -2,7 +2,7 @@ import { key } from "../items-table/keys";
 import { normalizeEmail } from "./scopes";
 
 /**
- * App login identity (permissions), separate from MEMBER# CRM rows.
+ * App login identity (permissions), separate from Planning Center contacts (not stored here).
  *
  * Access patterns:
  * - get: USER#{email} / PROFILE

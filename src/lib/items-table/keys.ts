@@ -2,7 +2,7 @@
 export const KEY_SEP = "#";
 
 /**
- * Build a Dynamo-style key from typed segments: `MEMBER#uuid`, `NOTE#2026-08-25T00:00:00.000Z#id`.
+ * Build a Dynamo-style key from typed segments: `USER#email`, `SITE#sunday`.
  * Encode sortable timestamps as ISO-8601 UTC. Zero-pad numbers.
  */
 export function key(...segments: Array<string | number>): string {
