@@ -6,6 +6,7 @@ exclude: ["hurstville"]
 summary: Our Christmas service at 2B Shirley Rd, followed by a lunch provided by the church. Everyone is welcome.
 image: /images/church/christmas-service.webp
 imageAlt: Children and adults lighting the Advent candles beside the Christmas tree and manger at the front of the church
+shareImage: /images/og/christmas-service.jpg
 imagePosition: center 65%
 category: Worship
 where: In person

@@ -79,6 +79,8 @@ const eventInfo = defineCollection({
     page: z.string().optional(),
     image: z.string().optional(),
     imageAlt: z.string().optional(),
+    /** Picture for link previews (WhatsApp, Facebook): 1200x630 JPEG under 300KB. Defaults to the church exterior. */
+    shareImage: z.string().optional(),
     /** CSS object-position for a one-off page's wide picture, e.g. "center 30%" to keep the top of a tall photo. */
     imagePosition: z.string().optional(),
     zoomlink: z.string().optional(),

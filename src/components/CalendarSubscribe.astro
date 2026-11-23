@@ -1,0 +1,81 @@
+---
+import Button from './Button.astro';
+
+interface Props {
+  icsUrl: string;
+}
+const { icsUrl } = Astro.props;
+const webcalUrl = icsUrl.replace(/^https:/i, 'webcal:');
+---
+
+<section
+  id="add-to-calendar"
+  class="mt-8 scroll-mt-24 rounded-2xl border border-violet-200 bg-violet-50/70 px-5 py-4 sm:px-6"
+  aria-label="Add the church calendar to your own calendar"
+  data-calendar-subscribe
+>
+  <div class="flex flex-wrap items-center justify-between gap-x-8 gap-y-3">
+    <div class="min-w-0 flex-1 basis-[18rem]">
+      <h2 class="m-0 font-display text-lg font-semibold leading-snug text-text-heading">
+        Add our events to your calendar
+      </h2>
+      <p class="m-0 mt-1 text-sm leading-[1.55] text-text-muted">
+        Add it once and dates, changes and cancellations update on your phone or computer by themselves.
+      </p>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <Button size="sm" href={webcalUrl}>Add to my calendar</Button>
+      <button
+        type="button"
+        data-copy-link={icsUrl}
+        class="inline-flex items-center justify-center whitespace-nowrap rounded-pill border border-violet-200 px-[18px] pt-[9px] pb-[7px] font-display text-[13px] font-semibold leading-none tracking-[0.04em] text-accent-primary-strong transition-colors duration-150 hover:bg-violet-100"
+      >
+        Copy link
+      </button>
+    </div>
+  </div>
+
+  <details class="mt-3 border-t border-violet-200/70 pt-3">
+    <summary class="cursor-pointer font-display text-[13px] font-semibold text-accent-primary-strong">
+      The button did nothing, or I use Google or Outlook
+    </summary>
+    <div class="mt-3 grid gap-4 text-sm leading-[1.6] text-text-body md:grid-cols-3">
+      <div>
+        <h3 class="m-0 font-display text-sm font-semibold text-text-heading">iPhone, iPad and Mac</h3>
+        <p class="mt-1 mb-0">
+          Tap <strong>Add to my calendar</strong>, then <strong>Subscribe</strong>. It appears in the Calendar app.
+        </p>
+      </div>
+      <div>
+        <h3 class="m-0 font-display text-sm font-semibold text-text-heading">Google Calendar</h3>
+        <p class="mt-1 mb-0">
+          Tap <strong>Copy link</strong>. On a computer, open Google Calendar and choose <strong>Other calendars +</strong>
+          &rarr; <strong>From URL</strong>, paste the link and press <strong>Add calendar</strong>. It then shows on your
+          phone too.
+        </p>
+      </div>
+      <div>
+        <h3 class="m-0 font-display text-sm font-semibold text-text-heading">Outlook</h3>
+        <p class="mt-1 mb-0">
+          Tap <strong>Copy link</strong>. In Outlook choose <strong>Add calendar</strong> &rarr;
+          <strong>Subscribe from web</strong>, paste the link and press <strong>Import</strong>.
+        </p>
+      </div>
+    </div>
+  </details>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy-link]').forEach((btn) => {
+    const label = btn.textContent;
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copyLink ?? '');
+        btn.textContent = 'Copied ✓';
+      } catch {
+        window.prompt('Copy this calendar link:', btn.dataset.copyLink ?? '');
+      }
+      setTimeout(() => (btn.textContent = label), 2500);
+    });
+  });
+</script>

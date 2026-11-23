@@ -44,9 +44,10 @@ if (info) {
 
 const title = info ? info.data.title : occurrence!.displayTitle;
 const description = info ? info.data.summary : occurrence!.description.slice(0, 160);
+const shareImage = (info ? info.data.shareImage ?? info.data.image : occurrence?.image) || undefined;
 ---
 
-<BaseLayout title={title} description={description} currentPath="/events">
+<BaseLayout title={title} description={description} currentPath="/events" image={shareImage}>
   <main class="container-prose px-6 md:px-8 pt-10 md:pt-14 pb-4">
     <p class="mb-4">
       <a
@@ -112,6 +113,13 @@ const description = info ? info.data.summary : occurrence!.description.slice(0, 
                     ))}
                   </div>
                 )}
+                {!finished && dates.length > 0 && !dates.every((d) => d.cancelled) && (
+                  <p class="m-0 mt-4 text-sm text-text-muted">
+                    <a href={`/api/event-ics/${info.id}.ics`} class="font-semibold">Add this to my calendar</a>
+                    <span aria-hidden="true"> · </span>
+                    <a href="/events#add-to-calendar">Get all our events</a>
+                  </p>
+                )}
               </div>
             )}
             {info.data.oneOff && info.data.image && (
@@ -155,6 +163,11 @@ const description = info ? info.data.summary : occurrence!.description.slice(0, 
               .map((p) => ({ id: p.id, ...p.data }))}
           />
           {!info.data.oneOff && <UpcomingDates events={upcoming} title="Coming up" limit={8} />}
+          {!info.data.oneOff && upcoming.length > 0 && (
+            <p class="mt-5 text-sm text-text-muted">
+              Want these in your own calendar? <a href="/events#add-to-calendar" class="font-semibold">Add our events to your calendar</a>.
+            </p>
+          )}
         </>
       ) : (
         <article class="prose-rnc">
@@ -177,6 +190,13 @@ const description = info ? info.data.summary : occurrence!.description.slice(0, 
           </div>
           <h1>{occurrence!.displayTitle}</h1>
           {occurrence!.location && <p><strong>{occurrence!.location}</strong></p>}
+          {!occurrence!.cancelled && (
+            <p class="text-sm text-text-muted">
+              <a href={`/api/event-ics/${occurrence!.slug}.ics`} class="font-semibold">Add this to my calendar</a>
+              <span aria-hidden="true"> · </span>
+              <a href="/events#add-to-calendar">Get all our events</a>
+            </p>
+          )}
           {occurrence!.description
             ? occurrence!.description.split(/\n{2,}/).map((p) => <p class="whitespace-pre-line">{p}</p>)
             : <p>More details will be added soon. Please <a href="/contact">get in touch</a> if you have any questions.</p>}
