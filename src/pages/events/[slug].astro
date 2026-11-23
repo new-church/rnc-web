@@ -71,11 +71,11 @@ const description = info ? info.data.summary : occurrence!.description.slice(0, 
                     This event has finished. See the <a href="/events">events page</a> for what is on next.
                   </p>
                 ) : dates.length > 0 ? (
-                  <dl class="m-0 grid grid-cols-[auto_1fr] gap-x-5 gap-y-2">
-                    <dt class="font-display text-sm font-semibold uppercase tracking-[0.1em] text-accent-primary">
+                  <dl class="m-0 grid grid-cols-[4.5rem_1fr] items-baseline gap-x-4 gap-y-3 sm:grid-cols-[5.5rem_1fr]">
+                    <dt class="m-0 font-display text-[13px] font-semibold uppercase tracking-[0.12em] text-accent-primary">
                       {dates.length > 1 ? 'Dates' : 'When'}
                     </dt>
-                    <dd class="m-0 font-display font-semibold text-text-heading">
+                    <dd class="m-0 font-display text-lg font-semibold leading-snug text-text-heading">
                       {dates.length > 1 ? (
                         <ul class="m-0 p-0 list-none">
                           {dates.map((d) => (
@@ -92,8 +92,8 @@ const description = info ? info.data.summary : occurrence!.description.slice(0, 
                         </span>
                       )}
                     </dd>
-                    <dt class="font-display text-sm font-semibold uppercase tracking-[0.1em] text-accent-primary">Where</dt>
-                    <dd class="m-0 text-text-heading">
+                    <dt class="m-0 font-display text-[13px] font-semibold uppercase tracking-[0.12em] text-accent-primary">Where</dt>
+                    <dd class="m-0 font-display text-lg font-semibold leading-snug text-text-heading">
                       {dates[0].location || (info.data.where === 'In person' || !info.data.where ? 'In person' : info.data.where)}
                     </dd>
                   </dl>
@@ -102,11 +102,32 @@ const description = info ? info.data.summary : occurrence!.description.slice(0, 
                     The date and time will be confirmed soon. Please <a href="/contact">get in touch</a> if you have any questions.
                   </p>
                 )}
+                {!finished && (info.data.buttons.length > 0 || info.data.zoomlink) && (
+                  <div class="mt-5 flex flex-wrap gap-3 border-t border-border-soft pt-5">
+                    {info.data.zoomlink && <Button href={info.data.zoomlink}>Join on Zoom</Button>}
+                    {info.data.buttons.map((b) => (
+                      <Button variant={b.secondary ? 'secondary' : 'primary'} href={b.href}>
+                        {b.label}
+                      </Button>
+                    ))}
+                  </div>
+                )}
               </div>
+            )}
+            {info.data.oneOff && info.data.image && (
+              <figure class="not-prose mt-0 mb-8">
+                <img
+                  src={info.data.image}
+                  alt={info.data.imageAlt ?? ''}
+                  decoding="async"
+                  style={`object-position: ${info.data.imagePosition ?? 'center'}`}
+                  class="block aspect-[16/9] w-full rounded-xl object-cover shadow-card"
+                />
+              </figure>
             )}
             <Content />
           </article>
-          {info.data.image && (
+          {!info.data.oneOff && info.data.image && (
             <figure class="mt-8 mb-0">
               <img
                 src={info.data.image}
@@ -116,7 +137,7 @@ const description = info ? info.data.summary : occurrence!.description.slice(0, 
               />
             </figure>
           )}
-          {(info.data.buttons.length > 0 || info.data.zoomlink) && (
+          {!info.data.oneOff && (info.data.buttons.length > 0 || info.data.zoomlink) && (
             <div class="mt-8 flex flex-wrap gap-3">
               {info.data.zoomlink && <Button href={info.data.zoomlink}>Join on Zoom</Button>}
               {info.data.buttons.map((b) => (

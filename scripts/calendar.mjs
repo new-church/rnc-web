@@ -19,7 +19,7 @@ import { parseArgs } from 'node:util';
 const MAILBOX = process.env.M365_CALENDAR_MAILBOX || 'admin@rosevillenewchurch.com.au';
 const CALENDAR_NAME = process.env.M365_CALENDAR_NAME || 'Roseville New Church Events';
 const TZ = 'AUS Eastern Standard Time'; // Outlook's name for Sydney; matches the published feed
-const DEFAULT_LOCATION = '2b Shirley Rd';
+const DEFAULT_LOCATION = '2B Shirley Rd';
 const GRAPH = 'https://graph.microsoft.com/v1.0';
 const PIN_LINE = /^\s*(\[?pin(ned)?\]?|pin to (the )?home ?page)\s*$/i;
 

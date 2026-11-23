@@ -14,7 +14,7 @@ buttons:
     secondary: true
 ---
 
-**22 to 26 January 2027.** The Tops Conference Centre, 51 Bendena Gardens, Stanwell Tops, NSW.
+The Tops Conference Centre, 51 Bendena Gardens, Stanwell Tops, NSW.
 
 You're warmly invited to join us for the 2027 New Church in Australia Family Retreat.
 

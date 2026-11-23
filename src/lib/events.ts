@@ -114,6 +114,9 @@ function noteOf(description: string, info?: Info): string {
     .join('\n\n');
 }
 
+/** Street numbers with a letter suffix read better in capitals: "2b Shirley Rd" becomes "2B Shirley Rd". */
+const tidyLocation = (l: string) => l.replace(/\b(\d+)([a-z])\b/g, (_, n, c) => n + c.toUpperCase());
+
 const isZoom = (e: RawEvent) => /zoom|online/i.test(e.location);
 
 export async function getInfos(): Promise<Info[]> {
@@ -139,6 +142,7 @@ export async function getEvents(opts: { since?: Date } = {}): Promise<SiteEvent[
       const pinned = e.description.split('\n').some((l) => PIN_LINE.test(l));
       return {
         ...e,
+        location: tidyLocation(e.location),
         description: note,
         note,
         pinned,

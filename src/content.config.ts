@@ -79,6 +79,8 @@ const eventInfo = defineCollection({
     page: z.string().optional(),
     image: z.string().optional(),
     imageAlt: z.string().optional(),
+    /** CSS object-position for a one-off page's wide picture, e.g. "center 30%" to keep the top of a tall photo. */
+    imagePosition: z.string().optional(),
     zoomlink: z.string().optional(),
     /** Ids from src/content/gallery.json, shown as a photo gallery on the page. */
     gallery: z.array(z.string()).default([]),
