@@ -3,32 +3,38 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Button from '../components/Button.astro';
 import Card from '../components/Card.astro';
 
-// DRAFT (2026-11-24): not linked from the menu and marked noindex until Julian has reviewed the wording.
+// DRAFT (2026-11-24): not linked from the menu, noindex and out of the sitemap until the committee has reviewed it.
+// Written for someone with no church background: who we are first, belief in one sentence, then "why new"
+// lightly, and the detail (Swedenborg's claims, Christian differences) further down for those who want it.
 const doors = [
   {
-    href: '#curious',
-    eyebrow: 'Curious, not religious',
-    title: 'Big questions, plain answers',
-    text: 'Why do bad things happen? What happens when we die? Start with the question, not the doctrine.',
+    href: '#questions',
+    eyebrow: 'New to all this',
+    title: 'Life’s big questions',
+    text: 'Why do bad things happen? What happens when we die? A few short, plain answers.',
   },
   {
     href: '#christian',
-    eyebrow: 'From a Christian background',
+    eyebrow: 'From another church',
     title: 'What we share, and what is different',
-    text: 'Same Jesus, same Bible. A few ideas are seen differently, and you can judge for yourself.',
+    text: 'Same Jesus, same Bible, with a few ideas seen a little differently.',
   },
   {
     href: '/events/sunday-worship',
     eyebrow: 'Thinking of visiting',
     title: 'What a Sunday is like',
-    text: 'Under an hour, a warm welcome, tea afterwards, and nothing expected of you.',
+    text: 'Under an hour, a warm welcome, and tea afterwards.',
   },
 ];
 
 const questions = [
   {
+    q: 'What is life for?',
+    a: 'We think it is about growing in love and being useful to other people. Happiness tends to turn up along the way, rather than as something we can chase directly.',
+  },
+  {
     q: 'Why do bad things happen?',
-    a: 'We do not believe God sends suffering, or that everything happens "for a reason". People are free, and freedom has to include the freedom to choose badly. God never wants anyone to suffer, and is always at work bringing healing and growth out of even the worst things.',
+    a: 'We don’t believe God sends suffering, or that everything happens "for a reason". People are free, and freedom has to include the freedom to choose badly. God never wants anyone to suffer, and is always at work bringing healing and growth out of even the worst things.',
   },
   {
     q: 'What about forgiveness?',
@@ -36,11 +42,7 @@ const questions = [
   },
   {
     q: 'What happens when we die?',
-    a: 'We believe life goes on. Death is a doorway into a spiritual world, where we are the same people with the same loves. Heaven is not a reward handed out or withheld. It is a way of life, built on love and usefulness, that people grow into.',
-  },
-  {
-    q: 'What is life for?',
-    a: 'To grow in love, and to be useful to other people. We find that happiness tends to show up as a by-product of that, rather than something we can chase directly.',
+    a: 'We believe life goes on, and that we carry on as ourselves, with the things we love. Heaven isn’t a prize handed out at the end. It is a way of life built on love and kindness, and we can start growing into it now.',
   },
 ];
 
@@ -63,11 +65,11 @@ const different = [
   },
   {
     title: 'Salvation is a journey',
-    text: 'Being "born again" is not one moment but a lifetime of change and growth. We also do not teach that the New Church is the only way to God. The Lord works through many churches.',
+    text: 'Being "born again" is not one moment but a lifetime of change and growth. We also don’t teach that the New Church is the only way to God. The Lord works through many churches.',
   },
   {
     title: 'Heaven and hell are chosen',
-    text: 'God does not send anyone anywhere. People move towards the kind of life they have come to love. Heaven is open to everyone who loves God and tries to live by the Commandments.',
+    text: 'God does not send anyone anywhere. People move towards the kind of life they have come to love. Heaven is open to everyone who loves God and tries to live well.',
   },
   {
     title: 'Marriage can last for ever',
@@ -78,7 +80,7 @@ const different = [
 
 <BaseLayout
   title="What is the New Church?"
-  description="Why is it called new? The same Jesus and the same Bible, read for their deeper meaning. A plain-words introduction to the New Church."
+  description="A small, friendly Christian church in Roseville. Who we are, what we believe in a sentence, and why it's called the New Church."
   currentPath="/about"
   noindex
 >
@@ -87,45 +89,38 @@ const different = [
       <div
         class="font-display font-semibold text-eyebrow tracking-eyebrow uppercase text-accent-primary mb-2.5 !mt-0"
       >
-        ✦ What is the New Church?
+        ✦ About the New Church
       </div>
-      <h1>The New Church, in plain words</h1>
+      <h1>Who we are</h1>
 
       <p class="text-lg">
-        The name sounds as though it means a brand-new religion. It doesn’t.
+        We’re a small Christian community that meets in the brick church on
+        Shirley Road, Roseville. People come for all sorts of reasons: a quiet
+        hour on a Sunday, a chat over a cup of tea, or a place to think about the
+        bigger questions in life. Some grew up going to church. Plenty didn’t.
       </p>
 
-      <h2>Why “new”?</h2>
+      <h2>What we believe, in a sentence</h2>
       <p>
-        The New Church is Christian. It follows the same Lord Jesus Christ and
-        reads the same Bible as other churches. What is “new” is a fresh,
-        deeper way of understanding the Scriptures, drawn from the writings of{' '}
-        <strong>Emanuel Swedenborg</strong> (1688–1772), a Swedish scientist who
-        turned to theology later in life.
+        That God is love, that the Bible has more to say about everyday life than
+        it might first appear, and that faith is something you live out by being
+        kind and useful to the people around you.
+      </p>
+
+      <h2>So why “new”?</h2>
+      <p>
+        It’s actually an old name. The New Church began in London in the 1780s,
+        and has met here in Sydney since 1875. “New” was about looking at
+        Christianity with fresh eyes: less about rules and fear, more about love
+        and how we live.
       </p>
       <p>
-        The name comes from the “new Jerusalem” in the book of Revelation,
-        which Swedenborg understood as a picture of a renewed, more
-        heart-centred Christianity. He wrote that he had been shown the Bible’s
-        inner meaning. We don’t ask anyone to take that on his authority. We
-        invite you to read, ask questions, and weigh it for yourself.
+        Many of those fresh ideas come from <strong>Emanuel Swedenborg</strong>,
+        a Swedish scientist of the 1700s who spent the second half of his life
+        writing about the Bible. You’ll hear his books read alongside the Bible
+        on a Sunday. You don’t need to have read any of them to feel at home.
       </p>
     </article>
-
-    <Card variant="tint" class="mt-8" eyebrow="Come as you are" title="What we don’t ask of you">
-      <ul class="m-0 pl-5 list-disc flex flex-col gap-1.5 marker:text-accent-primary">
-        <li>You don’t have to join anything, or sign anything.</li>
-        <li>You don’t have to believe any of this to be welcome.</li>
-        <li>Nobody will pass a plate. A freewill offering is entirely optional.</li>
-        <li>Swedenborg is a teacher to learn from, not someone we worship.</li>
-        <li>Questions, doubts and disagreement are part of the conversation.</li>
-      </ul>
-      <p slot="footer" class="m-0 text-sm text-text-muted">
-        We are a small, friendly congregation. The Sydney Society of the New
-        Church has met since 1875, and is part of a worldwide family of
-        New Church communities.
-      </p>
-    </Card>
 
     <section class="mt-12" aria-label="Where would you like to start?">
       <h2 class="text-h2 mt-0 mb-5">Where would you like to start?</h2>
@@ -140,12 +135,11 @@ const different = [
       </div>
     </section>
 
-    <section id="curious" class="mt-14 scroll-mt-24 prose-rnc">
-      <h2>Big questions, plain answers</h2>
+    <section id="questions" class="mt-14 scroll-mt-24 prose-rnc">
+      <h2>Life’s big questions</h2>
       <p>
         You don’t need any background in church or the Bible. These are a few of
-        the questions people bring to us, and how the New Church tends to see
-        them.
+        the questions people bring to us, and how we tend to see them.
       </p>
       {
         questions.map((item) => (
@@ -184,24 +178,38 @@ const different = [
           ))
         }
       </div>
-    </section>
 
-    <section class="mt-14">
-      <div class="prose-rnc">
-        <h2 class="!mt-0">Take it at your own pace</h2>
+      <div class="prose-rnc mt-8">
+        <h3>Where the name comes from</h3>
         <p>
-          If you would like to read more first, the New Church in Australia has a
-          plain-language guide to its
-          <a href="https://newchurch.net.au/beliefs" rel="noopener noreferrer" target="_blank">core beliefs</a>, with a
-          chatbot you can ask questions. When you feel like meeting people, you
-          are welcome on a Sunday, and our minister is always glad to talk.
+          The name comes from the “new Jerusalem” in the book of Revelation, which
+          Swedenborg read as a picture of a renewed Christianity rather than a
+          new religion. He believed he had been given insight into the Bible’s
+          inner meaning. We don’t ask anyone to accept that on his say-so. We
+          read his work alongside the Bible, ask questions, and weigh it for
+          ourselves, and we would encourage you to do the same.
         </p>
       </div>
-      <div class="mt-6 flex flex-wrap gap-3">
+    </section>
+
+    <Card variant="tint" class="mt-14" eyebrow="Come as you are" title="If you’d like to come along">
+      <p class="m-0">
+        Just turn up. You don’t need to know anything, and nobody will put you on
+        the spot. Services are on the first and third Sundays of the month at
+        10am, and there’s tea and coffee afterwards. Questions are always welcome,
+        over tea or by email.
+      </p>
+      <div slot="footer" class="flex flex-wrap gap-3">
         <Button href="/events/sunday-worship">What a Sunday is like</Button>
         <Button variant="secondary" href="/events">What’s on</Button>
         <Button variant="ghost" href="/contact">Ask a question</Button>
       </div>
-    </section>
+    </Card>
+
+    <p class="mt-8 text-sm text-text-muted">
+      Want to read more first? The New Church in Australia has a plain-language
+      guide to its{' '}
+      <a href="https://newchurch.net.au/beliefs" rel="noopener noreferrer" target="_blank">core beliefs</a>.
+    </p>
   </main>
 </BaseLayout>
