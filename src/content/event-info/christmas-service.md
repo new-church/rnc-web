@@ -4,9 +4,9 @@ shortTitle: Christmas service
 match: ["christmas service"]
 exclude: ["hurstville"]
 summary: Our Christmas service at 2B Shirley Rd, followed by a lunch provided by the church. Everyone is welcome.
-image: /images/church/stained-glass.jpg
-imageAlt: The stained glass window in the church
-imagePosition: center 35%
+image: /images/church/christmas-service.webp
+imageAlt: Children and adults lighting the Advent candles beside the Christmas tree and manger at the front of the church
+imagePosition: center 65%
 category: Worship
 where: In person
 oneOff: true
