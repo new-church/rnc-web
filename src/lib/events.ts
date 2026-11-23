@@ -46,6 +46,32 @@ export function whenLabel(e: Pick<SiteEvent, 'start' | 'allDay'>): string {
   return `${day}, ${time}`;
 }
 
+/** Full date and time for a one-off event's page: "Sun 20 Dec, 11am to 2pm" or "Fri 22 Jan to Tue 26 Jan" (all-day). */
+export function rangeLabel(e: Pick<SiteEvent, 'start' | 'end' | 'allDay'>): string {
+  const start = whenLabel(e);
+  if (e.allDay) {
+    // All-day ends are exclusive (the day after the last day).
+    const last = new Date(new Date(`${e.end}T00:00:00Z`).getTime() - 86400_000);
+    const lastIso = last.toISOString().slice(0, 10);
+    if (!e.end || lastIso <= e.start) return start;
+    return `${start} to ${whenLabel({ start: lastIso, allDay: true })}`;
+  }
+  const s = parseStart(e);
+  const f = new Date(e.end);
+  if (!e.end || f <= s) return start;
+  const day = (d: Date) => new Intl.DateTimeFormat('en-AU', { timeZone: TZ, dateStyle: 'short' }).format(d);
+  if (day(s) !== day(f)) return `${start} to ${whenLabel({ start: e.end, allDay: false })}`;
+  const time = new Intl.DateTimeFormat('en-AU', { timeZone: TZ, hour: 'numeric', minute: '2-digit' })
+    .format(f)
+    .replace(':00', '')
+    .replace(/\s/g, '')
+    .toLowerCase();
+  return `${start} to ${time}`;
+}
+
+/** The moment an occurrence finishes. */
+export const finishedAt = (e: Pick<SiteEvent, 'end' | 'allDay'>) => endMs(e as RawEvent);
+
 /** ics.ts gives an ISO instant for timed events and a YYYY-MM-DD date for all-day ones. */
 const parseStart = (e: Pick<SiteEvent, 'start' | 'allDay'>) => new Date(e.allDay ? `${e.start}T00:00:00Z` : e.start);
 const endMs = (e: RawEvent) => (e.allDay ? new Date(`${e.end}T00:00:00Z`).getTime() : new Date(e.end).getTime());

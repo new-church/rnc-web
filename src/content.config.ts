@@ -71,6 +71,8 @@ const eventInfo = defineCollection({
     summary: z.string(),
     category: z.enum(['Worship', 'Study', 'Community']).default('Community'),
     where: z.enum(['In person', 'On Zoom', 'Online']).optional(),
+    /** A one-off event (Christmas service, retreat): the page leads with the date, time and place, and has no "Coming up" list. */
+    oneOff: z.boolean().default(false),
     /** Show on the home page "Visiting us" row. */
     featured: z.number().optional(),
     /** A page that is built by hand (e.g. /events/sunday-worship); calendar events link there. */

@@ -11,7 +11,8 @@ the longer write-up, a picture, buttons and links.
    An `exclude` list stops a file matching things it shouldn't (e.g. another church's service).
 3. Front matter fields: `title`, `shortTitle`, `match`, `exclude`, `summary` (one or two sentences, used on cards
    and in the calendar entry), `category` (Worship, Study or Community), `where` (In person, On Zoom or Online),
-   `featured` (a number puts it on the home page, lowest first), `page` (a hand-built page to link to instead),
+   `oneOff` (true for a single event like the Christmas service: the page leads with the date, time and place and has no
+   "Coming up" list), `featured` (a number puts it on the home page, lowest first), `page` (a hand-built page to link to instead),
    `image`, `imageAlt`, `zoomlink`, `buttons`. The text below the front matter is the page.
 4. Calendar events with no file here still appear; they link to a simple page built from the calendar entry.
 5. Announce a cancellation by renaming that one occurrence in Outlook so the title starts "Cancelled:". It then shows

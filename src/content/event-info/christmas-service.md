@@ -8,6 +8,7 @@ image: /images/church/stained-glass.jpg
 imageAlt: The stained glass window in the church
 category: Worship
 where: In person
+oneOff: true
 buttons:
   - label: Tell us you're coming
     href: mailto:admin@rosevillenewchurch.com.au?subject=Christmas%20service%20and%20lunch

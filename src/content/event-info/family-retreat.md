@@ -5,6 +5,7 @@ match: ["annual camp", "family retreat", "retreat"]
 summary: Five days at The Tops Conference Centre, Stanwell Tops, with worship, talks, activities and fellowship for all ages.
 category: Community
 where: In person
+oneOff: true
 image: /images/join/retreat.png
 imageAlt: New Church family retreat gathering
 buttons:

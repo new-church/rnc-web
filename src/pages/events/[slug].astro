@@ -5,7 +5,7 @@ import Button from '../../components/Button.astro';
 import Badge from '../../components/Badge.astro';
 import UpcomingDates from '../../components/UpcomingDates.astro';
 import PhotoGallery from '../../components/PhotoGallery.astro';
-import { getEvents, whenLabel } from '../../lib/events';
+import { getEvents, whenLabel, rangeLabel, finishedAt } from '../../lib/events';
 
 export const prerender = false;
 Astro.response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600');
@@ -23,9 +23,19 @@ const photos = await getCollection('gallery');
 let Content;
 let upcoming = [];
 let occurrence;
+// One-off events: the dates this page is about (next one first), and whether they are all over.
+let dates: Awaited<ReturnType<typeof getEvents>> = [];
+let finished = false;
 if (info) {
   Content = (await render(info)).Content;
-  upcoming = (await getEvents()).filter((e) => e.info?.id === info.id);
+  if (info.data.oneOff) {
+    const mine = (await getEvents({ since: new Date(Date.now() - 40 * 86400_000) })).filter((e) => e.info?.id === info.id);
+    const live = mine.filter((e) => finishedAt(e) >= Date.now());
+    finished = live.length === 0;
+    dates = finished ? mine.slice(-1) : live;
+  } else {
+    upcoming = (await getEvents()).filter((e) => e.info?.id === info.id);
+  }
 } else {
   const all = await getEvents({ since: new Date(Date.now() - 40 * 86400_000) });
   occurrence = all.find((e) => e.slug === slug);
@@ -51,9 +61,49 @@ const description = info ? info.data.summary : occurrence!.description.slice(0, 
         <>
           <article class="prose-rnc">
             <div class="font-display font-semibold text-eyebrow tracking-eyebrow uppercase text-accent-primary mb-2.5 !mt-0">
-              ✦ {info.data.where ?? 'In person'}
+              ✦ {info.data.oneOff && dates.length > 0 ? (finished ? 'Finished' : whenLabel(dates[0])) : (info.data.where ?? 'In person')}
             </div>
             <h1>{info.data.title}</h1>
+            {info.data.oneOff && (
+              <div class="not-prose my-6 rounded-xl border border-border-soft bg-surface-card px-5 py-4">
+                {finished ? (
+                  <p class="m-0 text-text-muted">
+                    This event has finished. See the <a href="/events">events page</a> for what is on next.
+                  </p>
+                ) : dates.length > 0 ? (
+                  <dl class="m-0 grid grid-cols-[auto_1fr] gap-x-5 gap-y-2">
+                    <dt class="font-display text-sm font-semibold uppercase tracking-[0.1em] text-accent-primary">
+                      {dates.length > 1 ? 'Dates' : 'When'}
+                    </dt>
+                    <dd class="m-0 font-display font-semibold text-text-heading">
+                      {dates.length > 1 ? (
+                        <ul class="m-0 p-0 list-none">
+                          {dates.map((d) => (
+                            <li class:list={[d.cancelled && 'line-through text-status-error']}>
+                              {rangeLabel(d)}
+                              {d.cancelled && ' (cancelled)'}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <span class:list={[dates[0].cancelled && 'line-through text-status-error']}>
+                          {rangeLabel(dates[0])}
+                          {dates[0].cancelled && ' (cancelled)'}
+                        </span>
+                      )}
+                    </dd>
+                    <dt class="font-display text-sm font-semibold uppercase tracking-[0.1em] text-accent-primary">Where</dt>
+                    <dd class="m-0 text-text-heading">
+                      {dates[0].location || (info.data.where === 'In person' || !info.data.where ? 'In person' : info.data.where)}
+                    </dd>
+                  </dl>
+                ) : (
+                  <p class="m-0 text-text-muted">
+                    The date and time will be confirmed soon. Please <a href="/contact">get in touch</a> if you have any questions.
+                  </p>
+                )}
+              </div>
+            )}
             <Content />
           </article>
           {info.data.image && (
@@ -83,7 +133,7 @@ const description = info ? info.data.summary : occurrence!.description.slice(0, 
               .filter((p) => p !== undefined)
               .map((p) => ({ id: p.id, ...p.data }))}
           />
-          <UpcomingDates events={upcoming} title="Coming up" limit={8} />
+          {!info.data.oneOff && <UpcomingDates events={upcoming} title="Coming up" limit={8} />}
         </>
       ) : (
         <article class="prose-rnc">
