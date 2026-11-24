@@ -171,7 +171,16 @@ const qrSvg = await QRCode.toString(GIVE_URL, { type: 'svg', margin: 1, errorCor
                 $('give-payid-type').hidden = $('give-type-label').hidden = !d.payidType;
                 $('give-payid-name').textContent = d.accountName;
                 $('give-name').textContent = d.accountName;
-                $('give-bsb').textContent = d.bsb;
+                // BSB shows as two groups of three but is six plain digits in the text, so copying gives 012345.
+                var bsb = String(d.bsb).replace(/\D/g, '');
+                var bsbEl = $('give-bsb');
+                bsbEl.textContent = '';
+                [bsb.slice(0, 3), bsb.slice(3)].forEach(function (part, i) {
+                  var span = document.createElement('span');
+                  span.textContent = part;
+                  if (i) span.style.marginLeft = '0.6em';
+                  bsbEl.appendChild(span);
+                });
                 $('give-acct').textContent = d.accountNumber;
                 $('give-status').hidden = true;
                 $('give-payid').hidden = false;
