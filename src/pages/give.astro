@@ -1,0 +1,206 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Card from '../components/Card.astro';
+import QRCode from 'qrcode';
+import { turnstileKeys } from '../lib/signup';
+
+export const prerender = false;
+
+const keys = turnstileKeys();
+
+// The QR code opens this page (no bank details inside it), so someone on a computer can carry it to their
+// phone and pay from their banking app. A fixed production URL, so it also works when previewed locally.
+const GIVE_URL = 'https://www.rosevillenewchurch.com.au/give';
+const qrSvg = await QRCode.toString(GIVE_URL, { type: 'svg', margin: 1, errorCorrectionLevel: 'M' });
+---
+
+<BaseLayout
+  title="Give"
+  description="Support Roseville New Church with a gift by PayID or bank transfer."
+  currentPath="/give"
+>
+  <main class="container-site px-6 md:px-8 pt-10 md:pt-14 pb-16">
+    <div class="max-w-[760px]">
+      <div
+        class="font-display font-semibold text-eyebrow tracking-eyebrow uppercase text-accent-primary mb-2.5"
+      >
+        ✦ Support our work
+      </div>
+      <h1 class="mt-0 mb-4 text-h1">Give to the church</h1>
+      <p class="text-lg text-text-muted mt-0 mb-8">
+        Thank you for supporting the Sydney Society of the New Church. The
+        simplest way to give is a bank transfer from your banking app: it costs
+        us nothing in fees, so all of your gift reaches the church.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-8 lg:gap-12 items-start max-w-[1000px]">
+      <div class="flex flex-col gap-6">
+        <Card title="Pay with PayID" class="select-none">
+          <div id="give-status" class="m-0 text-text-muted" aria-live="polite">
+            {
+              keys
+                ? 'Checking that you’re a person, one moment…'
+                : 'Sorry, the giving details aren’t available just now. Please email admin@rosevillenewchurch.com.au.'
+            }
+          </div>
+          <div id="give-payid" hidden>
+            <p class="m-0 text-sm text-text-muted">
+              In your banking app choose <strong>Pay anyone</strong>, then{' '}
+              <strong>PayID</strong>, and enter:
+            </p>
+            <dl class="m-0 mt-4 grid grid-cols-[7.5rem_1fr_auto] gap-x-4 gap-y-3 items-center">
+              <dt class="text-sm text-text-muted">PayID</dt>
+              <dd class="m-0 font-mono text-text-heading break-all select-all" id="give-payid-value"></dd>
+              <dd class="m-0"><button type="button" data-copy="give-payid-value" class="copy-btn">Copy</button></dd>
+
+              <dt class="text-sm text-text-muted" id="give-type-label">PayID type</dt>
+              <dd class="m-0 text-text-heading" id="give-payid-type"></dd>
+              <dd class="m-0" aria-hidden="true"></dd>
+            </dl>
+            <p class="m-0 mt-3 text-sm text-text-muted">
+              Your bank will show the account name before you pay. Check it
+              reads{' '}<strong id="give-payid-name"></strong>.
+            </p>
+          </div>
+        </Card>
+
+        <div id="give-bank" hidden>
+          <Card title="Or use the bank account" class="select-none">
+            <dl class="m-0 grid grid-cols-[7.5rem_1fr_auto] gap-x-4 gap-y-3 items-center">
+              <dt class="text-sm text-text-muted">Account name</dt>
+              <dd class="m-0 font-mono text-text-heading break-words select-all" id="give-name"></dd>
+              <dd class="m-0"><button type="button" data-copy="give-name" class="copy-btn">Copy</button></dd>
+
+              <dt class="text-sm text-text-muted">BSB</dt>
+              <dd class="m-0 font-mono text-text-heading select-all" id="give-bsb"></dd>
+              <dd class="m-0"><button type="button" data-copy="give-bsb" class="copy-btn">Copy</button></dd>
+
+              <dt class="text-sm text-text-muted">Account number</dt>
+              <dd class="m-0 font-mono text-text-heading select-all" id="give-acct"></dd>
+              <dd class="m-0"><button type="button" data-copy="give-acct" class="copy-btn">Copy</button></dd>
+            </dl>
+            <p class="m-0 mt-4 text-sm text-text-muted">
+              Please put your surname and “Gift” in the reference so we can
+              thank you. To give regularly, set up a recurring transfer with
+              your bank.
+            </p>
+          </Card>
+        </div>
+
+        <p id="give-dummy" hidden class="m-0 text-[13px] text-status-error" role="alert">
+          Test details only. These are placeholders, not the church’s account.
+        </p>
+
+        <p class="m-0 text-sm text-text-muted">
+          We’re not able to issue tax-deductible receipts for gifts. If you’d
+          like to give another way, or talk to our treasurer, please{' '}
+          <a href="/contact" class="text-link hover:text-link-hover">get in touch</a>.
+        </p>
+      </div>
+
+      <div class="lg:sticky lg:top-24 pointer-coarse:hidden">
+        <Card variant="tint" title="Pay from your phone">
+          <div
+            class="w-full max-w-[240px] mx-auto bg-white p-2 rounded-md"
+            role="img"
+            aria-label="QR code linking to this giving page"
+            set:html={qrSvg}
+          />
+          <p class="m-0 mt-3 text-sm text-text-muted">
+            On a computer? Scan this with your phone’s camera to open this page
+            there, then copy the details into your banking app.
+          </p>
+        </Card>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .copy-btn {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 13px;
+    padding: 7px 16px 5px;
+    border-radius: 9999px;
+    border: 1px solid var(--color-border-strong);
+    background: transparent;
+    color: var(--color-accent-primary-strong);
+    cursor: pointer;
+  }
+  .copy-btn:hover {
+    background: var(--color-violet-100);
+  }
+</style>
+
+{
+  keys && (
+    <>
+      <div
+        class="cf-turnstile"
+        data-sitekey={keys.siteKey}
+        data-appearance="interaction-only"
+        data-callback="giveReveal"
+        data-error-callback="giveFail"
+        data-expired-callback="giveFail"
+      />
+      <script is:inline>
+        (function () {
+          var $ = function (id) { return document.getElementById(id); };
+          var fail = function () {
+            $('give-status').textContent =
+              'We couldn’t complete the security check. Please reload the page, or email admin@rosevillenewchurch.com.au for our details.';
+          };
+          window.giveFail = fail;
+          window.giveReveal = function (token) {
+            fetch('/api/give', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token: token }),
+            })
+              .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+              .then(function (d) {
+                $('give-payid-value').textContent = d.payid;
+                $('give-payid-type').textContent = d.payidType;
+                $('give-payid-type').hidden = $('give-type-label').hidden = !d.payidType;
+                $('give-payid-name').textContent = d.accountName;
+                $('give-name').textContent = d.accountName;
+                $('give-bsb').textContent = d.bsb;
+                $('give-acct').textContent = d.accountNumber;
+                $('give-status').hidden = true;
+                $('give-payid').hidden = false;
+                $('give-bank').hidden = false;
+                $('give-dummy').hidden = !d.dummy;
+              })
+              .catch(fail);
+          };
+          document.addEventListener('click', function (e) {
+            var btn = e.target.closest && e.target.closest('[data-copy]');
+            if (!btn) return;
+            var text = $(btn.getAttribute('data-copy')).textContent;
+            var done = function () {
+              btn.textContent = 'Copied';
+              setTimeout(function () { btn.textContent = 'Copy'; }, 1500);
+            };
+            var legacy = function () {
+              var t = document.createElement('textarea');
+              t.value = text; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
+              document.body.appendChild(t); t.select();
+              var ok = false;
+              try { ok = document.execCommand('copy'); } catch (_) {}
+              document.body.removeChild(t);
+              if (ok) done(); else { btn.textContent = 'Press ⌘C / Ctrl+C'; }
+            };
+            if (navigator.clipboard && window.isSecureContext) {
+              navigator.clipboard.writeText(text).then(done, legacy);
+            } else {
+              legacy();
+            }
+          });
+        })();
+      </script>
+      <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline />
+    </>
+  )
+}

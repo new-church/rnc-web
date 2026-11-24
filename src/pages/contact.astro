@@ -31,8 +31,8 @@ const messages: Record<string, string> = {
       >
         ✦ Get in touch
       </div>
-      <h1 class="mt-0 text-h1">Contact us</h1>
-      <p class="text-lg text-text-muted -mt-1 mb-10">
+      <h1 class="mt-0 mb-4 text-h1">Contact us</h1>
+      <p class="text-lg text-text-muted mt-0 mb-10">
         We welcome you to visit our church, or contact us if you have any
         questions.
       </p>
@@ -100,6 +100,15 @@ const messages: Record<string, string> = {
           </p>
           <div slot="footer">
             <Button size="sm" href="/subscribe">Join our mailing list</Button>
+          </div>
+        </Card>
+
+        <Card title="Giving">
+          <p class="m-0">
+            Support the church with a gift by PayID or bank transfer.
+          </p>
+          <div slot="footer">
+            <Button size="sm" variant="secondary" href="/give">Give to the church</Button>
           </div>
         </Card>
 
