@@ -16,7 +16,7 @@ const qrSvg = await QRCode.toString(GIVE_URL, { type: 'svg', margin: 1, errorCor
 
 <BaseLayout
   title="Give"
-  description="Support Roseville New Church with a gift by PayID or bank transfer."
+  description="Support Roseville New Church with a donation by PayID or bank transfer."
   currentPath="/give"
 >
   <main class="container-site px-6 md:px-8 pt-10 md:pt-14 pb-16">
@@ -30,7 +30,7 @@ const qrSvg = await QRCode.toString(GIVE_URL, { type: 'svg', margin: 1, errorCor
       <p class="text-lg text-text-muted mt-0 mb-8">
         Thank you for supporting the Sydney Society of the New Church. The
         simplest way to give is a bank transfer from your banking app: it costs
-        us nothing in fees, so all of your gift reaches the church.
+        us nothing in fees, so all of your donation reaches the church.
       </p>
     </div>
 
@@ -80,10 +80,15 @@ const qrSvg = await QRCode.toString(GIVE_URL, { type: 'svg', margin: 1, errorCor
               <dd class="m-0 font-mono text-text-heading select-all" id="give-acct"></dd>
               <dd class="m-0"><button type="button" data-copy="give-acct" class="copy-btn">Copy</button></dd>
             </dl>
-            <p class="m-0 mt-4 text-sm text-text-muted">
-              Please put your surname and “Gift” in the reference so we can
-              thank you. To give regularly, set up a recurring transfer with
-              your bank.
+          </Card>
+        </div>
+
+        <div id="give-reference" hidden>
+          <Card variant="tint" title="Add a reference" class="select-none">
+            <p class="m-0 text-sm text-text-muted">
+              Whichever way you pay, please put your surname and
+              “Donation” in the reference so we can thank you. To give
+              regularly, set up a recurring transfer with your bank.
             </p>
           </Card>
         </div>
@@ -93,7 +98,7 @@ const qrSvg = await QRCode.toString(GIVE_URL, { type: 'svg', margin: 1, errorCor
         </p>
 
         <p class="m-0 text-sm text-text-muted">
-          We’re not able to issue tax-deductible receipts for gifts. If you’d
+          We’re not able to issue tax-deductible receipts for donations. If you’d
           like to give another way, or talk to our treasurer, please{' '}
           <a href="/contact" class="text-link hover:text-link-hover">get in touch</a>.
         </p>
@@ -171,6 +176,7 @@ const qrSvg = await QRCode.toString(GIVE_URL, { type: 'svg', margin: 1, errorCor
                 $('give-status').hidden = true;
                 $('give-payid').hidden = false;
                 $('give-bank').hidden = false;
+                $('give-reference').hidden = false;
                 $('give-dummy').hidden = !d.dummy;
               })
               .catch(fail);
