@@ -51,7 +51,7 @@ const qrSvg = await QRCode.toString(GIVE_URL, { type: 'svg', margin: 1, errorCor
             </p>
             <dl class="m-0 mt-4 grid grid-cols-[7.5rem_1fr_auto] gap-x-4 gap-y-3 items-center">
               <dt class="text-sm text-text-muted">PayID</dt>
-              <dd class="m-0 font-mono text-text-heading break-all select-all" id="give-payid-value"></dd>
+              <dd class="m-0 font-mono text-text-heading break-all select-text" id="give-payid-value"></dd>
               <dd class="m-0"><button type="button" data-copy="give-payid-value" class="copy-btn">Copy</button></dd>
 
               <dt class="text-sm text-text-muted" id="give-type-label">PayID type</dt>
@@ -69,15 +69,15 @@ const qrSvg = await QRCode.toString(GIVE_URL, { type: 'svg', margin: 1, errorCor
           <Card title="Or use the bank account" class="select-none">
             <dl class="m-0 grid grid-cols-[7.5rem_1fr_auto] gap-x-4 gap-y-3 items-center">
               <dt class="text-sm text-text-muted">Account name</dt>
-              <dd class="m-0 font-mono text-text-heading break-words select-all" id="give-name"></dd>
+              <dd class="m-0 font-mono text-text-heading break-words select-text" id="give-name"></dd>
               <dd class="m-0"><button type="button" data-copy="give-name" class="copy-btn">Copy</button></dd>
 
               <dt class="text-sm text-text-muted">BSB</dt>
-              <dd class="m-0 font-mono text-text-heading select-all" id="give-bsb"></dd>
+              <dd class="m-0 font-mono text-text-heading select-text" id="give-bsb"></dd>
               <dd class="m-0"><button type="button" data-copy="give-bsb" class="copy-btn">Copy</button></dd>
 
               <dt class="text-sm text-text-muted">Account number</dt>
-              <dd class="m-0 font-mono text-text-heading select-all" id="give-acct"></dd>
+              <dd class="m-0 font-mono text-text-heading select-text" id="give-acct"></dd>
               <dd class="m-0"><button type="button" data-copy="give-acct" class="copy-btn">Copy</button></dd>
             </dl>
           </Card>
