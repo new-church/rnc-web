@@ -1,0 +1,157 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Button from '../../components/Button.astro';
+import Card from '../../components/Card.astro';
+import { memberConfig } from '../../lib/members/config';
+
+const list = 'mt-3 mb-5 pl-5 list-disc flex flex-col gap-2';
+---
+
+<!-- Every statement here comes from the Society's constitution (the version on the ACNC register, dated 2013). -->
+<BaseLayout
+  title="Governance and membership"
+  description="How The Sydney Society of The New Church is run, who is responsible, and what becoming a member involves."
+  currentPath="/about/governance"
+>
+  <main class="container-prose px-6 md:px-8 pt-10 md:pt-14 pb-4">
+    <div class="font-display font-semibold text-eyebrow tracking-eyebrow uppercase text-accent-primary mb-2.5">
+      ✦ About us
+    </div>
+
+    <article class="prose-rnc">
+      <h1>Governance and membership</h1>
+      <p>
+        This page sets out, in plain words, how The Sydney Society of The New Church is run, who is responsible, and
+        what becoming a member involves. The Society’s constitution is the authority, and you can read it in full
+        at the bottom of this page.
+      </p>
+
+      <h2>Who we are</h2>
+      <p>
+        The Sydney Society of The New Church is the organisation behind Roseville New Church. It was established in 1875
+        and incorporated in 1886. It is a company limited by guarantee (ACN 000 001 105, ABN 39 929 678 230) and a
+        registered charity with the Australian Charities and Not-for-profits Commission (ACNC), advancing religion. Its
+        registered office is 4 Shirley Rd, Roseville NSW 2069.
+      </p>
+
+      <h2>What the Society is for</h2>
+      <p>The constitution sets four objects:</p>
+      <ul class={list}>
+        <li>To worship the Lord Jesus Christ, and to proclaim that He is Jehovah in His Divine Humanity, being the Creator, Redeemer and Regenerator of man; Father, Son and Holy Spirit in One Person.</li>
+        <li>To cultivate a knowledge of the Holy Scriptures, or those Books of the Old and New Testament which contain a continuous Interior-Divine sense, as revealed by the science of correspondence.</li>
+        <li>To shun evils as sins against God, and to cultivate a life of disinterested usefulness and universal charity.</li>
+        <li>To circulate the theological works of Emanuel Swedenborg, and such other writings as advance the life and doctrines of the Lord’s New Church, and otherwise to assist in disseminating the heavenly doctrines of the New Jerusalem.</li>
+      </ul>
+      <p>
+        The Society does not pay dividends or distribute profits to its members: any surplus is applied to these
+        objects. If it were ever wound up, whatever was left after its debts were paid would go to another institution
+        with similar objects, not to members.
+      </p>
+
+      <h2>Who is responsible</h2>
+      <p>
+        <strong>The members</strong> make the big decisions at general meetings. They elect the Committee, appoint the
+        Minister (or a Leader) and the auditor, and adopt the Society’s accounts.
+      </p>
+      <p>
+        <strong>The Committee</strong> manages the Society’s affairs and exercises all of its powers except those the
+        constitution keeps for a general meeting. It is made up of a Chairman of the Committee, a Secretary, a
+        Treasurer and between four and seven other members, including the Minister, chosen by the members at the Annual
+        General Meeting from among the members. It meets at least every three months and keeps minutes of its
+        decisions. It can fill a vacancy until the next AGM and can make by-laws.
+      </p>
+      <ul class={list}>
+        <li><strong>The Minister</strong> looks after worship, keeps the registers of baptisms, marriages and funerals, and sits on the Committee.</li>
+        <li><strong>The Secretary</strong> handles correspondence, keeps the roll of members (names and addresses), gives members notice of general meetings and takes the minutes of them.</li>
+        <li><strong>The Treasurer</strong> receives and accounts for the Society’s money and pays the accounts the Committee has approved.</li>
+        <li><strong>The auditor</strong> examines the accounts and reports to the AGM.</li>
+      </ul>
+      <p>
+        To reach the Secretary or the Committee, please use the{' '}
+        <a href="/contact">contact page</a>.
+      </p>
+
+      <h2>Meetings and accounts</h2>
+      <p>
+        The Annual General Meeting is held each November. It receives the year’s reports, adopts the accounts and elects
+        the Committee. Members are given at least seven days’ notice of any general meeting. The Committee can call a
+        special general meeting at any time, and ten members together can require one in writing.
+      </p>
+      <p>
+        Questions are decided by a majority of the members present, and the chairman has a casting vote only. Voting is
+        by show of hands unless a member asks for a poll, and proxies are allowed only for electing officers. The
+        accounts are closed on 30 September, audited at least fourteen days before the AGM, and a copy goes to each
+        member beforehand.
+      </p>
+
+      <h2>Becoming a member</h2>
+      <p>
+        Anyone is welcome to worship with us and join in. Membership is for people who would like a say in how the
+        Society is run. To become a member:
+      </p>
+      <ul class={list}>
+        <li>A member proposes you, and another member seconds, at a meeting of the Committee.</li>
+        <li>A majority of the Committee accepts you, having regard to the advice of the Minister.</li>
+        <li>You affirm your belief in the Deity of the Lord Jesus Christ, the holiness of the Word, the necessity of shunning evils as sins against God, and leading a life of universal charity.</li>
+        <li>Your name is entered on the roll of members. A member of another New Church society can be admitted at any Committee meeting on a signed recommendation from that society’s minister or leader.</li>
+      </ul>
+      <p>
+        You can send your application through this website. Sign in, open <strong>Membership</strong> and follow the
+        steps. It goes to the Committee at its next meeting.
+      </p>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <Button href="/account/membership">Apply to become a member</Button>
+        <Button variant="secondary" href="/contact">Ask us a question</Button>
+      </div>
+
+      <h2>What membership means</h2>
+      <h3 class="!mt-0">What members can do</h3>
+      <ul class={list}>
+        <li><strong>Vote</strong> at general meetings, including the Annual General Meeting.</li>
+        <li><strong>Serve on the Committee.</strong> Only members can.</li>
+        <li><strong>Receive notice</strong> of general meetings, and the audited accounts before the AGM.</li>
+        <li><strong>Call a special meeting</strong>, together with nine other members.</li>
+        <li><strong>Attend</strong> the Society’s lectures and meetings and use its library and rooms, subject to any by-laws.</li>
+      </ul>
+      <h3>What it asks of members</h3>
+      <ul class={list}>
+        <li>To hold the beliefs the constitution asks of members, as set out above.</li>
+        <li>
+          To stand behind the Society in a small way. The Society is a company limited by guarantee, so if it were ever
+          wound up each member may be asked to contribute <strong>{memberConfig.guarantee}</strong>, and nothing more,
+          while a member or within a year after leaving. There are no fees or dues.
+        </li>
+        <li>To keep to the Society’s rules and by-laws, and not to act in a way that harms the Society’s interests.</li>
+        <li>To let the Society keep their name and address on the roll of members.</li>
+      </ul>
+
+      <h2>Leaving</h2>
+      <ul class={list}>
+        <li>
+          <strong>Resigning.</strong> The constitution asks a member who wishes to withdraw to tell the Secretary three
+          months before the AGM. You can send a request at any time from <strong>Membership</strong> on this website,
+          and the Committee considers it at its next meeting. You stay on our list as a friend unless you ask us not to.
+        </li>
+        <li>
+          <strong>Being removed.</strong> A member who has not attended, subscribed or been in touch with an officer for
+          twelve months may be struck off the roll. A special general meeting can also remove a name for wilfully
+          breaking the Society’s rules or for conduct that harms its interests.
+        </li>
+      </ul>
+
+      <h2>Documents</h2>
+      <ul class={list}>
+        <li><a href="/documents/sydney-society-constitution.pdf" target="_blank" rel="noopener">The Society’s constitution (PDF)</a>, the version registered with the ACNC.</li>
+        <li><a href="https://www.acnc.gov.au/charity/charities/f2aa6689-38af-e811-a95e-000d3ad24c60/documents/" target="_blank" rel="noopener">The Society on the ACNC charity register</a>, with its public documents and financial reports.</li>
+      </ul>
+    </article>
+
+    <Card variant="tint" class="mt-12" title="Questions about any of this?">
+      <p class="m-0">
+        The Committee is glad to talk it through with you, whether you are thinking about membership or just curious
+        how the Society works.
+      </p>
+      <div slot="footer"><Button size="sm" href="/contact">Contact us</Button></div>
+    </Card>
+  </main>
+</BaseLayout>

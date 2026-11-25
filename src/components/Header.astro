@@ -12,8 +12,15 @@ const links = [
   { href: '/events', label: 'Events' },
   // { href: '/blog', label: 'Blog' }, // hidden until the posts are finished (2026-11-13)
   { href: '/newsletters', label: 'Newsletters' },
-  { href: '/about', label: 'About' },
 ];
+
+// About is a drop-down. The Swedenborg Centre has a page here (so visitors aren't sent away) that links on to its own site.
+const aboutLinks = [
+  { href: '/about', label: 'About the church' },
+  { href: '/about/governance', label: 'Governance and membership' },
+  { href: '/about/swedenborg-centre', label: 'Swedenborg Centre' },
+];
+const aboutActive = currentPath === '/about' || currentPath.startsWith('/about/');
 
 function isActive(href: string) {
   if (href === '/') return currentPath === '/';
@@ -71,18 +78,48 @@ const linkBase =
           </a>
         ))
       }
-      <a
-        href="https://swedenborg.com.au/"
-        class:list={[
-          linkBase,
-          'text-[14px] px-2.5 xl:px-3.5 pt-2 pb-1.5 text-text-muted hover:text-text-heading',
-        ]}
-        rel="noopener noreferrer"
-        target="_blank"
-      >
-        Swedenborg Centre
-      </a>
-      <Button variant="gold" size="sm" href="/contact" class="ml-2">
+      <div class="relative" id="about-menu">
+        <button
+          type="button"
+          id="about-toggle"
+          class:list={[
+            linkBase,
+            'inline-flex items-center gap-1 border-0 cursor-pointer text-[14px] px-2.5 xl:px-3.5 pt-2 pb-1.5',
+            aboutActive
+              ? 'text-accent-primary-strong bg-violet-100'
+              : 'bg-transparent text-text-muted hover:text-text-heading',
+          ]}
+          aria-haspopup="menu"
+          aria-expanded="false"
+          aria-controls="about-panel"
+        >
+          About
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+        </button>
+        <div
+          id="about-panel"
+          role="menu"
+          hidden
+          class="absolute left-0 top-full mt-2 w-64 rounded-md border border-border-soft bg-white py-2 shadow-md z-50"
+        >
+          {
+            aboutLinks.map((l) => (
+              <a
+                href={l.href}
+                role="menuitem"
+                aria-current={currentPath === l.href ? 'page' : undefined}
+                class:list={[
+                  'block px-4 py-2 font-display text-sm no-underline hover:bg-violet-50',
+                  currentPath === l.href ? 'text-accent-primary-strong font-semibold' : 'text-text-heading',
+                ]}>{l.label}</a>
+            ))
+          }
+        </div>
+      </div>
+      <Button variant="secondary" size="sm" href="/login" id="login-link" class="ml-2">
+        Log in
+      </Button>
+      <Button variant="gold" size="sm" href="/contact" class="ml-1">
         Contact us
       </Button>
     </nav>
@@ -205,18 +242,36 @@ const linkBase =
           </a>
         ))
       }
-      <a
-        href="https://swedenborg.com.au/"
+      <div
         class:list={[
           linkBase,
-          'text-[16px] px-4 py-3 text-text-muted hover:text-text-heading hover:bg-violet-50',
+          'text-[16px] px-4 pt-3 pb-1',
+          aboutActive ? 'text-accent-primary-strong' : 'text-text-heading',
         ]}
-        rel="noopener noreferrer"
-        target="_blank"
       >
-        Swedenborg Centre
-      </a>
+        About
+      </div>
+      {
+        aboutLinks.map((l) => (
+          <a
+            href={l.href}
+            class:list={[
+              linkBase,
+              'text-[16px] pl-8 pr-4 py-2.5',
+              currentPath === l.href
+                ? 'text-accent-primary-strong bg-violet-100'
+                : 'text-text-muted hover:text-text-heading hover:bg-violet-50',
+            ]}
+            aria-current={currentPath === l.href ? 'page' : undefined}
+          >
+            {l.label}
+          </a>
+        ))
+      }
       <div class="pt-2 pb-1 px-1 flex flex-col gap-2">
+        <Button variant="secondary" size="md" href="/login" id="login-link-mobile" class="w-full">
+          Log in
+        </Button>
         <Button variant="gold" size="md" href="/contact" class="w-full">
           Contact us
         </Button>
@@ -260,6 +315,39 @@ const linkBase =
     if (e.matches) setOpen(false);
   });
 
+  // About drop-down: click or tap to open, Escape or a click elsewhere to close.
+  (function () {
+    const wrap = document.getElementById('about-menu');
+    const toggle = document.getElementById('about-toggle');
+    const panel = document.getElementById('about-panel');
+    if (!wrap || !toggle || !panel) return;
+    const setOpen = (open: boolean) => {
+      panel.hidden = !open;
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+    document.addEventListener('pointerdown', (e) => {
+      if (!wrap.contains(e.target as Node)) setOpen(false);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+    panel.addEventListener('focusout', (e) => {
+      if (!wrap.contains((e as FocusEvent).relatedTarget as Node)) setOpen(false);
+    });
+  })();
+
+  // The Log in buttons give way to the account menu once someone is signed in (the marker cookie only says "a session
+  // may exist"; the account menu script below confirms it and puts them back if it has ended).
+  (function () {
+    const login = [document.getElementById('login-link'), document.getElementById('login-link-mobile')];
+    if (document.cookie.split('; ').includes('rnc_in=1')) login.forEach((el) => el && (el.hidden = true));
+    window.addEventListener('rnc:signed-out', () => login.forEach((el) => el && (el.hidden = false)));
+  })();
+
   // Account menu. A plain "signed in" cookie (no personal details) is set when someone signs in; only then do we ask the
   // server who they are. Visitors who never signed in see nothing and make no extra request.
   (function () {
@@ -278,6 +366,7 @@ const linkBase =
         if (!w || (!w.member && !w.admin)) {
           // The server session has ended: forget the marker so we stop asking.
           document.cookie = 'rnc_in=; Max-Age=0; path=/';
+          window.dispatchEvent(new Event('rnc:signed-out'));
           return;
         }
         const email = document.getElementById('account-email');
