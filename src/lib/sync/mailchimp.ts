@@ -132,6 +132,17 @@ export class Mailchimp {
     return this.request("DELETE", this.member(email));
   }
 
+  /** The contact's status in the audience (subscribed, unsubscribed, pending, cleaned, archived), or null if absent. */
+  async status(email: string): Promise<string | null> {
+    try {
+      const r = await this.request("GET", this.member(email), undefined, { fields: "status" });
+      return (r.status as string) ?? null;
+    } catch (e) {
+      if (String(e instanceof Error ? e.message : e).includes("-> 404")) return null;
+      throw e;
+    }
+  }
+
   /** Ask an unsubscribed contact to opt back in: status pending sends Mailchimp's confirmation email. */
   requestResubscribe(email: string) {
     return this.request("PATCH", this.member(email), { status: "pending" });

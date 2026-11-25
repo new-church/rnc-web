@@ -39,6 +39,11 @@ const primaryEmail = person.emails.find((e) => e.primary)?.address ?? person.ema
 
       {error && errors[error] && <p class="m-0 mb-4 font-body text-[14px] text-status-error" role="alert">{errors[error]}</p>}
       {sp.get('saved') === '1' && <p class="m-0 mb-4 font-body text-[14px] text-text-heading font-semibold" role="status">Saved. Thank you.</p>}
+      {sp.get('resubscribed') === '1' && (
+        <p class="m-0 mb-4 font-body text-[14px] text-text-heading font-semibold" role="status">
+          Thank you. Mailchimp is emailing you a confirmation: please open it and press the button, and you’ll start receiving our emails again.
+        </p>
+      )}
       {sp.get('unsubscribed') === '1' && (
         <p class="m-0 mb-4 font-body text-[14px] text-text-heading font-semibold" role="status">
           You’re unsubscribed from our emails. Emails already queued may still arrive for up to a day.
@@ -72,7 +77,7 @@ const primaryEmail = person.emails.find((e) => e.primary)?.address ?? person.ema
           <Card title="Your emails">
             {person.unsubscribed && (
               <p class="m-0 mb-4 text-sm text-text-muted">
-                You’re currently unsubscribed. If you tick a list and save, Mailchimp will email you a confirmation before sending anything.
+                You’re currently unsubscribed, so nothing is ticked. Tick what you’d like and save to start again: Mailchimp will email you a confirmation before sending anything.
               </p>
             )}
             <form method="post" action="/api/account/prefs" class="flex flex-col gap-4">
@@ -81,7 +86,7 @@ const primaryEmail = person.emails.find((e) => e.primary)?.address ?? person.ema
                 <legend class="font-display text-sm text-text-heading mb-1">What would you like to receive?</legend>
                 {signupConfig.lists.map((l) => (
                   <label class="flex items-start gap-3 font-body text-base text-text-body">
-                    <input type="checkbox" name="lists" value={l.id} checked={person.lists.includes(l.option)} class="mt-1.5 h-4 w-4 accent-[var(--color-accent-primary,#5b3fa0)]" />
+                    <input type="checkbox" name="lists" value={l.id} checked={!person.unsubscribed && person.lists.includes(l.option)} class="mt-1.5 h-4 w-4 accent-[var(--color-accent-primary,#5b3fa0)]" />
                     <span>
                       {l.label}
                       <span class="block text-[13px] text-text-muted">{l.hint}</span>

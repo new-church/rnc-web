@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { signupConfig } from '../../../lib/signup/config';
 import { audit } from '../../../lib/members/audit';
 import { postContext, see } from '../../../lib/members/guard';
+import { finishResubscribe, type ResubscribeOutcome } from '../../../lib/members/resubscribe';
 
 export const prerender = false;
 
@@ -16,10 +17,14 @@ export const POST: APIRoute = async ({ request, cookies, clientAddress }) => {
   const selected = signupConfig.lists.filter((l) => picked.has(l.id)).map((l) => l.option);
   const managed = signupConfig.lists.map((l) => l.option);
 
+  let resubscribe: ResubscribeOutcome | null = null;
   try {
     const fields: string[] = [];
     if (unsubscribeAll) {
       if (!person.unsubscribed) {
+        // Untick the three email choices too (printed mail has its own options and is left alone), so the form shows
+        // nothing ticked; they tick again what they want if they come back.
+        await people.setLists(personId, [], managed);
         await people.setUnsubscribed(personId, true);
         fields.push('unsubscribed from all email');
       }
@@ -27,8 +32,10 @@ export const POST: APIRoute = async ({ request, cookies, clientAddress }) => {
       const changes = await people.setLists(personId, selected, managed);
       if (changes.length) fields.push('mailing preferences');
       if (person.unsubscribed && selected.length) {
-        // Untick Unsubscribed and keep its date: the daily sync turns that into a Mailchimp confirmation email.
+        // Untick Unsubscribed, then ask Mailchimp for its confirmation email straight away and clear the date.
         await people.setUnsubscribed(personId, false);
+        const email = (person.emails.find((e) => e.primary) ?? person.emails[0])?.address ?? '';
+        resubscribe = await finishResubscribe({ people }, personId, email);
         fields.push('resubscribe requested');
       }
     }
@@ -40,5 +47,6 @@ export const POST: APIRoute = async ({ request, cookies, clientAddress }) => {
     console.error('[members] prefs failed', err instanceof Error ? err.message : err);
     return see('/account/details?error=save#mail');
   }
-  return see(`/account/details?${unsubscribeAll ? 'unsubscribed=1' : 'saved=1'}#mail`);
+  const result = unsubscribeAll ? 'unsubscribed=1' : resubscribe === 'requested' ? 'resubscribed=1' : 'saved=1';
+  return see(`/account/details?${result}#mail`);
 };

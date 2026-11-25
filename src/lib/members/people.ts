@@ -47,6 +47,8 @@ export interface PeopleApi {
   /** Makes the person's ticked options exactly `selected` within the `managed` set. */
   setLists(id: string, selected: string[], managed: string[]): Promise<string[]>;
   setUnsubscribed(id: string, unsubscribed: boolean): Promise<void>;
+  /** Removes the "Unsubscribed on" date (once a resubscribe has been passed to Mailchimp, the date has done its job). */
+  clearUnsubscribedOn(id: string): Promise<void>;
   /** Sets the person inactive (Planning Center's own deactivate) and unsubscribes them. */
   deactivate(id: string): Promise<void>;
   setMembership(id: string, type: string): Promise<void>;
@@ -274,15 +276,24 @@ export class LivePeople implements PeopleApi {
     const rows = await this.fieldRows(id, unsubId);
     if (unsubscribed) {
       if (!rows.length) await this.pco.request('POST', `/people/${id}/field_data`, this.datum(unsubId, 'Unsubscribed'));
+      // Always today's date: an old date left behind would make the sync mistake a fresh unsubscribe for a resubscribe.
       const onId = await this.fieldId('Unsubscribed on');
-      if (onId && !(await this.fieldRows(id, onId)).length) {
+      if (onId) {
+        for (const r of await this.fieldRows(id, onId)) await this.pco.request('DELETE', `/people/${id}/field_data/${r.id}`);
         await this.pco.request('POST', `/people/${id}/field_data`, this.datum(onId, sydneyDate(new Date())));
       }
     } else {
-      // Clear only the flag and keep "Unsubscribed on": the Mailchimp sync reads that as a resubscribe request and
-      // asks the person to confirm in Mailchimp.
+      // Clear only the flag. The date stays until the resubscribe has been passed to Mailchimp (finishResubscribe, or the
+      // nightly sync for anyone who resubscribes by hand in Planning Center); the sync reads "flag cleared, date kept" as
+      // a resubscribe request.
       for (const r of rows) await this.pco.request('DELETE', `/people/${id}/field_data/${r.id}`);
     }
+  }
+
+  async clearUnsubscribedOn(id: string): Promise<void> {
+    const onId = await this.fieldId('Unsubscribed on');
+    if (!onId) return;
+    for (const r of await this.fieldRows(id, onId)) await this.pco.request('DELETE', `/people/${id}/field_data/${r.id}`);
   }
 
   async deactivate(id: string): Promise<void> {
@@ -442,6 +453,7 @@ export class DemoPeople implements PeopleApi {
   async setUnsubscribed(id: string, unsubscribed: boolean): Promise<void> {
     this.must(id).unsubscribed = unsubscribed;
   }
+  async clearUnsubscribedOn(_id: string): Promise<void> {}
   async deactivate(id: string): Promise<void> {
     const p = this.must(id);
     p.status = 'inactive';

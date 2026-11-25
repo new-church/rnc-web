@@ -8,6 +8,7 @@ import { alertStaff } from '../../../lib/signup/alert';
 import { memberKv } from '../../../lib/members/kv';
 import { audit } from '../../../lib/members/audit';
 import { peopleApi } from '../../../lib/members/people';
+import { finishResubscribe } from '../../../lib/members/resubscribe';
 import { deleteSignup, readSignup, type SignupData } from '../../../lib/members/signup';
 
 export const prerender = false;
@@ -47,6 +48,16 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     return go('/confirm', `?error=failed&${param}`);
   }
 
+  let resubscribeNote = 'They had unsubscribed before: this clears the flag, and the next Mailchimp sync will ask them to resubscribe.';
+  if (ref && result.resubscribed && result.personId) {
+    const outcome = await finishResubscribe({ people: peopleApi() }, result.personId, sub.email);
+    resubscribeNote =
+      outcome === 'requested'
+        ? 'They had unsubscribed before: Mailchimp is now emailing them a confirmation.'
+        : outcome === 'cleared'
+          ? 'They had unsubscribed before; they are already back on the list in Mailchimp.'
+          : resubscribeNote;
+  }
   if (ref) await deleteSignup(kv, ref);
   if (result.personId) await audit(kv, result.personId, { action: 'signup_confirmed', via: 'signup' });
 
@@ -62,7 +73,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     `${sub.first} ${sub.last} <${sub.email}> confirmed their subscription.`,
     `Lists: ${listsFor(sub.lists).map((l) => l.label).join(', ')}`,
     result.created ? 'They are new to Planning Center.' : 'They were already in Planning Center.',
-    ...(result.resubscribed ? ['They had unsubscribed before: this clears the flag, and the next Mailchimp sync will ask them to resubscribe.'] : []),
+    ...(result.resubscribed ? [resubscribeNote] : []),
   ]);
   return go('/confirmed');
 };

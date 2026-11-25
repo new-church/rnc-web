@@ -19,7 +19,10 @@ Code: `src/lib/sync/` (TypeScript port of `~/dev/ssnc.mailchimp-sync/pco_to_mail
   Tags: `type:<membership type>` (from `GET /membership_types`) and `tag:Society News`,
   `tag:Swedenborg Centre News`, `tag:Candela` (from "Communication preferences"; add one in `TAG_MAP`).
   Unsubscribes in Mailchimp are pulled back (Unsubscribed flag + "Unsubscribed on"). Untick Unsubscribed but keep
-  the date = resubscribe request (Mailchimp `pending`, confirmation email). Cleaned (bounced) rows are a worklist and
+  the date = resubscribe request (Mailchimp `pending`, confirmation email); the sync then removes the date. When someone
+  resubscribes on the website (the member page or the signup form) the site does this step itself at once: it asks
+  Mailchimp for the confirmation email if the contact is unsubscribed there, then removes the date. If Mailchimp can't be
+  reached it leaves the date for the nightly sync. Cleaned (bounced) rows are a worklist and
   a profile note; a changed address adds the new row and archives the old cleaned one. Never permanently deletes.
 - Deactivated people (Planning Center status inactive, e.g. after "Deactivate my account" on the site): never added.
   If one is still subscribed in Mailchimp, the sync unsubscribes then archives them (reversible, never a permanent
