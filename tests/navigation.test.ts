@@ -8,11 +8,11 @@ const read = (p: string) => readFileSync(join(root, p), "utf8");
 
 test("About is a drop-down with the church, governance and Swedenborg Centre pages, and those pages exist", () => {
   const header = read("components/Header.astro");
-  for (const href of ["/about", "/about/governance", "/about/swedenborg-centre"]) {
+  for (const href of ["/about", "/about/membership", "/about/swedenborg-centre"]) {
     assert.ok(header.includes(`href: '${href}'`), `the About menu must link to ${href}`);
   }
   assert.ok(existsSync(join(root, "pages/about.astro")));
-  assert.ok(existsSync(join(root, "pages/about/governance.astro")));
+  assert.ok(existsSync(join(root, "pages/about/membership.astro")));
   assert.ok(existsSync(join(root, "pages/about/swedenborg-centre.astro")));
   assert.match(header, /id="about-toggle"/);
 });
@@ -30,7 +30,7 @@ test("the Swedenborg Centre page is where the external link lives", () => {
 });
 
 test("the governance page links to the constitution, the ACNC register and the membership application", () => {
-  const page = read("pages/about/governance.astro");
+  const page = read("pages/about/membership.astro");
   assert.match(page, /\/documents\/sydney-society-constitution\.pdf/);
   assert.match(page, /acnc\.gov\.au\/charity/);
   assert.match(page, /href="\/account\/membership"/);

@@ -15,6 +15,7 @@ export default defineConfig({
   security: { checkOrigin: true },
 
   redirects: {
+    '/about/governance': '/about/membership', // renamed 2026-11-26
     '/join': '/events',
     '/join/sunday-worship': '/events/sunday-worship',
     '/join/open-discussion': '/events/open-discussion',
