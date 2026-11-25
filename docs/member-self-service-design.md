@@ -130,7 +130,7 @@ Source: `SSNC constitution.pdf` in the SSNC OneDrive (Finance - Documents/SSNC 2
 **Rights (Articles 6, 7, 14).** Members vote at general meetings and use the libraries and rooms. The Committee is chosen at the AGM from members, so only members can stand. Proxies are allowed only for electing officers.
 
 **Leaving (Article 5)**
-- A member who does not give notice to the Secretary **three months before the AGM** is treated as continuing. The AGM is in November, so notice is due by August.
+- A member who does not give notice to the Secretary **three months before the AGM** is treated as continuing. The AGM is held in February, so notice is due by November.
 - A name may be struck off the roll after 12 months of absence, no subscription, or no contact with an officer.
 - The Committee can call a Special General Meeting to decide whether to erase a member for wilful rule-breaking or conduct prejudicial to the Society. Questions are decided by majority (Article 14).
 
@@ -266,7 +266,7 @@ Code is in `src/lib/members/` (logic, with tests in `tests/`), `src/pages/accoun
 - **Local runs:** outside production the member pages use an in-memory store and a demo person, so nothing real is read or written. `SIGNUP_LIVE=1` switches both to the real thing.
 - **Not built:** changing an email address from the details page (the page says to contact the office), clearing a phone number or address, and the monthly register export to OneDrive (an admin CSV download of current members is there instead).
 
-**Linked from the menu (2026-11-25).** The top menu has a **Log in** button (to `/login`, the one sign-in for members, friends and administrators) in the place the external Swedenborg Centre link used to be; it gives way to the account menu once someone is signed in. The About menu is a drop-down: About the church (`/about`), Governance and membership (`/about/governance`, a plain-words summary of the constitution) and Swedenborg Centre (`/about/swedenborg-centre`, with the link out to swedenborg.com.au, so visitors aren't taken off the site from the menu). The signup form always has the optional extra details and always uses the stored flow.
+**Linked from the menu (2026-11-25).** The top menu has a **Log in** button (to `/login`, the one sign-in for members, friends and administrators) in the place the external Swedenborg Centre link used to be; it gives way to the account menu once someone is signed in. The About menu is a drop-down: About the church (`/about`), Membership and governance (`/about/governance`, a plain-words summary of the constitution) and Swedenborg Centre (`/about/swedenborg-centre`, with the link out to swedenborg.com.au, so visitors aren't taken off the site from the menu). The signup form always has the optional extra details and always uses the stored flow.
 
 While testing, a test application, approval or deactivation changes your real Planning Center record, and applications email the church office unless `MEMBERSHIP_NOTIFY_TO` is set to your own address.
 

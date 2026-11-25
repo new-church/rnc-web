@@ -5,11 +5,14 @@ import Card from '../../components/Card.astro';
 import { memberConfig } from '../../lib/members/config';
 
 const list = 'mt-3 mb-5 pl-5 list-disc flex flex-col gap-2';
+const boxList = 'mt-0 mb-0 pl-5 list-disc flex flex-col gap-2';
+const box = 'group mt-4 rounded-md border border-border-soft bg-surface-tint px-5 py-4';
+const summary = 'flex cursor-pointer items-center justify-between gap-4 font-display text-base font-semibold text-text-heading';
 ---
 
-<!-- Every statement here comes from the Society's constitution (the version on the ACNC register, dated 2013). -->
+<!-- Every statement here comes from the Society's constitution (the version on the ACNC register, dated 2013). The four aims are a plain-language paraphrase of the constitution's objects; the original wording is in the linked PDF. -->
 <BaseLayout
-  title="Governance and membership"
+  title="Membership and governance"
   description="How The Sydney Society of The New Church is run, who is responsible, and what becoming a member involves."
   currentPath="/about/governance"
 >
@@ -19,14 +22,96 @@ const list = 'mt-3 mb-5 pl-5 list-disc flex flex-col gap-2';
     </div>
 
     <article class="prose-rnc">
-      <h1>Governance and membership</h1>
+      <h1>Membership and governance</h1>
       <p>
-        This page sets out, in plain words, how The Sydney Society of The New Church is run, who is responsible, and
-        what becoming a member involves. The Society’s constitution is the authority, and you can read it in full
-        at the bottom of this page.
+        This page explains what membership of The Sydney Society of The New Church means, how to join, and how the
+        Society is run. The Society’s constitution is the authority, and you can read it in full at the bottom of this
+        page.
+      </p>
+      <div class="mt-5 flex flex-wrap gap-3 not-prose">
+        <Button href="/account/membership">Apply to become a member</Button>
+        <Button variant="secondary" href="#check-membership">Check if you are a member</Button>
+      </div>
+
+      <h2>What membership means</h2>
+      <p>
+        At heart, membership is about belonging. It means being part of our community, sharing in what we believe, and
+        supporting the church and one another. Many people take part in the life of the church without being members,
+        and they are always welcome. Membership is simply a way of making that belonging official.
+      </p>
+      <p>The constitution also gives membership a formal side. Open either box for the details.</p>
+
+      <details class={box}>
+        <summary class={summary}>
+          What members can do
+          <svg class="h-4 w-4 shrink-0 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 8l5 5 5-5" /></svg>
+        </summary>
+        <ul class={boxList + ' mt-4'}>
+          <li><strong>Vote</strong> at general meetings, including the Annual General Meeting.</li>
+          <li><strong>Serve on the Committee.</strong> Only members can.</li>
+          <li><strong>Receive notice</strong> of general meetings, and the audited accounts before the AGM.</li>
+          <li><strong>Call a special meeting</strong>, together with nine other members.</li>
+          <li><strong>Attend</strong> the Society’s lectures and meetings and use its library and rooms, subject to any by-laws.</li>
+        </ul>
+      </details>
+
+      <details class={box}>
+        <summary class={summary}>
+          What it asks of members
+          <svg class="h-4 w-4 shrink-0 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 8l5 5 5-5" /></svg>
+        </summary>
+        <ul class={boxList + ' mt-4'}>
+          <li>To share the Society’s core beliefs (see “What the Society is for”, further down).</li>
+          <li>
+            To stand behind the Society in a small way. The Society is a company limited by guarantee, so if it were ever
+            wound up each member may be asked to contribute <strong>{memberConfig.guarantee}</strong>, and nothing more,
+            while a member or within a year after leaving. There are no fees or dues.
+          </li>
+          <li>To keep to the Society’s rules and by-laws, and not to act in a way that harms the Society’s interests.</li>
+          <li>To let the Society keep their name and address on the roll of members.</li>
+        </ul>
+      </details>
+
+      <h2 id="becoming-a-member">How to become a member</h2>
+      <p>Anyone is welcome to worship with us and join in. To become a member:</p>
+      <ul class={list}>
+        <li>You ask to join, and say that you share the Society’s core beliefs: that Jesus Christ is the one God, that the Bible is sacred, that turning away from harmful ways is part of a life of faith, and that we are called to care for everyone.</li>
+        <li>You agree to have your name entered on the roll of members.</li>
+        <li>The Committee then makes it official, which is a formality. Two existing members put your name forward at a Committee meeting, one to propose you and one to second, and the Committee accepts you, taking the Minister’s advice into account.</li>
+      </ul>
+      <p>
+        You can send your application through this website. Sign in, open <strong>Membership</strong> and follow the
+        steps. It goes to the Committee at its next meeting.
+      </p>
+    </article>
+
+    <div id="check-membership" class="my-10 scroll-mt-24">
+      <Card variant="tint" title="Check if you are a member">
+        <p class="m-0 mb-3">
+          Our records aren’t perfect, so it’s worth checking how we have you listed. It takes about a minute and there
+          is no password.
+        </p>
+        <ol class="m-0 mb-4 pl-5 list-decimal flex flex-col gap-2">
+          <li>Choose <strong>Log in</strong> below and enter the email address you use with the church.</li>
+          <li>We email you a 6-digit code. Type it in on the next page.</li>
+          <li>Choose <strong>Membership</strong> in your account. It tells you whether our records show you as a member.</li>
+        </ol>
+        <p class="m-0 text-sm text-text-muted">
+          If it doesn’t look right, or we don’t have your email address, <a href="/contact" class="text-link hover:text-link-hover">let us know</a> and we’ll put it right.
+        </p>
+        <div slot="footer"><Button size="sm" href="/login">Log in to check</Button></div>
+      </Card>
+    </div>
+
+    <article class="prose-rnc">
+      <h2>Leaving</h2>
+      <p>
+        You can resign at any time by sending a request from <strong>Membership</strong> on this website, and the
+        Committee will deal with it at its next meeting. You stay on our list as a friend unless you ask us not to.
       </p>
 
-      <h2>Who we are</h2>
+      <h2 id="how-we-are-run">How the Society is run</h2>
+      <h3>Who we are</h3>
       <p>
         The Sydney Society of The New Church is the organisation behind Roseville New Church. It was established in 1875
         and incorporated in 1886. It is a company limited by guarantee (ACN 000 001 105, ABN 39 929 678 230) and a
@@ -34,13 +119,16 @@ const list = 'mt-3 mb-5 pl-5 list-disc flex flex-col gap-2';
         registered office is 4 Shirley Rd, Roseville NSW 2069.
       </p>
 
-      <h2>What the Society is for</h2>
-      <p>The constitution sets four objects:</p>
+      <h3>What the Society is for</h3>
+      <p>
+        The constitution sets four aims. Here they are in everyday words (the original wording is in the constitution
+        linked at the bottom of this page):
+      </p>
       <ul class={list}>
-        <li>To worship the Lord Jesus Christ, and to proclaim that He is Jehovah in His Divine Humanity, being the Creator, Redeemer and Regenerator of man; Father, Son and Holy Spirit in One Person.</li>
-        <li>To cultivate a knowledge of the Holy Scriptures, or those Books of the Old and New Testament which contain a continuous Interior-Divine sense, as revealed by the science of correspondence.</li>
-        <li>To shun evils as sins against God, and to cultivate a life of disinterested usefulness and universal charity.</li>
-        <li>To circulate the theological works of Emanuel Swedenborg, and such other writings as advance the life and doctrines of the Lord’s New Church, and otherwise to assist in disseminating the heavenly doctrines of the New Jerusalem.</li>
+        <li>To worship Jesus Christ as the one God, who made us, sets us free and guides our spiritual growth.</li>
+        <li>To read and study the Bible, and to explore its deeper spiritual meaning.</li>
+        <li>To turn away from what does harm, and to live a life of selfless service and care for everyone.</li>
+        <li>To share the writings of Emanuel Swedenborg, and other works that support the life and teachings of the New Church.</li>
       </ul>
       <p>
         The Society does not pay dividends or distribute profits to its members: any surplus is applied to these
@@ -48,7 +136,7 @@ const list = 'mt-3 mb-5 pl-5 list-disc flex flex-col gap-2';
         with similar objects, not to members.
       </p>
 
-      <h2>Who is responsible</h2>
+      <h3>Who is responsible</h3>
       <p>
         <strong>The members</strong> make the big decisions at general meetings. They elect the Committee, appoint the
         Minister (or a Leader) and the auditor, and adopt the Society’s accounts.
@@ -71,9 +159,9 @@ const list = 'mt-3 mb-5 pl-5 list-disc flex flex-col gap-2';
         <a href="/contact">contact page</a>.
       </p>
 
-      <h2>Meetings and accounts</h2>
+      <h3>Meetings and accounts</h3>
       <p>
-        The Annual General Meeting is held each November. It receives the year’s reports, adopts the accounts and elects
+        The Annual General Meeting is held each February. It receives the year’s reports, adopts the accounts and elects
         the Committee. Members are given at least seven days’ notice of any general meeting. The Committee can call a
         special general meeting at any time, and ten members together can require one in writing.
       </p>
@@ -83,61 +171,6 @@ const list = 'mt-3 mb-5 pl-5 list-disc flex flex-col gap-2';
         accounts are closed on 30 September, audited at least fourteen days before the AGM, and a copy goes to each
         member beforehand.
       </p>
-
-      <h2>Becoming a member</h2>
-      <p>
-        Anyone is welcome to worship with us and join in. Membership is for people who would like a say in how the
-        Society is run. To become a member:
-      </p>
-      <ul class={list}>
-        <li>A member proposes you, and another member seconds, at a meeting of the Committee.</li>
-        <li>A majority of the Committee accepts you, having regard to the advice of the Minister.</li>
-        <li>You affirm your belief in the Deity of the Lord Jesus Christ, the holiness of the Word, the necessity of shunning evils as sins against God, and leading a life of universal charity.</li>
-        <li>Your name is entered on the roll of members. A member of another New Church society can be admitted at any Committee meeting on a signed recommendation from that society’s minister or leader.</li>
-      </ul>
-      <p>
-        You can send your application through this website. Sign in, open <strong>Membership</strong> and follow the
-        steps. It goes to the Committee at its next meeting.
-      </p>
-      <div class="mt-5 flex flex-wrap gap-3">
-        <Button href="/account/membership">Apply to become a member</Button>
-        <Button variant="secondary" href="/contact">Ask us a question</Button>
-      </div>
-
-      <h2>What membership means</h2>
-      <h3 class="!mt-0">What members can do</h3>
-      <ul class={list}>
-        <li><strong>Vote</strong> at general meetings, including the Annual General Meeting.</li>
-        <li><strong>Serve on the Committee.</strong> Only members can.</li>
-        <li><strong>Receive notice</strong> of general meetings, and the audited accounts before the AGM.</li>
-        <li><strong>Call a special meeting</strong>, together with nine other members.</li>
-        <li><strong>Attend</strong> the Society’s lectures and meetings and use its library and rooms, subject to any by-laws.</li>
-      </ul>
-      <h3>What it asks of members</h3>
-      <ul class={list}>
-        <li>To hold the beliefs the constitution asks of members, as set out above.</li>
-        <li>
-          To stand behind the Society in a small way. The Society is a company limited by guarantee, so if it were ever
-          wound up each member may be asked to contribute <strong>{memberConfig.guarantee}</strong>, and nothing more,
-          while a member or within a year after leaving. There are no fees or dues.
-        </li>
-        <li>To keep to the Society’s rules and by-laws, and not to act in a way that harms the Society’s interests.</li>
-        <li>To let the Society keep their name and address on the roll of members.</li>
-      </ul>
-
-      <h2>Leaving</h2>
-      <ul class={list}>
-        <li>
-          <strong>Resigning.</strong> The constitution asks a member who wishes to withdraw to tell the Secretary three
-          months before the AGM. You can send a request at any time from <strong>Membership</strong> on this website,
-          and the Committee considers it at its next meeting. You stay on our list as a friend unless you ask us not to.
-        </li>
-        <li>
-          <strong>Being removed.</strong> A member who has not attended, subscribed or been in touch with an officer for
-          twelve months may be struck off the roll. A special general meeting can also remove a name for wilfully
-          breaking the Society’s rules or for conduct that harms its interests.
-        </li>
-      </ul>
 
       <h2>Documents</h2>
       <ul class={list}>
