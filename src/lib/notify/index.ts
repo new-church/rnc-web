@@ -1,5 +1,6 @@
 import { env } from '../env';
 import { randomToken } from '../members/crypto';
+import { isLive } from '../signup';
 import { signupConfig } from '../signup/config';
 
 /**
@@ -101,9 +102,10 @@ async function post(url: string, body: unknown, label: string): Promise<void> {
 
 /** Tells the committee (Teams) and Analytics. `extra` must hold no personal details: field names, a label, a role. */
 export async function announce(event: MemberEvent, name: string, extra?: string): Promise<void> {
-  const teams = env('TEAMS_WEBHOOK_URL');
+  // The same Teams channel as the signup alerts (TEAMS_ALERT_WEBHOOK), and like them only when live.
+  const teams = env('TEAMS_ALERT_WEBHOOK');
   const jobs: Promise<void>[] = [];
-  if (teams?.startsWith('https://')) jobs.push(post(teams, teamsCard(event, name, extra), 'Teams'));
+  if (isLive() && teams?.startsWith('https://')) jobs.push(post(teams, teamsCard(event, name, extra), 'Teams'));
 
   // Analytics only from the live site, so local and preview use never count.
   const secret = env('GA4_API_SECRET');

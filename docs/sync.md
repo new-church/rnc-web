@@ -42,7 +42,7 @@ Code: `src/lib/sync/` (TypeScript port of `~/dev/ssnc.mailchimp-sync/pco_to_mail
 | `CRON_SECRET` | Vercel sends it as `Authorization: Bearer ...`; the cron route rejects anything else |
 | `POSTMARK_SERVER_TOKEN`, `ALERT_EMAIL_FROM`, `ALERT_EMAIL_TO` | failure and "needs a look" emails (optional until Postmark is set up) |
 | `POSTMARK_MESSAGE_STREAM` | optional, default `outbound` |
-| `TEAMS_WEBHOOK_URL` | optional: a Microsoft Teams Workflows webhook ("Post to a channel when a webhook request is received"). Each member-area action and Secretary decision posts a card with the person's name and what they did, never an email, phone, address or changed value (`src/lib/notify`) |
+| `TEAMS_ALERT_WEBHOOK` | the Teams Workflows webhook for the private Website alerts team. New subscribers and problems post there, and so does each member-area action, Secretary decision and sign-in (name and what they did, never an email, phone, address or changed value; `src/lib/notify`). Live only |
 | `GA4_API_SECRET` | optional: GA4 Measurement Protocol secret. Production only; sends `rnc_*` events (e.g. `rnc_membership_applied`) with no name and a throwaway client id, because the account pages are deliberately not tagged |
 | `HEALTHCHECK_URL_MAILCHIMP_SYNC`, `HEALTHCHECK_URL_POSTGRID_SYNC` | optional dead-man's-switch ping (Healthchecks.io style); alerts if a run never happens |
 

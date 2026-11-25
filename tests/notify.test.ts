@@ -26,7 +26,7 @@ test("both sign-in endpoints announce a successful sign-in", () => {
 });
 
 test("announce does nothing, and does not fail, when nothing is configured", async () => {
-  delete process.env.TEAMS_WEBHOOK_URL;
+  delete process.env.TEAMS_ALERT_WEBHOOK;
   delete process.env.GA4_API_SECRET;
   const real = globalThis.fetch;
   let calls = 0;
@@ -38,7 +38,8 @@ test("announce does nothing, and does not fail, when nothing is configured", asy
 });
 
 test("announce posts to Teams, survives a failing webhook, and sends no email address", async () => {
-  process.env.TEAMS_WEBHOOK_URL = "https://example.invalid/hook";
+  process.env.TEAMS_ALERT_WEBHOOK = "https://example.invalid/hook";
+  process.env.VERCEL_ENV = "production";
   const real = globalThis.fetch;
   const sent: string[] = [];
   globalThis.fetch = (async (_u: unknown, init?: RequestInit) => { sent.push(String(init?.body)); return new Response("no", { status: 500 }); }) as typeof fetch;
@@ -47,7 +48,19 @@ test("announce posts to Teams, survives a failing webhook, and sends no email ad
     assert.equal(sent.length, 1);
     assert.match(sent[0], /Jane Citizen/);
     assert.doesNotMatch(sent[0], /@/);
-  } finally { globalThis.fetch = real; delete process.env.TEAMS_WEBHOOK_URL; }
+  } finally { globalThis.fetch = real; delete process.env.TEAMS_ALERT_WEBHOOK; delete process.env.VERCEL_ENV; }
+});
+
+test("Teams is not posted to from preview or local, even when the webhook is set", async () => {
+  process.env.TEAMS_ALERT_WEBHOOK = "https://example.invalid/hook";
+  process.env.VERCEL_ENV = "preview";
+  const real = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = (async () => { calls++; return new Response("ok"); }) as typeof fetch;
+  try {
+    await announce("membership_applied", "Jane Citizen");
+    assert.equal(calls, 0);
+  } finally { globalThis.fetch = real; delete process.env.TEAMS_ALERT_WEBHOOK; delete process.env.VERCEL_ENV; }
 });
 
 test("analytics events are only sent from production and carry no name", async () => {
