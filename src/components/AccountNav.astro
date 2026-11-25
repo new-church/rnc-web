@@ -1,13 +1,12 @@
 ---
 interface Props {
-  current: 'details' | 'membership' | 'leave';
+  current?: 'details' | 'membership';
   csrf: string;
 }
 const { current, csrf } = Astro.props;
 const items = [
   { id: 'details', href: '/account/details', label: 'Your details' },
   { id: 'membership', href: '/account/membership', label: 'Membership' },
-  { id: 'leave', href: '/account/leave', label: 'Deactivate' },
 ];
 ---
 

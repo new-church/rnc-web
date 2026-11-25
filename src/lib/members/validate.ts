@@ -1,3 +1,4 @@
+import { isCountry, phoneForPlanningCenter } from '../phone';
 import type { Address, DetailsInput } from './people';
 
 const trim = (v: FormDataEntryValue | null | undefined, max: number) => String(v ?? '').trim().slice(0, max);
@@ -16,11 +17,6 @@ export function parseBirthdate(s: string, now = new Date()): string | null {
   return s;
 }
 
-export function parsePhone(s: string): string | null {
-  if (!/^[0-9+()\-.\s]{6,24}$/.test(s)) return null;
-  return (s.match(/\d/g) ?? []).length >= 6 ? s : null;
-}
-
 export type ExtraResult = { ok: true; value: DetailsInput } | { ok: false; error: string };
 
 /**
@@ -29,9 +25,6 @@ export type ExtraResult = { ok: true; value: DetailsInput } | { ok: false; error
  */
 export function parseExtra(form: FormData): ExtraResult {
   const out: DetailsInput = {};
-  const prefix = trim(form.get('prefix'), 20);
-  if (prefix) out.prefix = prefix;
-
   const birthdate = trim(form.get('birthdate'), 10);
   if (birthdate) {
     const b = parseBirthdate(birthdate);
@@ -39,11 +32,11 @@ export function parseExtra(form: FormData): ExtraResult {
     out.birthdate = b;
   }
 
-  const phone = trim(form.get('phone'), 24);
+  const phone = trim(form.get('phone'), 30);
   if (phone) {
-    const p = parsePhone(phone);
-    if (!p) return { ok: false, error: 'Please check the phone number.' };
-    out.phone = p;
+    const p = phoneForPlanningCenter(trim(form.get('phoneCountry'), 2).toUpperCase(), phone);
+    if (!p.ok) return { ok: false, error: 'Please check the phone number and its country.' };
+    out.phone = p.number;
   }
 
   const address: Address = {
@@ -57,7 +50,7 @@ export function parseExtra(form: FormData): ExtraResult {
   const anyAddress = [address.street1, address.street2, address.city, address.state, address.zip].some(Boolean);
   if (anyAddress) {
     if (!address.street1 || !address.city || !address.zip) return { ok: false, error: 'Please give the street, suburb or town, and postcode for your address.' };
-    if (!/^[A-Z]{2}$/.test(address.country)) return { ok: false, error: 'Please check the country.' };
+    if (!isCountry(address.country)) return { ok: false, error: 'Please check the country.' };
     if (address.country === 'AU' && !/^\d{4}$/.test(address.zip)) return { ok: false, error: 'Please check the postcode.' };
     out.address = address;
   }

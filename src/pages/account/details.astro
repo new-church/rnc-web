@@ -55,9 +55,9 @@ const primaryEmail = person.emails.find((e) => e.primary)?.address ?? person.ema
             </div>
             <ExtraFields
               idPrefix="d"
-              prefix={person.prefix}
               birthdate={person.birthdate}
               phone={person.phone}
+              phoneCountry={person.phoneCountry}
               address={person.address}
             />
             <p class="m-0 text-[13px] text-text-muted">
@@ -109,6 +109,10 @@ const primaryEmail = person.emails.find((e) => e.primary)?.address ?? person.ema
           </p>
           <div slot="footer"><Button size="sm" variant="secondary" href="/account/membership">Membership</Button></div>
         </Card>
+
+        <p class="m-0 mt-2 text-center text-[13px] text-text-muted">
+          <a href="/account/leave" class="text-text-muted underline hover:text-link-hover">Deactivate my account</a>
+        </p>
       </div>
     </div>
   </main>

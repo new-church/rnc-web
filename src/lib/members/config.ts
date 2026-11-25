@@ -29,6 +29,8 @@ export const memberConfig = {
     verifyPerIp: { limit: 60, windowSeconds: HOUR },
     signupPerEmail: { limit: 3, windowSeconds: HOUR },
     signupPerIp: { limit: 20, windowSeconds: HOUR },
+    addressSuggestPerIp: { limit: 300, windowSeconds: HOUR },
+    addressResolvePerIp: { limit: 30, windowSeconds: HOUR },
   },
   /** Planning Center membership types (People > Membership). */
   membership: {

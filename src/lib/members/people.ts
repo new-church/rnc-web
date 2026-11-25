@@ -7,12 +7,12 @@
 import { Pco, type J } from '../sync/pco';
 import { sydneyDate } from '../sync/util';
 import { isLive } from '../signup';
+import { countryOfNumber, e164Of, splitPhone } from '../phone';
 import { signupConfig } from '../signup/config';
 import { memberConfig } from './config';
 
 export type Address = { street1: string; street2: string; city: string; state: string; zip: string; country: string };
 export type DetailsInput = {
-  prefix?: string;
   firstName?: string;
   lastName?: string;
   /** YYYY-MM-DD */
@@ -22,10 +22,12 @@ export type DetailsInput = {
 };
 export type PersonSummary = { id: string; firstName: string; lastName: string; status: string; membership: string | null };
 export type PersonDetails = PersonSummary & {
-  prefix: string;
   birthdate: string;
   emails: { address: string; primary: boolean }[];
+  /** In national form, e.g. "0410 527 179" */
   phone: string;
+  /** ISO country of the phone number, for the form's dropdown */
+  phoneCountry: string;
   address: Address | null;
   /** Ticked "Communication preferences" option names */
   lists: string[];
@@ -135,10 +137,10 @@ export class LivePeople implements PeopleApi {
     const unsubId = await this.fieldId('Unsubscribed');
     const d: PersonDetails = {
       ...summary(r.data),
-      prefix: a.name_prefix ?? '',
       birthdate: a.birthdate ?? '',
       emails: [],
       phone: '',
+      phoneCountry: 'AU',
       address: null,
       lists: [],
       unsubscribed: false,
@@ -149,7 +151,9 @@ export class LivePeople implements PeopleApi {
       const x = inc.attributes;
       if (inc.type === 'Email') d.emails.push({ address: (x.address ?? '').trim(), primary: Boolean(x.primary) });
       else if (inc.type === 'PhoneNumber' && (!d.phone || (x.primary && !phonePrimary))) {
-        d.phone = x.number ?? '';
+        const sp = splitPhone(x);
+        d.phone = sp.national;
+        d.phoneCountry = sp.country;
         phonePrimary = Boolean(x.primary);
       } else if (inc.type === 'Address' && (!d.address || (x.primary && !addressPrimary))) {
         d.address = {
@@ -190,17 +194,7 @@ export class LivePeople implements PeopleApi {
     }
     if (Object.keys(attrs).length) await this.pco.request('PATCH', `/people/${id}`, person(id, attrs));
 
-    // Prefix is written on its own so a problem with it can't block the other fields.
-    if (input.prefix !== undefined && !same(input.prefix, cur.prefix) && input.prefix.trim()) {
-      try {
-        await this.pco.request('PATCH', `/people/${id}`, person(id, { name_prefix: input.prefix.trim() }));
-        changed.push('prefix');
-      } catch (e) {
-        console.error('[members] prefix not saved', e instanceof Error ? e.message : e);
-      }
-    }
-
-    if (input.phone && input.phone.trim() && !same(input.phone, cur.phone)) {
+    if (input.phone && input.phone.trim() && e164Of(input.phone, cur.phoneCountry) !== e164Of(cur.phone, cur.phoneCountry)) {
       const phones = await this.pco.all(`/people/${id}/phone_numbers`);
       const target = phones.find((p: J) => p.attributes.primary) ?? phones[0];
       if (target) {
@@ -248,7 +242,6 @@ export class LivePeople implements PeopleApi {
     const cur = await this.get(id);
     if (!cur) return [];
     const fill: DetailsInput = {};
-    if (!cur.prefix && input.prefix) fill.prefix = input.prefix;
     if (!cur.birthdate && input.birthdate) fill.birthdate = input.birthdate;
     if (!cur.phone && input.phone) fill.phone = input.phone;
     if (!cur.address && input.address && Object.values(input.address).some(Boolean)) fill.address = input.address;
@@ -385,10 +378,10 @@ function demoSeed(): void {
     lastName: 'Person',
     status: 'active',
     membership: memberConfig.membership.society,
-    prefix: '',
     birthdate: '',
     emails: [{ address: 'test@example.com', primary: true }],
     phone: '',
+    phoneCountry: 'AU',
     address: null,
     lists: ['Society news'],
     unsubscribed: false,
@@ -420,9 +413,12 @@ export class DemoPeople implements PeopleApi {
     const changed: string[] = [];
     if (input.firstName?.trim() && !same(input.firstName, p.firstName)) (p.firstName = input.firstName.trim()), changed.push('first name');
     if (input.lastName?.trim() && !same(input.lastName, p.lastName)) (p.lastName = input.lastName.trim()), changed.push('last name');
-    if (input.prefix?.trim() && !same(input.prefix, p.prefix)) (p.prefix = input.prefix.trim()), changed.push('prefix');
     if (input.birthdate && !same(input.birthdate, p.birthdate)) (p.birthdate = input.birthdate), changed.push('birthday');
-    if (input.phone?.trim() && !same(input.phone, p.phone)) (p.phone = input.phone.trim()), changed.push('phone');
+    if (input.phone?.trim() && e164Of(input.phone, p.phoneCountry) !== e164Of(p.phone, p.phoneCountry)) {
+      p.phoneCountry = countryOfNumber(input.phone, p.phoneCountry) || p.phoneCountry;
+      p.phone = input.phone.trim();
+      changed.push('phone');
+    }
     if (input.address && Object.values(input.address).some((v) => (v ?? '').trim())) {
       const next = { street1: '', street2: '', city: '', state: '', zip: '', country: '', ...(p.address ?? {}), ...input.address } as Address;
       if (JSON.stringify(next) !== JSON.stringify(p.address)) (p.address = next), changed.push('address');
@@ -432,7 +428,6 @@ export class DemoPeople implements PeopleApi {
   async fillBlanks(id: string, input: DetailsInput): Promise<string[]> {
     const p = this.must(id);
     const fill: DetailsInput = {};
-    if (!p.prefix && input.prefix) fill.prefix = input.prefix;
     if (!p.birthdate && input.birthdate) fill.birthdate = input.birthdate;
     if (!p.phone && input.phone) fill.phone = input.phone;
     if (!p.address && input.address && Object.values(input.address).some(Boolean)) fill.address = input.address;
@@ -471,8 +466,8 @@ export class DemoPeople implements PeopleApi {
     if (!id) {
       id = String(++demoSeq);
       demo.set(id, {
-        id, firstName: s.first, lastName: s.last, status: 'active', membership: friendTypeFor(s.lists), prefix: '', birthdate: '',
-        emails: [{ address: s.email, primary: true }], phone: '', address: null, lists: [], unsubscribed: false, notes: [], roll: {},
+        id, firstName: s.first, lastName: s.last, status: 'active', membership: friendTypeFor(s.lists), birthdate: '',
+        emails: [{ address: s.email, primary: true }], phone: '', phoneCountry: 'AU', address: null, lists: [], unsubscribed: false, notes: [], roll: {},
       });
       created = true;
     }

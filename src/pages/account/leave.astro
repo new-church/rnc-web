@@ -20,7 +20,7 @@ const error = Astro.url.searchParams.get('error');
       <h1 class="mt-0 mb-4 text-h1">Deactivate your account</h1>
     </div>
     <div class="max-w-[640px]">
-      <AccountNav current="leave" csrf={session.csrf} />
+      <AccountNav csrf={session.csrf} />
       <Card title="Before you go">
         <ul class="mt-0 mb-4 pl-5">
           <li>You’ll stop receiving all our emails and printed mail.</li>

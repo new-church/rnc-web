@@ -2,55 +2,192 @@
 /**
  * The optional "more details" fields shared by the signup form and the details page. The server reads them with
  * parseExtra() in lib/members/validate.ts, so the names here must match.
+ *
+ * Phone: a country dropdown (Australia first) and the number; the server turns them into what Planning Center wants.
+ * Address: when address search is available, people search and pick an address and the fields fill in locked; "Edit
+ * manually" unlocks them. Without it (no key) the fields are plain inputs.
  */
 import Input from './Input.astro';
+import { countryOptions } from '../lib/phone';
+import { addressLookupAvailable } from '../lib/postgrid/addresses';
 import type { Address } from '../lib/members/people';
 
 interface Props {
-  prefix?: string;
   birthdate?: string;
   phone?: string;
+  phoneCountry?: string;
   address?: Address | null;
   idPrefix?: string;
 }
 
-const { prefix = '', birthdate = '', phone = '', address = null, idPrefix = 'x' } = Astro.props;
+const { birthdate = '', phone = '', phoneCountry = 'AU', address = null, idPrefix = 'x' } = Astro.props;
 const a = address ?? { street1: '', street2: '', city: '', state: '', zip: '', country: 'AU' };
-const countries = [
-  ['AU', 'Australia'],
-  ['NZ', 'New Zealand'],
-  ['GB', 'United Kingdom'],
-  ['US', 'United States'],
-  ['CA', 'Canada'],
-];
 const country = a.country || 'AU';
-if (!countries.some(([c]) => c === country)) countries.push([country, country]);
+const lookup = addressLookupAvailable();
+const hasAddress = Boolean(a.street1 || a.city || a.zip);
+const { priority, rest } = countryOptions();
+
+const field = 'font-body text-base text-text-body px-4 py-3 rounded-md border border-border-strong bg-white outline-none transition-[box-shadow,border-color] duration-150 focus:border-accent-primary focus:shadow-glow w-full';
+const label = 'flex flex-col gap-1.5 font-display text-sm text-text-heading';
 ---
 
 <div class="flex flex-col gap-4">
-  <div class="grid grid-cols-1 sm:grid-cols-[8rem_1fr] gap-4">
-    <Input label="Title" id={`${idPrefix}-prefix`} name="prefix" value={prefix} placeholder="Mr, Mrs, Dr…" autocomplete="honorific-prefix" />
-    <Input label="Date of birth" id={`${idPrefix}-birthdate`} name="birthdate" type="date" value={birthdate} autocomplete="bday" />
-  </div>
-  <Input label="Phone" id={`${idPrefix}-phone`} name="phone" type="tel" value={phone} autocomplete="tel" />
-  <fieldset class="border-0 p-0 m-0 flex flex-col gap-3">
-    <legend class="font-display text-sm text-text-heading mb-1">Postal address</legend>
-    <Input label="Street" id={`${idPrefix}-street1`} name="street1" value={a.street1} autocomplete="address-line1" />
-    <Input label="Street (second line)" id={`${idPrefix}-street2`} name="street2" value={a.street2} autocomplete="address-line2" />
-    <div class="grid grid-cols-1 sm:grid-cols-[1fr_7rem_7rem] gap-3">
-      <Input label="Suburb or town" id={`${idPrefix}-city`} name="city" value={a.city} autocomplete="address-level2" />
-      <Input label="State" id={`${idPrefix}-state`} name="state" value={a.state} autocomplete="address-level1" />
-      <Input label="Postcode" id={`${idPrefix}-zip`} name="zip" value={a.zip} autocomplete="postal-code" />
-    </div>
-    <label class="flex flex-col gap-1.5 font-display text-sm text-text-heading">
-      Country
-      <select
-        name="country"
-        autocomplete="country"
-        class="font-body text-base text-text-body px-4 py-3 rounded-md border border-border-strong bg-white outline-none focus:border-accent-primary focus:shadow-glow"
-      >
-        {countries.map(([c, n]) => <option value={c} selected={c === country}>{n}</option>)}
+  <Input label="Date of birth" id={`${idPrefix}-birthdate`} name="birthdate" type="date" value={birthdate} autocomplete="bday" />
+
+  <div class={label}>
+    <label for={`${idPrefix}-phone`}>Phone</label>
+    <div class="grid grid-cols-[minmax(0,9.5rem)_1fr] gap-3">
+      <select name="phoneCountry" aria-label="Phone country" autocomplete="off" class:list={[field, 'select-field']}>
+        {priority.map((c) => <option value={c.iso} selected={c.iso === phoneCountry}>{c.iso} {c.callingCode}</option>)}
+        <option disabled>──────────</option>
+        {rest.map((c) => <option value={c.iso} selected={c.iso === phoneCountry}>{c.name} {c.callingCode}</option>)}
       </select>
-    </label>
+      <input id={`${idPrefix}-phone`} name="phone" type="tel" value={phone} autocomplete="tel-national" placeholder="0412 345 678" class={field} />
+    </div>
+  </div>
+
+  <fieldset class="border-0 p-0 m-0 flex flex-col gap-3" data-address data-lookup={lookup ? '1' : '0'} data-has={hasAddress ? '1' : '0'}>
+    <legend class="font-display text-sm text-text-heading mb-1">Postal address</legend>
+
+    {lookup && (
+      <div class="relative">
+        <label class={label}>
+          Find your address
+          <input type="search" data-address-search autocomplete="off" placeholder="Start typing your street address…" role="combobox" aria-expanded="false" aria-controls={`${idPrefix}-addr-list`} class={field} />
+        </label>
+        <ul id={`${idPrefix}-addr-list`} data-address-list role="listbox" hidden class="absolute z-20 left-0 right-0 mt-1 max-h-64 overflow-auto rounded-md border border-border-soft bg-white py-1 shadow-md list-none m-0 p-0"></ul>
+        <p data-address-status class="m-0 mt-1 text-[13px] text-text-muted" role="status"></p>
+      </div>
+    )}
+
+    <div data-address-fields class="flex flex-col gap-3" hidden={lookup && !hasAddress}>
+      <label class={label}>Street<input name="street1" value={a.street1} autocomplete="address-line1" class={field} /></label>
+      <label class={label}>Street (second line)<input name="street2" value={a.street2} autocomplete="address-line2" class={field} /></label>
+      <div class="grid grid-cols-1 sm:grid-cols-[1fr_7rem_7rem] gap-3">
+        <label class={label}>Suburb or town<input name="city" value={a.city} autocomplete="address-level2" class={field} /></label>
+        <label class={label}>State<input name="state" value={a.state} autocomplete="address-level1" class={field} /></label>
+        <label class={label}>Postcode<input name="zip" value={a.zip} autocomplete="postal-code" class={field} /></label>
+      </div>
+      <label class={label}>
+        Country
+        <select name="country" autocomplete="country" class:list={[field, 'select-field']}>
+          {priority.map((c) => <option value={c.iso} selected={c.iso === country}>{c.name}</option>)}
+          <option disabled>──────────</option>
+          {rest.map((c) => <option value={c.iso} selected={c.iso === country}>{c.name}</option>)}
+        </select>
+      </label>
+    </div>
+
+    {lookup && <button type="button" data-address-edit class="self-start bg-transparent border-0 p-0 font-display text-sm text-link hover:text-link-hover cursor-pointer"></button>}
   </fieldset>
 </div>
+
+<style>
+  /* One chevron, inset from the right edge, for every dropdown (the browser's own arrow sits oddly in these rounded boxes). */
+  .select-field {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 2.75rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235b3fa0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1.1rem center;
+    background-size: 14px;
+  }
+  [data-address-fields] input[readonly] {
+    background-color: var(--color-surface-tint);
+    color: var(--color-text-muted);
+    cursor: default;
+  }
+  [data-address-fields] select.locked {
+    pointer-events: none;
+    background-color: var(--color-surface-tint);
+    color: var(--color-text-muted);
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var root = document.querySelector('[data-address]');
+    if (!root) return;
+    var lookup = root.getAttribute('data-lookup') === '1';
+    if (!lookup) return;
+    var hasAddress = root.getAttribute('data-has') === '1';
+    var fields = root.querySelector('[data-address-fields]');
+    var edit = root.querySelector('[data-address-edit]');
+    var search = root.querySelector('[data-address-search]');
+    var list = root.querySelector('[data-address-list]');
+    var status = root.querySelector('[data-address-status]');
+    var inputs = Array.prototype.slice.call(fields.querySelectorAll('input,select'));
+    var stack = []; // drill-down into a building or street
+    var timer, abort, items = [], active = -1;
+
+    function lock(on) {
+      inputs.forEach(function (i) {
+        if (i.tagName === 'INPUT') i.readOnly = on;
+        else { i.classList.toggle('locked', on); i.tabIndex = on ? -1 : 0; }
+      });
+      edit.textContent = fields.hidden ? 'Or type the address in yourself' : 'Edit address manually';
+      edit.hidden = !on && !fields.hidden;
+    }
+    function showFields() { fields.hidden = false; }
+    lock(true);
+    edit.addEventListener('click', function () { showFields(); lock(false); inputs[0].focus(); edit.hidden = true; });
+
+    function setStatus(msg) { status.textContent = msg || ''; }
+    function close() { list.hidden = true; search.setAttribute('aria-expanded', 'false'); active = -1; }
+    function render(previews) {
+      items = previews; list.innerHTML = '';
+      if (!previews.length) { var none = document.createElement('li'); none.className = 'px-4 py-2.5 text-sm text-text-muted'; none.textContent = 'No matches. You can type the address in yourself below.'; list.appendChild(none); }
+      previews.forEach(function (p, idx) {
+        var li = document.createElement('li'); li.setAttribute('role', 'option');
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'block w-full px-4 py-2.5 text-left bg-transparent border-0 cursor-pointer hover:bg-violet-50';
+        var t = document.createElement('span'); t.className = 'block font-body text-sm text-text-body'; t.textContent = p.text;
+        b.appendChild(t);
+        if (p.description) { var d = document.createElement('span'); d.className = 'block font-body text-xs text-text-muted'; d.textContent = p.description + (p.type.toLowerCase() === 'address' ? '' : ' ›'); b.appendChild(d); }
+        b.addEventListener('click', function () { pick(p); });
+        li.appendChild(b); list.appendChild(li);
+      });
+      list.hidden = false; search.setAttribute('aria-expanded', 'true');
+    }
+    function highlight() {
+      Array.prototype.forEach.call(list.querySelectorAll('button'), function (b, i) { b.classList.toggle('bg-violet-50', i === active); });
+    }
+    function fail(msg) { setStatus(msg); showFields(); lock(false); close(); }
+    function query() {
+      var q = search.value.trim(); var container = stack.length ? stack[stack.length - 1].id : '';
+      if (!container && q.length < 3) { close(); setStatus(''); return; }
+      if (abort) abort.abort(); abort = new AbortController();
+      var params = new URLSearchParams(); if (container) params.set('container', container); else params.set('q', q);
+      setStatus('Searching…');
+      fetch('/api/address/complete?' + params.toString(), { signal: abort.signal }).then(function (r) { return r.json().then(function (b) { return { ok: r.ok, b: b }; }); })
+        .then(function (x) { if (!x.ok) { fail(x.b.error || 'Address search isn’t working just now. Please type the address in.'); return; } setStatus(''); render(x.b.previews || []); })
+        .catch(function (e) { if (e.name !== 'AbortError') fail('Address search isn’t working just now. Please type the address in.'); });
+    }
+    function pick(p) {
+      if (p.type.toLowerCase() !== 'address') { stack.push({ id: p.id }); search.value = ''; query(); return; }
+      setStatus('Getting the address…');
+      fetch('/api/address/complete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: p.id }) })
+        .then(function (r) { return r.json().then(function (b) { return { ok: r.ok, b: b }; }); })
+        .then(function (x) {
+          if (!x.ok || !x.b.address) { fail(x.b.error || 'Couldn’t get that address. Please type it in.'); return; }
+          var a = x.b.address;
+          var set = function (n, v) { var el = fields.querySelector('[name=' + n + ']'); if (el) el.value = v || ''; };
+          set('street1', a.street1); set('street2', a.street2); set('city', a.city); set('state', a.state); set('zip', a.zip);
+          var c = fields.querySelector('[name=country]');
+          if (c && a.country) { if (!c.querySelector('option[value="' + a.country + '"]')) { var o = document.createElement('option'); o.value = a.country; o.textContent = a.country; c.appendChild(o); } c.value = a.country; }
+          stack = []; search.value = ''; setStatus('Address filled in. Check it looks right.'); close(); showFields(); lock(true);
+        })
+        .catch(function () { fail('Couldn’t get that address. Please type it in.'); });
+    }
+    search.addEventListener('input', function () { stack = []; clearTimeout(timer); timer = setTimeout(query, 250); });
+    search.addEventListener('keydown', function (e) {
+      var n = list.querySelectorAll('button').length;
+      if (e.key === 'ArrowDown' && n) { e.preventDefault(); active = (active + 1) % n; highlight(); }
+      else if (e.key === 'ArrowUp' && n) { e.preventDefault(); active = (active - 1 + n) % n; highlight(); }
+      else if (e.key === 'Enter') { if (active >= 0 && items[active]) { e.preventDefault(); pick(items[active]); } else e.preventDefault(); }
+      else if (e.key === 'Escape') close();
+    });
+    document.addEventListener('pointerdown', function (e) { if (!root.contains(e.target)) close(); });
+    if (hasAddress) setStatus('');
+  })();
+</script>
