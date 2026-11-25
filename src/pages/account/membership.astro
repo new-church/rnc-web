@@ -52,24 +52,30 @@ const notice = Object.keys(notices).find((k) => sp.get(k) === '1');
       <div class="flex flex-col gap-6">
         {member ? (
           <>
-          <Card title="Our records show you’re a member">
-            <p class="m-0 mb-3">
-              You’re a member of The Sydney Society of The New Church. Thank you.
-            </p>
-            {pendingResign ? (
-              <>
-                <p class="m-0 mb-3 text-sm text-text-muted">
-                  You asked to resign on {new Date(pendingResign.data.submittedAt).toLocaleDateString('en-AU', { dateStyle: 'long' })}. The Committee deals with it at its next meeting, and you’ll stay a member until then.
-                </p>
-                <form method="post" action="/api/account/membership">
-                  <input type="hidden" name="csrf" value={session.csrf} />
-                  <input type="hidden" name="action" value="withdraw" />
-                  <input type="hidden" name="request" value={pendingResign.sk} />
-                  <Button type="submit" size="sm" variant="secondary">Withdraw my request</Button>
-                </form>
-              </>
-            ) : (
-              <>
+            <Card title="Our records show you’re a member">
+              <p class="m-0">
+                You’re a member of The Sydney Society of The New Church. Thank you.
+              </p>
+              {pendingResign && (
+                <>
+                  <p class="mt-3 mb-3 text-sm text-text-muted">
+                    You asked to resign on {new Date(pendingResign.data.submittedAt).toLocaleDateString('en-AU', { dateStyle: 'long' })}. The Committee deals with it at its next meeting, and you’ll stay a member until then.
+                  </p>
+                  <form method="post" action="/api/account/membership">
+                    <input type="hidden" name="csrf" value={session.csrf} />
+                    <input type="hidden" name="action" value="withdraw" />
+                    <input type="hidden" name="request" value={pendingResign.sk} />
+                    <Button type="submit" size="sm" variant="secondary">Withdraw my request</Button>
+                  </form>
+                </>
+              )}
+            </Card>
+            <Card variant="tint" title="What membership means">
+              <MembershipInfo />
+            </Card>
+            {!pendingResign && (
+              <section class="border-t border-border-soft pt-6" aria-labelledby="resign-heading">
+                <h2 id="resign-heading" class="m-0 mb-2 font-display text-sm font-semibold text-text-heading">Resigning</h2>
                 <p class="m-0 mb-3 text-sm text-text-muted">
                   You can resign at any time. You’ll stay on our list as a friend. Your request goes to the Committee at its next meeting.
                 </p>
@@ -91,12 +97,8 @@ const notice = Object.keys(notices).find((k) => sp.get(k) === '1');
                     </div>
                   </form>
                 </details>
-              </>
+              </section>
             )}
-          </Card>
-            <Card variant="tint" title="What membership means">
-              <MembershipInfo />
-            </Card>
           </>
         ) : pendingApply ? (
           <>

@@ -45,8 +45,9 @@ export const memberConfig = {
     member: 'Member',
   },
   /**
-   * Optional Planning Center custom fields that make up the Roll Book. They do not exist yet: each is written only if
-   * a field with this exact name exists, and every change is also recorded as a Planning Center note.
+   * Planning Center custom fields that make up the Roll Book (the "Roll Book" tab; created by hand on 2026-11-25 because
+   * the API refuses to create fields). Each is written only if a field with this exact name exists, and every change is
+   * also recorded as a Planning Center note.
    */
   rollBookFields: {
     joined: 'Membership joined',

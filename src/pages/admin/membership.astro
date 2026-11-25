@@ -5,8 +5,21 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 import { memberKv } from '../../lib/members/kv';
 import { openRequests } from '../../lib/members/membership';
 import { memberConfig } from '../../lib/members/config';
+import { isLive } from '../../lib/signup';
+import { Pco } from '../../lib/sync/pco';
 
 const session = Astro.locals.adminSession!;
+
+// Which Roll Book fields are missing in Planning Center right now (production only; a failed check shows nothing).
+let missingFields: string[] = [];
+if (isLive()) {
+  try {
+    const have = new Set((await Pco.fromEnv().all('/field_definitions')).map((d: { attributes: { name: string } }) => d.attributes.name));
+    missingFields = Object.values(memberConfig.rollBookFields).filter((n) => !have.has(n));
+  } catch {
+    missingFields = [];
+  }
+}
 const open = await openRequests(memberKv());
 const sp = Astro.url.searchParams;
 const today = new Date().toISOString().slice(0, 10);
@@ -95,7 +108,10 @@ const field = 'rounded-md border border-border-strong bg-white px-3 py-2 text-sm
     </div>
   )}
 
-  <p class="mt-8 text-xs text-ink-muted max-w-2xl">
-    Planning Center Roll Book fields not set up yet are skipped and noted: {Object.values(memberConfig.rollBookFields).join(', ')}.
-  </p>
+  {missingFields.length > 0 && (
+    <p class="mt-8 text-xs text-ink-muted max-w-2xl">
+      These Roll Book fields don’t exist in Planning Center yet, so they are skipped (the decision is still saved as a
+      note): {missingFields.join(', ')}.
+    </p>
+  )}
 </AdminLayout>

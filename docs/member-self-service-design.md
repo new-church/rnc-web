@@ -273,7 +273,7 @@ While testing, a test application, approval or deactivation changes your real Pl
 **Before it goes live**
 1. Push the migration `supabase/migrations/20261125000000_items_incr_and_cron_prune.sql` (`npm run db:push`). Signup and sign-in rate limiting need `items_incr`.
 2. Optionally set `MEMBERSHIP_NOTIFY_TO` in Vercel Production (defaults to the church office address). Everything else uses settings that already exist, including `SIGNUP_SECRET`.
-3. Create the Roll Book fields in Planning Center (names in `src/lib/members/config.ts`): Membership joined, Membership left, Committee resolution, Proposed by, Seconded by, Belief avowal. Until then the site writes notes only.
+3. Done 2026-11-25: the six Roll Book fields (Membership joined and left as dates; Committee resolution, Proposed by, Seconded by and Belief avowal as text) are in a "Roll Book" tab in Planning Center, created by hand because the API refuses to create custom fields. Checked with a write, overwrite and read-back on a temporary person (deleted). Planning Center shows dates in the organisation's format (dd/mm/yyyy).
 4. Done 2026-11-25 on a temporary test person (deleted): the API accepts `status` (inactive and active), `membership` and `birthdate`, and phone numbers and addresses as described above. It does not accept a title.
 5. Remove the legacy signed-link code in `src/lib/signup/index.ts` (and in `sc-www`) once links emailed before the change have expired (7 days after deploy).
 
