@@ -7,7 +7,7 @@ const year = new Date().getFullYear();
 const ACNC_URL = 'https://www.acnc.gov.au/charity/charities/f2aa6689-38af-e811-a95e-000d3ad24c60/documents/';
 // The ACNC Registered Charity Tick can only be downloaded by the charity from the ACNC Charity Portal (it is licensed,
 // not freely copyable). Save it as src/assets/acnc/registered-charity-tick.png (or .svg/.jpg/.webp) and it appears here
-// by itself, on a white tile as the ACNC style guide allows. Keep its proportions and at least 15mm (about 60px) wide.
+// by itself, on a white tile as the ACNC style guide allows. Keep its proportions and at least 15mm (about 60px) wide; it already has its own clear space built in.
 const ticks = import.meta.glob<{ default: { src: string; width: number; height: number } }>(
   '../assets/acnc/registered-charity-tick.{png,jpg,jpeg,svg,webp}',
   { eager: true },
@@ -141,8 +141,8 @@ const showSignup = !Astro.url.pathname.startsWith('/subscribe');
   <div class="border-t border-white/10 mx-auto max-w-[1100px] px-6 py-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-5 text-center sm:text-left">
     {
       tick && (
-        <a href={ACNC_URL} rel="noopener noreferrer" target="_blank" class="shrink-0 rounded-md bg-white p-2 leading-none">
-          <img src={tick.src} width="64" alt="ACNC Registered Charity Tick" class="block h-auto w-16" />
+        <a href={ACNC_URL} rel="noopener noreferrer" target="_blank" class="shrink-0 rounded-md bg-white p-1 leading-none">
+          <img src={tick.src} width="80" height="80" alt="ACNC Registered Charity Tick: view our listing on the ACNC Charity Register" class="block h-20 w-20" />
         </a>
       )
     }
