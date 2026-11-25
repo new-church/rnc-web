@@ -1,12 +1,12 @@
 # Privacy Policy
 
-**Sydney Society of the New Church** (Roseville New Church)
+**The Sydney Society of The New Church** (Roseville New Church)
 
 **Last updated:** [DD Month YYYY]
 **Effective from:** [DD Month YYYY]
 
-> **Draft for review.** This document is a starting draft prepared for the Sydney
-> Society of the New Church. It is general information, not legal advice, and
+> **Draft for review.** This document is a starting draft prepared for
+> The Sydney Society of The New Church. It is general information, not legal advice, and
 > should be reviewed by an Australian lawyer (and by the Society's committee)
 > before publication. Items in `[square brackets]` need to be confirmed.
 >
@@ -25,7 +25,7 @@
 
 ## 1. Our commitment
 
-The Sydney Society of the New Church [ABN/ACN or incorporated association number
+The Sydney Society of The New Church [ABN/ACN or incorporated association number
 to be confirmed] (**we**, **us**, **our**) is the organisation behind Roseville
 New Church. We value the trust our members, visitors, supporters and the wider
 community place in us.
@@ -274,7 +274,7 @@ Australian Information Commissioner:
 
 ## 13. Contact us
 
-**Privacy Officer — Sydney Society of the New Church**
+**Privacy Officer — The Sydney Society of The New Church**
 2B Shirley Rd, Roseville NSW 2069, Australia
 Phone: 02 9416 7026
 Email: [privacy@rosevillenewchurch.com.au]

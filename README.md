@@ -1,6 +1,6 @@
 # Roseville New Church — Website
 
-Astro + Tailwind v4 site for **Roseville New Church** (Sydney Society of the New Church), hosted on Vercel.
+Astro + Tailwind v4 site for **Roseville New Church** (The Sydney Society of The New Church), hosted on Vercel.
 
 Brand reference and design tokens live in [`design-system-claude/`](design-system-claude/) (Claude Design kit). The live site reimplements that UI kit with Tailwind utilities — not the React prototype bundle.
 

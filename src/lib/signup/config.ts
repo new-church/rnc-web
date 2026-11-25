@@ -17,7 +17,7 @@ export const signupConfig = {
    * checkbox field in Planning Center.
    */
   lists: [
-    { id: 'society', label: 'Society news', hint: 'News and notices from the Sydney Society of the New Church', option: 'Society news', checked: true },
+    { id: 'society', label: 'Society news', hint: 'News and notices from The Sydney Society of The New Church', option: 'Society news', checked: true },
     { id: 'centre', label: 'Swedenborg Centre news', hint: 'The monthly Swedenborg Centre enews', option: 'Swedenborg Centre news', checked: false },
     { id: 'candela', label: 'Candela', hint: 'The Candela magazine, by email', option: 'Candela', checked: false },
   ],

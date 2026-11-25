@@ -1,12 +1,12 @@
 # Website Terms of Use
 
-**Sydney Society of the New Church** (Roseville New Church)
+**The Sydney Society of The New Church** (Roseville New Church)
 
 **Last updated:** [DD Month YYYY]
 **Effective from:** [DD Month YYYY]
 
-> **Draft for review.** This document is a starting draft prepared for the Sydney
-> Society of the New Church. It is general information, not legal advice, and
+> **Draft for review.** This document is a starting draft prepared for
+> The Sydney Society of The New Church. It is general information, not legal advice, and
 > should be reviewed by an Australian lawyer (and by the Society's committee)
 > before publication. Items in `[square brackets]` need to be confirmed.
 
@@ -15,7 +15,7 @@
 ## 1. About these terms
 
 This website at [www.rosevillenewchurch.com.au] (**Site**) is operated by the
-**Sydney Society of the New Church** [ABN/ACN or incorporated association number
+**The Sydney Society of The New Church** [ABN/ACN or incorporated association number
 to be confirmed] of 2B Shirley Rd, Roseville NSW 2069, Australia (**we**, **us**,
 **our**).
 
@@ -99,7 +99,7 @@ information in accordance with our Privacy Policy.
 
 Unless otherwise stated, the content of the Site — including text, sermons,
 articles, newsletters, photographs, artwork, logos, layout and code — is owned
-by or licensed to the Sydney Society of the New Church and is protected by
+by or licensed to The Sydney Society of The New Church and is protected by
 Australian and international copyright and trade mark laws.
 
 Some material on the Site (for example, translations of Emanuel Swedenborg's
@@ -198,7 +198,7 @@ severed and the remainder continues to apply.
 
 ## 17. Contact us
 
-**Sydney Society of the New Church**
+**The Sydney Society of The New Church**
 2B Shirley Rd, Roseville NSW 2069, Australia
 Phone: 02 9416 7026
 Email: [pastor@rosevillenewchurch.com.au]
