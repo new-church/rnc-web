@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { countryIso, countryOptions, countryOfNumber, e164Of, phoneForPlanningCenter, splitPhone } from "../src/lib/phone";
-import { formAddress } from "../src/lib/postgrid/addresses";
+import { addressFromComponents } from "../src/lib/address";
 import { parseExtra } from "../src/lib/members/validate";
 
 const ok = (country: string, input: string) => {
@@ -43,11 +43,14 @@ test("country menus start with Australia, then NZ, UK, US, Canada", () => {
   assert.equal(countryIso("Atlantis"), "");
 });
 
-test("a suggested address fills the form's fields, with the country as a code", () => {
+test("Google's address parts become the form's fields: unit/number, short road name, suburb, state and country codes", () => {
+  const c = (type: string, longText: string, shortText = longText) => ({ types: [type], longText, shortText });
   assert.deepEqual(
-    formAddress({ line1: "10/70 Chandos St", line2: null, line3: "Level 2", line4: null, city: "St Leonards", provinceOrState: "NSW", postalOrZip: "2065", country: "Australia" }),
-    { street1: "10/70 Chandos St", street2: "Level 2", city: "St Leonards", state: "NSW", zip: "2065", country: "AU" },
+    addressFromComponents([c("subpremise", "10"), c("street_number", "70"), c("route", "Chandos Street", "Chandos St"), c("locality", "St Leonards"), c("administrative_area_level_1", "New South Wales", "NSW"), c("country", "Australia", "AU"), c("postal_code", "2065")]),
+    { street1: "10/70 Chandos St", street2: "", city: "St Leonards", state: "NSW", zip: "2065", country: "AU" },
   );
+  assert.equal(addressFromComponents([c("street_number", "4"), c("route", "Shirley Road", "Shirley Rd"), c("postal_town", "London"), c("country", "United Kingdom", "GB")]).city, "London", "UK towns come from postal_town");
+  assert.equal(addressFromComponents([]).country, "AU");
 });
 
 test("the form reads the phone with its country and the address with a country that exists", () => {

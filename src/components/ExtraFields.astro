@@ -9,7 +9,7 @@
  */
 import Input from './Input.astro';
 import { countryOptions } from '../lib/phone';
-import { addressLookupAvailable } from '../lib/postgrid/addresses';
+import { addressLookupAvailable } from '../lib/address';
 import type { Address } from '../lib/members/people';
 
 interface Props {
@@ -118,7 +118,9 @@ const label = 'flex flex-col gap-1.5 font-display text-sm text-text-heading';
     var list = root.querySelector('[data-address-list]');
     var status = root.querySelector('[data-address-status]');
     var inputs = Array.prototype.slice.call(fields.querySelectorAll('input,select'));
-    var stack = []; // drill-down into a building or street
+    var session = '';
+    var newSession = function () { session = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ''; };
+    newSession(); // one search session per address: Google bills the typing plus the pick as one
     var timer, abort, items = [], active = -1;
 
     function lock(on) {
@@ -154,19 +156,18 @@ const label = 'flex flex-col gap-1.5 font-display text-sm text-text-heading';
     }
     function fail(msg) { setStatus(msg); showFields(); lock(false); close(); }
     function query() {
-      var q = search.value.trim(); var container = stack.length ? stack[stack.length - 1].id : '';
-      if (!container && q.length < 3) { close(); setStatus(''); return; }
+      var q = search.value.trim();
+      if (q.length < 3) { close(); setStatus(''); return; }
       if (abort) abort.abort(); abort = new AbortController();
-      var params = new URLSearchParams(); if (container) params.set('container', container); else params.set('q', q);
+      var params = new URLSearchParams(); params.set('q', q); if (session) params.set('session', session);
       setStatus('Searching…');
       fetch('/api/address/complete?' + params.toString(), { signal: abort.signal }).then(function (r) { return r.json().then(function (b) { return { ok: r.ok, b: b }; }); })
         .then(function (x) { if (!x.ok) { fail(x.b.error || 'Address search isn’t working just now. Please type the address in.'); return; } setStatus(''); render(x.b.previews || []); })
         .catch(function (e) { if (e.name !== 'AbortError') fail('Address search isn’t working just now. Please type the address in.'); });
     }
     function pick(p) {
-      if (p.type.toLowerCase() !== 'address') { stack.push({ id: p.id }); search.value = ''; query(); return; }
       setStatus('Getting the address…');
-      fetch('/api/address/complete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: p.id }) })
+      fetch('/api/address/complete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: p.id, session: session }) })
         .then(function (r) { return r.json().then(function (b) { return { ok: r.ok, b: b }; }); })
         .then(function (x) {
           if (!x.ok || !x.b.address) { fail(x.b.error || 'Couldn’t get that address. Please type it in.'); return; }
@@ -175,11 +176,11 @@ const label = 'flex flex-col gap-1.5 font-display text-sm text-text-heading';
           set('street1', a.street1); set('street2', a.street2); set('city', a.city); set('state', a.state); set('zip', a.zip);
           var c = fields.querySelector('[name=country]');
           if (c && a.country) { if (!c.querySelector('option[value="' + a.country + '"]')) { var o = document.createElement('option'); o.value = a.country; o.textContent = a.country; c.appendChild(o); } c.value = a.country; }
-          stack = []; search.value = ''; setStatus('Address filled in. Check it looks right.'); close(); showFields(); lock(true);
+          newSession(); search.value = ''; setStatus('Address filled in. Check it looks right.'); close(); showFields(); lock(true);
         })
         .catch(function () { fail('Couldn’t get that address. Please type it in.'); });
     }
-    search.addEventListener('input', function () { stack = []; clearTimeout(timer); timer = setTimeout(query, 250); });
+    search.addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(query, 250); });
     search.addEventListener('keydown', function (e) {
       var n = list.querySelectorAll('button').length;
       if (e.key === 'ArrowDown' && n) { e.preventDefault(); active = (active + 1) % n; highlight(); }
