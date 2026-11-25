@@ -36,3 +36,9 @@ test("the governance page links to the constitution, the ACNC register and the m
   assert.match(page, /href="\/account\/membership"/);
   assert.ok(existsSync(join(root, "..", "public", "documents", "sydney-society-constitution.pdf")));
 });
+
+test("preview deployments say they are previews (so a shared branch isn't mistaken for the live site)", () => {
+  const layout = read("layouts/BaseLayout.astro");
+  assert.match(layout, /VERCEL_ENV === 'preview'/);
+  assert.match(layout, /Preview for review/);
+});

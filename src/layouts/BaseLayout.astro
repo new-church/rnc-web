@@ -32,6 +32,10 @@ const pageTitle =
 // Canonical URL on the www host, with a trailing slash to match the sitemap.
 const canonical = new URL(Astro.url.pathname.replace(/\/?$/, '/'), Astro.site).href;
 const imageUrl = new URL(image, Astro.site).href;
+
+// Vercel preview deployments (a branch shared for review) are not the live site: sign-in codes aren't emailed and the forms
+// don't send there, so say so at the top of every page.
+const isPreview = process.env.VERCEL_ENV === 'preview';
 ---
 
 <!doctype html>
@@ -68,6 +72,13 @@ const imageUrl = new URL(image, Astro.site).href;
     <title>{pageTitle}</title>
   </head>
   <body class="min-h-screen flex flex-col">
+    {
+      isPreview && (
+        <div class="bg-violet-100 border-b border-violet-200 px-4 py-2 text-center text-[13px] text-violet-900" role="note">
+          <strong>Preview for review.</strong> This isn’t the live website: sign-in codes aren’t emailed and the forms don’t send here.
+        </div>
+      )
+    }
     <Header currentPath={currentPath} />
     <div class="flex-1">
       <slot />
