@@ -1,6 +1,10 @@
 import type { APIRoute } from 'astro';
 import { listsFor, readToken, signupPath, subscribeInPlanningCenter } from '../../../lib/signup';
 import { alertStaff } from '../../../lib/signup/alert';
+import { memberKv } from '../../../lib/members/kv';
+import { audit } from '../../../lib/members/audit';
+import { peopleApi } from '../../../lib/members/people';
+import { deleteSignup, readSignup, type SignupData } from '../../../lib/members/signup';
 
 export const prerender = false;
 
@@ -9,12 +13,23 @@ const go = (suffix: string, query = '') => new Response(null, { status: 303, hea
 /** Step 2: the person pressed Confirm on the page the email linked to. */
 export const POST: APIRoute = async ({ request }) => {
   const form = await request.formData();
-  const token = String(form.get('t') ?? '');
-  const sub = readToken(token);
+  const ref = String(form.get('s') ?? '');
+  const legacy = String(form.get('t') ?? '');
+  const kv = memberKv();
+
+  let sub: SignupData | null = null;
+  if (ref) sub = await readSignup(kv, ref);
+  else if (legacy) {
+    // Links emailed before the stored-signup change carry a signed token; they still work for their 7 days.
+    const old = readToken(legacy);
+    sub = old && { ...old, extra: {} };
+  }
   if (!sub) return go('/confirm', '?error=expired');
-  let result;
+  const param = ref ? `s=${encodeURIComponent(ref)}` : `t=${encodeURIComponent(legacy)}`;
+
+  let result: { created: boolean; resubscribed: boolean; inactive?: boolean; personId?: string };
   try {
-    result = await subscribeInPlanningCenter(sub);
+    result = ref ? await peopleApi().subscribe(sub) : await subscribeInPlanningCenter(sub);
   } catch (err) {
     console.error('[signup] Planning Center write failed', err);
     await alertStaff('problem', 'a signup could not be saved in Planning Center', [
@@ -22,8 +37,20 @@ export const POST: APIRoute = async ({ request }) => {
       `Lists: ${listsFor(sub.lists).map((l) => l.label).join(', ')}`,
       `Error: ${String((err as Error).message ?? err).slice(0, 300)}`,
     ], ['A confirmed signup could not be saved in Planning Center. Someone needs to add them by hand.']);
-    return go('/confirm', `?error=failed&t=${encodeURIComponent(token)}`);
+    return go('/confirm', `?error=failed&${param}`);
   }
+
+  if (ref) await deleteSignup(kv, ref);
+  if (result.personId) await audit(kv, result.personId, { action: 'signup_confirmed', via: 'signup' });
+
+  if (result.inactive) {
+    await alertStaff('problem', 'a deactivated person asked to subscribe again', [
+      `${sub.first} ${sub.last} <${sub.email}> is deactivated in Planning Center and confirmed a new subscription. They were NOT reactivated.`,
+      'If they should come back, set them active in Planning Center and untick Unsubscribed.',
+    ], ['A deactivated person asked to subscribe again. They were not reactivated; see the email.']);
+    return go('/confirmed');
+  }
+
   await alertStaff('subscriber', `${sub.first} ${sub.last}`, [
     `${sub.first} ${sub.last} <${sub.email}> confirmed their subscription.`,
     `Lists: ${listsFor(sub.lists).map((l) => l.label).join(', ')}`,

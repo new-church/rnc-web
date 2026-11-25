@@ -1,0 +1,101 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { memberKv } from '../../lib/members/kv';
+import { openRequests } from '../../lib/members/membership';
+import { memberConfig } from '../../lib/members/config';
+
+const session = Astro.locals.adminSession!;
+const open = await openRequests(memberKv());
+const sp = Astro.url.searchParams;
+const today = new Date().toISOString().slice(0, 10);
+const when = (iso: string) => new Date(iso).toLocaleDateString('en-AU', { dateStyle: 'long' });
+const field = 'rounded-md border border-border-strong bg-white px-3 py-2 text-sm w-full';
+---
+
+<AdminLayout title="Membership" currentPath={Astro.url.pathname} email={session.email}>
+  <p class="text-ink-muted mb-6 max-w-2xl leading-relaxed">
+    Applications and resignation requests wait here for the Committee. Decide at the meeting first (Article 4: proposed
+    by one member, seconded by another, a majority of the Committee, with the Minister’s advice), then record the
+    decision here. Recording writes the membership type, a note and any Roll Book fields to Planning Center, which is the
+    Society’s Roll Book, and emails the person.
+  </p>
+
+  {sp.get('ok') === '1' && <p class="mb-4 text-sm text-green-800" role="status">Recorded in Planning Center, and the person has been emailed.</p>}
+  {sp.get('error') && <p class="mb-4 text-sm text-red-700" role="alert">{sp.get('error')}</p>}
+
+  <div class="mb-6 flex flex-wrap items-center gap-4 text-sm">
+    <a class="font-display font-semibold text-link hover:text-link-hover" href="/api/admin/membership/register.csv">Download the register of members (CSV)</a>
+    <span class="text-ink-muted">Current members from Planning Center. Keep a dated copy after each change.</span>
+  </div>
+
+  {open.length === 0 ? (
+    <p class="text-ink-muted">Nothing is waiting for the Committee.</p>
+  ) : (
+    <div class="grid gap-4 max-w-3xl">
+      {open.map(({ personId, sk, data }) => (
+        <article class="rounded-lg border border-border-soft bg-white p-5 space-y-3">
+          <h2 class="font-display text-lg font-semibold text-text-heading">
+            {data.kind === 'apply' ? 'Membership application' : 'Resignation request'}: {data.name}
+          </h2>
+          <p class="text-sm text-ink-muted m-0">
+            {data.email} · received {when(data.submittedAt)}
+            {data.alsoDeactivated && ' · has also deactivated their account'}
+          </p>
+          {data.kind === 'apply' && (
+            <p class="text-sm text-ink-muted m-0">
+              Acknowledged the guarantee, affirmed the four beliefs in Article 4 (wording {data.consent?.version}) and agreed to be on the register, on {data.consent ? when(data.consent.at) : '—'}.
+            </p>
+          )}
+          <form method="post" action="/api/admin/membership" class="grid gap-3 sm:grid-cols-2">
+            <input type="hidden" name="personId" value={personId} />
+            <input type="hidden" name="sk" value={sk} />
+            <label class="text-xs font-semibold">
+              Decision
+              <select name="decision" required class={field}>
+                <option value="approve">{data.kind === 'apply' ? 'Approved by the Committee' : 'Resignation accepted'}</option>
+                {data.kind === 'apply' && <option value="decline">Declined</option>}
+              </select>
+            </label>
+            <label class="text-xs font-semibold">
+              Date of the Committee resolution
+              <input type="date" name="resolutionDate" max={today} required class={field} />
+            </label>
+            <label class="text-xs font-semibold">
+              Minute reference
+              <input name="minuteRef" required maxlength="100" placeholder="e.g. 8 Dec 2026, item 4" class={field} />
+            </label>
+            {data.kind === 'apply' ? (
+              <>
+                <label class="text-xs font-semibold">
+                  Proposed by (a member)
+                  <input name="proposedBy" maxlength="100" class={field} />
+                </label>
+                <label class="text-xs font-semibold">
+                  Seconded by (another member)
+                  <input name="secondedBy" maxlength="100" class={field} />
+                </label>
+                <label class="text-xs font-semibold">
+                  Reason if declined (optional, not emailed)
+                  <input name="reason" maxlength="300" class={field} />
+                </label>
+              </>
+            ) : (
+              <p class="text-xs text-ink-muted sm:col-span-2 m-0">
+                Recording this makes {data.name} a friend again (it does not change their emails) and writes the leaving date.
+              </p>
+            )}
+            <div class="sm:col-span-2">
+              <button type="submit" class="rounded-md bg-violet-900 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-800">Record decision</button>
+            </div>
+          </form>
+        </article>
+      ))}
+    </div>
+  )}
+
+  <p class="mt-8 text-xs text-ink-muted max-w-2xl">
+    Planning Center Roll Book fields not set up yet are skipped and noted: {Object.values(memberConfig.rollBookFields).join(', ')}.
+  </p>
+</AdminLayout>

@@ -1,6 +1,6 @@
 # Member self-service: signup details and "manage my details"
 
-Status: **design, not built.** Written 2026-11-25.
+Status: **built in the working tree on 2026-11-25, not deployed.** See "What was built" at the end for where it differs from this design and what is still to do.
 
 ## Goal
 
@@ -249,3 +249,27 @@ Each phase can ship by itself.
 ## Out of scope
 
 Payments, event registration, a public member directory, and anything that stores the profile outside Planning Center.
+
+## What was built (2026-11-25)
+
+Code is in `src/lib/members/` (logic, with tests in `tests/`), `src/pages/account/` and `src/pages/api/account/` (member pages and API), `src/pages/admin/membership.astro` (committee recording) and the changed signup routes. Run the tests with `npm test`.
+
+**Where it differs from the design above**
+- **Membership rows:** applications and resignation requests share one row type, `PERSON#{id}` / `MEMBERREQ#{iso}#{rand}`, with the decision stored on the same row. There is no separate `MEMBERAPP#` or `MEMBERCHG#` row. Open requests are listed through **gsi2** under the partition `MEMBERQ#open` (the existing user list uses a different gsi2 partition), so no new index was needed. A decided request is kept 2 years; the Planning Center note is the permanent record.
+- **Friend types:** the Planning Center membership types are `Member`, `Regular Attender`, `Society Friend` and `Swedenborg Centre Friend`. "Friend" means Society Friend (or Swedenborg Centre Friend for someone who only picks the Centre list). New signups are now created with that type, because the Mailchimp sync skips people with no membership type.
+- **Resigning as a member:** recording it sets the person back to a friend type, even when their account is deactivated (inactive people are skipped by both syncs).
+- **No `PCOMETA` cache row:** field ids are read once per request. Volume is tiny, so the cache wasn't worth a table row.
+- **Prefix:** the Planning Center `name_prefix` attribute is written separately and best effort, because it isn't in the person attributes the API returned during testing.
+- **Local runs:** outside production the member pages use an in-memory store and a demo person, so nothing real is read or written. `SIGNUP_LIVE=1` switches both to the real thing.
+- **Not built:** changing an email address from the details page (the page says to contact the office), clearing a phone number or address, and the monthly register export to OneDrive (an admin CSV download of current members is there instead).
+
+**Not linked yet.** The signup form always has the optional extra details, and signup always uses the stored flow. The "Manage your details" pages exist at `/account` but nothing on the site links to them (not the footer, the signup pages or the privacy page), and they are marked noindex. To use them, type the address in. To launch, add a link, for example in the footer and on the signup confirmation page. There is no switch or key to set.
+
+While testing, a test application, approval or deactivation changes your real Planning Center record, and applications email the church office unless `MEMBERSHIP_NOTIFY_TO` is set to your own address.
+
+**Before it goes live**
+1. Push the migration `supabase/migrations/20261125000000_items_incr_and_cron_prune.sql` (`npm run db:push`). Signup and sign-in rate limiting need `items_incr`.
+2. Optionally set `MEMBERSHIP_NOTIFY_TO` in Vercel Production (defaults to the church office address). Everything else uses settings that already exist, including `SIGNUP_SECRET`.
+3. Create the Roll Book fields in Planning Center (names in `src/lib/members/config.ts`): Membership joined, Membership left, Committee resolution, Proposed by, Seconded by, Belief avowal. Until then the site writes notes only.
+4. Check on a test person that the Planning Center API accepts `status: inactive`, `membership` and `name_prefix` writes.
+5. Remove the legacy signed-link code in `src/lib/signup/index.ts` (and in `sc-www`) once links emailed before the change have expired (7 days after deploy).

@@ -20,6 +20,18 @@ function needsAuth(path: string): boolean {
 export const onRequest = defineMiddleware(async (context, next) => {
   const path = context.url.pathname;
 
+  // Member self-service pages hold personal details: never cached, and no referrer leaves the site.
+  if (path === "/account" || path.startsWith("/account/") || path.startsWith("/api/account/")) {
+    const response = await next();
+    try {
+      response.headers.set("Cache-Control", "no-store");
+      response.headers.set("Referrer-Policy", "same-origin");
+    } catch {
+      // immutable response: leave it
+    }
+    return response;
+  }
+
   if (!needsAuth(path)) {
     return next();
   }

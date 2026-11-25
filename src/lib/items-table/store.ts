@@ -67,6 +67,20 @@ export class ItemsStore {
     return data as ItemRow;
   }
 
+  /**
+   * Atomically add one to a counter row and return the new count (rate limiting). The row expires `ttlSeconds`
+   * after its first increment; an expired but not yet swept row restarts at 1. Needs the items_incr migration.
+   */
+  async incr(key: { pk: string; sk: string }, ttlSeconds: number): Promise<number> {
+    const { data, error } = await this.supabase.rpc("items_incr", {
+      p_pk: key.pk,
+      p_sk: key.sk,
+      p_ttl_seconds: Math.max(1, Math.ceil(ttlSeconds)),
+    });
+    if (error) throw new Error(`items_incr: ${error.message}`);
+    return Number(data);
+  }
+
   async delete(key: { pk: string; sk: string }): Promise<void> {
     const { error } = await this.supabase
       .from("items")

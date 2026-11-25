@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Button from '../../components/Button.astro';
 import Card from '../../components/Card.astro';
 import Input from '../../components/Input.astro';
+import ExtraFields from '../../components/ExtraFields.astro';
 import { signupConfig } from '../../lib/signup/config';
 import { apiPath, turnstileKeys } from '../../lib/signup';
 
@@ -17,6 +18,7 @@ const messages: Record<string, string> = {
   check: 'We couldn’t complete the security check. Please try again.',
   send: 'We couldn’t send the confirmation email just now. Please try again in a little while.',
 };
+const detail = sp.get('detail');
 ---
 
 <BaseLayout
@@ -53,8 +55,8 @@ const messages: Record<string, string> = {
         </Card>
       ) : (
         <Card variant="tint" title="Your details">
-          {error && messages[error] && (
-            <p class="m-0 mb-4 font-body text-[14px] text-status-error" role="alert">{messages[error]}</p>
+          {error && (messages[error] || detail) && (
+            <p class="m-0 mb-4 font-body text-[14px] text-status-error" role="alert">{(error === 'invalid' && detail) || messages[error]}</p>
           )}
           <form method="post" action={apiPath()} class="flex flex-col gap-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -75,6 +77,14 @@ const messages: Record<string, string> = {
                 </label>
               ))}
             </fieldset>
+
+            <details class="rounded-md border border-border-soft bg-white px-4 py-3">
+              <summary class="cursor-pointer font-display text-sm text-text-heading">Add more details (optional)</summary>
+              <p class="mt-3 mb-4 text-[13px] text-text-muted">
+                Only if you’d like us to have them: they help us keep our records right and post you printed items. You can change or remove them later from your details page.
+              </p>
+              <ExtraFields idPrefix="sub" />
+            </details>
 
             <div
               class="cf-turnstile"

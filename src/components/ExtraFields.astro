@@ -1,0 +1,56 @@
+---
+/**
+ * The optional "more details" fields shared by the signup form and the details page. The server reads them with
+ * parseExtra() in lib/members/validate.ts, so the names here must match.
+ */
+import Input from './Input.astro';
+import type { Address } from '../lib/members/people';
+
+interface Props {
+  prefix?: string;
+  birthdate?: string;
+  phone?: string;
+  address?: Address | null;
+  idPrefix?: string;
+}
+
+const { prefix = '', birthdate = '', phone = '', address = null, idPrefix = 'x' } = Astro.props;
+const a = address ?? { street1: '', street2: '', city: '', state: '', zip: '', country: 'AU' };
+const countries = [
+  ['AU', 'Australia'],
+  ['NZ', 'New Zealand'],
+  ['GB', 'United Kingdom'],
+  ['US', 'United States'],
+  ['CA', 'Canada'],
+];
+const country = a.country || 'AU';
+if (!countries.some(([c]) => c === country)) countries.push([country, country]);
+---
+
+<div class="flex flex-col gap-4">
+  <div class="grid grid-cols-1 sm:grid-cols-[8rem_1fr] gap-4">
+    <Input label="Title" id={`${idPrefix}-prefix`} name="prefix" value={prefix} placeholder="Mr, Mrs, Dr…" autocomplete="honorific-prefix" />
+    <Input label="Date of birth" id={`${idPrefix}-birthdate`} name="birthdate" type="date" value={birthdate} autocomplete="bday" />
+  </div>
+  <Input label="Phone" id={`${idPrefix}-phone`} name="phone" type="tel" value={phone} autocomplete="tel" />
+  <fieldset class="border-0 p-0 m-0 flex flex-col gap-3">
+    <legend class="font-display text-sm text-text-heading mb-1">Postal address</legend>
+    <Input label="Street" id={`${idPrefix}-street1`} name="street1" value={a.street1} autocomplete="address-line1" />
+    <Input label="Street (second line)" id={`${idPrefix}-street2`} name="street2" value={a.street2} autocomplete="address-line2" />
+    <div class="grid grid-cols-1 sm:grid-cols-[1fr_7rem_7rem] gap-3">
+      <Input label="Suburb or town" id={`${idPrefix}-city`} name="city" value={a.city} autocomplete="address-level2" />
+      <Input label="State" id={`${idPrefix}-state`} name="state" value={a.state} autocomplete="address-level1" />
+      <Input label="Postcode" id={`${idPrefix}-zip`} name="zip" value={a.zip} autocomplete="postal-code" />
+    </div>
+    <label class="flex flex-col gap-1.5 font-display text-sm text-text-heading">
+      Country
+      <select
+        name="country"
+        autocomplete="country"
+        class="font-body text-base text-text-body px-4 py-3 rounded-md border border-border-strong bg-white outline-none focus:border-accent-primary focus:shadow-glow"
+      >
+        {countries.map(([c, n]) => <option value={c} selected={c === country}>{n}</option>)}
+      </select>
+    </label>
+  </fieldset>
+</div>

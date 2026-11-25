@@ -5,6 +5,7 @@ import { createItemsStoreFromEnv } from "../items-table";
 export const ACTION_IDS = {
   mailchimpSync: "mailchimp_sync",
   postgridSync: "postgrid_sync",
+  pcoBackup: "pco_backup",
 } as const;
 
 export type ActionId = (typeof ACTION_IDS)[keyof typeof ACTION_IDS];
@@ -52,6 +53,12 @@ export const ACTION_CATALOG: Omit<
     label: "Sync to PostGrid",
     description:
       "Planning Center to PostGrid: one contact per household and a mailing list per print run (Society news, Candela) and country hub. Nothing is mailed. Runs daily.",
+  },
+  {
+    id: ACTION_IDS.pcoBackup,
+    label: "Planning Center backup",
+    description:
+      "Exports the Planning Center People data (people, emails, phones, addresses, custom fields, households, notes and lists) as a zip of JSON files plus a people.csv, and emails it to BACKUP_EMAIL_TO. Dry run builds the zip and reports its size without sending. Runs on the 1st of each month.",
   },
 ];
 

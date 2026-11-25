@@ -1,0 +1,133 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Button from '../../components/Button.astro';
+import Card from '../../components/Card.astro';
+import AccountNav from '../../components/AccountNav.astro';
+import { memberConfig } from '../../lib/members/config';
+import { personContext } from '../../lib/members/guard';
+import { isMember, pendingOf, requestsFor } from '../../lib/members/membership';
+
+export const prerender = false;
+
+const ctx = await personContext(Astro.cookies);
+if ('redirect' in ctx) return Astro.redirect(ctx.redirect);
+const { person, session, kv, personId } = ctx;
+
+const requests = await requestsFor(kv, personId);
+const pendingApply = pendingOf(requests, 'apply');
+const pendingResign = pendingOf(requests, 'resign');
+const member = isMember(person);
+const sp = Astro.url.searchParams;
+const error = sp.get('error');
+const notices: Record<string, string> = {
+  applied: 'Thank you. Your application is with the Committee, and we’ve emailed you a receipt.',
+  resigned: 'Your request is with the Committee, and we’ve emailed you a receipt.',
+  withdrawn: 'Your request has been withdrawn.',
+};
+const notice = Object.keys(notices).find((k) => sp.get(k) === '1');
+---
+
+<BaseLayout title="Membership" description="Become a member of The Sydney Society of The New Church." currentPath="/account" noindex>
+  <main class="container-site px-6 md:px-8 pt-10 md:pt-14 pb-10">
+    <div class="max-w-[760px]">
+      <div class="font-display font-semibold text-eyebrow tracking-eyebrow uppercase text-accent-primary mb-2.5">
+        ✦ Your account
+      </div>
+      <h1 class="mt-0 mb-4 text-h1">Membership</h1>
+    </div>
+    <div class="max-w-[640px]">
+      <AccountNav current="membership" csrf={session.csrf} />
+
+      {error && <p class="m-0 mb-4 font-body text-[14px] text-status-error" role="alert">{error}</p>}
+      {notice && <p class="m-0 mb-4 font-body text-[14px] text-text-heading font-semibold" role="status">{notices[notice]}</p>}
+
+      <div class="flex flex-col gap-6">
+        {member ? (
+          <Card title="You’re a member">
+            <p class="m-0 mb-3">
+              You’re a member of The Sydney Society of The New Church. You can vote at general meetings and be nominated for the Committee. There are no fees.
+            </p>
+            {pendingResign ? (
+              <>
+                <p class="m-0 mb-3 text-sm text-text-muted">
+                  You asked to resign on {new Date(pendingResign.data.submittedAt).toLocaleDateString('en-AU', { dateStyle: 'long' })}. The Committee deals with it at its next meeting, and you’ll stay a member until then.
+                </p>
+                <form method="post" action="/api/account/membership">
+                  <input type="hidden" name="csrf" value={session.csrf} />
+                  <input type="hidden" name="action" value="withdraw" />
+                  <input type="hidden" name="request" value={pendingResign.sk} />
+                  <Button type="submit" size="sm" variant="secondary">Withdraw my request</Button>
+                </form>
+              </>
+            ) : (
+              <>
+                <p class="m-0 mb-3 text-sm text-text-muted">
+                  You can resign at any time. You’ll stay on our list as a friend. Your request goes to the Committee at its next meeting.
+                </p>
+                <form method="post" action="/api/account/membership">
+                  <input type="hidden" name="csrf" value={session.csrf} />
+                  <input type="hidden" name="action" value="resign" />
+                  <Button type="submit" size="sm" variant="secondary">Request to resign as a member</Button>
+                </form>
+              </>
+            )}
+          </Card>
+        ) : pendingApply ? (
+          <Card variant="tint" title="Your application">
+            <p class="m-0 mb-3">
+              We received your application on {new Date(pendingApply.data.submittedAt).toLocaleDateString('en-AU', { dateStyle: 'long' })}. The Committee considers it at its next meeting, with the advice of our Minister, and we’ll email you.
+            </p>
+            <form method="post" action="/api/account/membership">
+              <input type="hidden" name="csrf" value={session.csrf} />
+              <input type="hidden" name="action" value="withdraw" />
+              <input type="hidden" name="request" value={pendingApply.sk} />
+              <Button type="submit" size="sm" variant="secondary">Withdraw my application</Button>
+            </form>
+          </Card>
+        ) : (
+          <>
+            <Card variant="tint" title="Becoming a member">
+              <p class="mt-0 mb-3">
+                You’re a friend of the Society, and that’s a lovely place to be. If you’d like to be a member too, here is what it means.
+              </p>
+              <ul class="m-0 pl-5 flex flex-col gap-2">
+                <li>The Society is a company limited by guarantee. If it were ever wound up, a member may be asked to contribute <strong>{memberConfig.guarantee}</strong>, and nothing more. There are no fees or dues.</li>
+                <li>Members can <strong>vote at general meetings</strong> and can <strong>be nominated for the Committee</strong>.</li>
+                <li>Your name and address go on the Society’s register of members.</li>
+                <li>The Committee decides on applications at a meeting, with the advice of our Minister.</li>
+                <li>You can <strong>resign at any time</strong>, and stay on as a friend.</li>
+              </ul>
+            </Card>
+            <Card title="Apply to become a member">
+              <form method="post" action="/api/account/membership" class="flex flex-col gap-4">
+                <input type="hidden" name="csrf" value={session.csrf} />
+                <input type="hidden" name="action" value="apply" />
+                <fieldset class="border-0 p-0 m-0 flex flex-col gap-2.5">
+                  <legend class="font-display text-sm text-text-heading mb-1">I affirm my belief in:</legend>
+                  {memberConfig.avowals.map((a, i) => (
+                    <label class="flex items-start gap-3 font-body text-base text-text-body">
+                      <input type="checkbox" name={`avow${i}`} value="1" required class="mt-1.5 h-4 w-4 accent-[var(--color-accent-primary,#5b3fa0)]" />
+                      <span>{a}</span>
+                    </label>
+                  ))}
+                </fieldset>
+                <fieldset class="border-0 p-0 m-0 flex flex-col gap-2.5">
+                  <legend class="font-display text-sm text-text-heading mb-1">I understand and agree that:</legend>
+                  <label class="flex items-start gap-3 font-body text-base text-text-body">
+                    <input type="checkbox" name="guarantee" value="1" required class="mt-1.5 h-4 w-4 accent-[var(--color-accent-primary,#5b3fa0)]" />
+                    <span>as a member I may be asked to contribute {memberConfig.guarantee} if the Society is wound up</span>
+                  </label>
+                  <label class="flex items-start gap-3 font-body text-base text-text-body">
+                    <input type="checkbox" name="register" value="1" required class="mt-1.5 h-4 w-4 accent-[var(--color-accent-primary,#5b3fa0)]" />
+                    <span>my name and address will be kept on the register of members</span>
+                  </label>
+                </fieldset>
+                <div><Button type="submit">Send my application</Button></div>
+              </form>
+            </Card>
+          </>
+        )}
+      </div>
+    </div>
+  </main>
+</BaseLayout>

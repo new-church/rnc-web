@@ -1,0 +1,85 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Button from '../../components/Button.astro';
+import Card from '../../components/Card.astro';
+import Input from '../../components/Input.astro';
+import { turnstileKeys } from '../../lib/signup';
+import { signupConfig } from '../../lib/signup/config';
+import { memberContext } from '../../lib/members/guard';
+
+export const prerender = false;
+
+if (await memberContext(Astro.cookies)) return Astro.redirect('/account/details');
+
+const keys = turnstileKeys();
+const sp = Astro.url.searchParams;
+const error = sp.get('error');
+const messages: Record<string, string> = {
+  invalid: 'Please check your email address.',
+  check: 'We couldn’t complete the security check. Please try again.',
+  expired: 'That took a little too long. Please start again.',
+  gone: 'We couldn’t find an active record for you. Please start again, or contact us.',
+};
+---
+
+<BaseLayout title="Your details" description="Manage your details and mailing preferences." currentPath="/account" noindex>
+  <main class="container-site px-6 md:px-8 pt-10 md:pt-14 pb-4">
+    <div class="max-w-[760px]">
+      <div class="font-display font-semibold text-eyebrow tracking-eyebrow uppercase text-accent-primary mb-2.5">
+        ✦ Your account
+      </div>
+      <h1 class="mt-0 mb-4 text-h1">Manage your details</h1>
+      <p class="text-lg text-text-muted mt-0 mb-8">
+        See and change what we hold about you, choose your emails, or apply to become a member. We’ll email you a code to
+        prove it’s you. There’s no password to remember.
+      </p>
+    </div>
+
+    <div class="max-w-[560px]">
+      {sp.get('signedout') === '1' && (
+        <p class="m-0 mb-4 font-body text-[14px] text-text-muted" role="status">You’ve signed out.</p>
+      )}
+      {!keys ? (
+        <Card title="Unavailable">
+          <p class="m-0">
+            Sorry, this isn’t working at the moment. Please email{' '}
+            <a href={`mailto:${signupConfig.replyTo}`} class="text-link hover:text-link-hover">{signupConfig.replyTo}</a>{' '}
+            and we’ll help.
+          </p>
+        </Card>
+      ) : (
+        <Card variant="tint" title="Your email address">
+          {error && messages[error] && (
+            <p class="m-0 mb-4 font-body text-[14px] text-status-error" role="alert">{messages[error]}</p>
+          )}
+          <form method="post" action="/api/account/login" class="flex flex-col gap-4">
+            <Input label="Email" id="acct-email" name="email" type="email" autocomplete="email" required placeholder="you@example.com" />
+            <div
+              class="cf-turnstile"
+              data-sitekey={keys.siteKey}
+              data-appearance="interaction-only"
+              data-callback="turnstileDone"
+              data-expired-callback="turnstileReset"
+              data-error-callback="turnstileReset"
+            ></div>
+            <Button type="submit" id="acct-submit" disabled>Email me a code</Button>
+            <p class="m-0 text-[13px] text-text-muted">
+              If we have your address, a 6-digit code is on its way. Not on our list yet?{' '}
+              <a href="/subscribe" class="text-link hover:text-link-hover">Join our mailing list</a>. See our{' '}
+              <a href="/privacy" class="text-link hover:text-link-hover">privacy page</a>.
+            </p>
+          </form>
+        </Card>
+      )}
+    </div>
+  </main>
+  {keys && (
+    <>
+      <script is:inline>
+        window.turnstileDone = () => { document.getElementById('acct-submit').disabled = false; };
+        window.turnstileReset = () => { document.getElementById('acct-submit').disabled = true; };
+      </script>
+      <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline></script>
+    </>
+  )}
+</BaseLayout>

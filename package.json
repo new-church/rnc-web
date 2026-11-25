@@ -17,7 +17,8 @@
     "db:link": "supabase link",
     "db:push": "supabase db push --remote",
     "db:status": "supabase migration list --remote",
-    "check": "tsc --noEmit"
+    "check": "tsc --noEmit",
+    "test": "node --import tsx --test tests/*.test.ts"
   },
   "dependencies": {
     "@astrojs/react": "^7.1.9",

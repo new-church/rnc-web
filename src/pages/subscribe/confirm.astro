@@ -3,16 +3,20 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Button from '../../components/Button.astro';
 import Card from '../../components/Card.astro';
 import { apiPath, listsFor, readToken, signupPath } from '../../lib/signup';
+import { memberKv } from '../../lib/members/kv';
+import { readSignup } from '../../lib/members/signup';
 
 export const prerender = false;
 
-// The link holds the person's details, so never pass its path or token on as a Referer (the next page loads
+// The link holds a secret reference, so never pass its path or token on as a Referer (the next page loads
 // Google Analytics): send only the site's origin. Do NOT use 'no-referrer': it makes browsers send "Origin: null" on
 // the Confirm form post, and Astro's cross-site check then rejects it ("Cross-site POST form submissions are forbidden").
 Astro.response.headers.set('Referrer-Policy', 'strict-origin');
 
+const ref = Astro.url.searchParams.get('s') ?? '';
 const t = Astro.url.searchParams.get('t') ?? '';
-const sub = readToken(t);
+// New links carry a random reference (s); links emailed before the change carry a signed token (t) and still work.
+const sub = ref ? await readSignup(memberKv(), ref) : readToken(t);
 const failed = Astro.url.searchParams.get('error') === 'failed';
 ---
 
@@ -35,7 +39,7 @@ const failed = Astro.url.searchParams.get('error') === 'failed';
             {listsFor(sub.lists).map((l) => <li>{l.label}</li>)}
           </ul>
           <form method="post" action={apiPath('/confirm')}>
-            <input type="hidden" name="t" value={t} />
+            {ref ? <input type="hidden" name="s" value={ref} /> : <input type="hidden" name="t" value={t} />}
             <Button type="submit">Confirm my subscription</Button>
           </form>
         </Card>

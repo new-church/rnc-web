@@ -9,6 +9,8 @@
  *  - Never resubscribes anyone and never permanently deletes. Unsubscribes flow back to Planning
  *    Center (flag + "Unsubscribed on" date). A person whose "Unsubscribed" flag is unticked while
  *    the date is kept is a resubscribe request: Mailchimp status "pending" (confirmation email).
+ *  - Deactivated people (Planning Center status inactive) who are still subscribed are unsubscribed and
+ *    archived (reversible, never the permanent delete); this keeps mail from reaching someone who left.
  *  - Cleaned (bounced) rows are a worklist, never flagged on the person. If the address changes
  *    the new one is added and the old cleaned row archived.
  */
@@ -209,8 +211,17 @@ export async function syncMailchimp(opts: {
     if (f?.unsub) unsubFlaggedStillSubscribed.push(e);
     else if (f?.bounced) bouncedFlaggedStillSubscribed.push(e);
   }
+  // An address whose Planning Center people are all inactive: unsubscribe and archive any live row.
+  const deactivated = [...members]
+    .filter(([e, m]) => {
+      if (m.status !== "subscribed" || synced.has(e) || movedFrom.has(e) || unsubFlaggedStillSubscribed.includes(e)) return false;
+      const pids = emailPeople.get(e) ?? [];
+      return pids.length > 0 && pids.every((id) => people.get(id)?.status !== "active");
+    })
+    .map(([e]) => e)
+    .sort();
   const outside = [...members]
-    .filter(([e, m]) => m.status === "subscribed" && !synced.has(e) && !movedFrom.has(e) && !unsubFlaggedStillSubscribed.includes(e))
+    .filter(([e, m]) => m.status === "subscribed" && !synced.has(e) && !movedFrom.has(e) && !unsubFlaggedStillSubscribed.includes(e) && !deactivated.includes(e))
     .map(([e]) => e)
     .sort();
   const outsideUnknown = outside.filter((e) => !flagged.has(e));
@@ -238,6 +249,7 @@ export async function syncMailchimp(opts: {
     pullBack: pull.length,
     resubscribe: resub.length,
     unsubscribeInMailchimp: unsubFlaggedStillSubscribed.length,
+    deactivatedToArchive: deactivated.length,
     archive: archiveOrphans.length + emailChanges.filter((c) => c.cleaned).length,
     newBounceNotes: notesNeeded.length,
     cleanedWorklist: cleanedRows.length,
@@ -250,6 +262,7 @@ export async function syncMailchimp(opts: {
   for (const p of pull) L.push(`  pull back: ${p.email} unsubscribed ${p.date} -> tick Unsubscribed (${name(p.pids)})`);
   for (const r of resub) L.push(`  resubscribe request: ${r.email} (${name(r.pids)}) -> pending`);
   for (const e of unsubFlaggedStillSubscribed) L.push(`  unsubscribe in Mailchimp (flagged in Planning Center): ${e}`);
+  for (const e of deactivated) L.push(`  unsubscribe and archive in Mailchimp (inactive in Planning Center): ${e}`);
   for (const e of archiveOrphans) L.push(`  archive orphan cleaned row: ${e}`);
   for (const c of cleanedRows) L.push(`  needs a new email: ${name(c.pids)} <${c.email}>`);
 
@@ -262,7 +275,7 @@ export async function syncMailchimp(opts: {
   for (const e of bouncedFlaggedStillSubscribed) attention.push(`Planning Center says Bounced but Mailchimp still subscribed: ${e}`);
 
   if (!apply) {
-    result.summary = `Dry run: ${synced.size} addresses; would add ${toAdd.length}, change ${tagChanges.length} tag sets, ${emailChanges.length} email changes, ${pull.length} pull-backs.`;
+    result.summary = `Dry run: ${synced.size} addresses; would add ${toAdd.length}, change ${tagChanges.length} tag sets, ${emailChanges.length} email changes, ${pull.length} pull-backs, ${deactivated.length} deactivated.`;
     result.status = attention.length ? "warning" : "ok";
     return result;
   }
@@ -327,6 +340,13 @@ export async function syncMailchimp(opts: {
   for (const e of archiveOrphans) if (await attempt(result, `archive ${e}`, () => mc.archive(e))) count("archived");
   for (const e of unsubFlaggedStillSubscribed) {
     if (await attempt(result, `unsubscribe ${e}`, () => mc.unsubscribe(e))) count("unsubscribedInMailchimp");
+  }
+  for (const e of deactivated) {
+    const ok = await attempt(result, `deactivate ${e}`, async () => {
+      await mc.unsubscribe(e);
+      await mc.archive(e);
+    });
+    if (ok) count("deactivatedInMailchimp");
   }
   if (notesNeeded.length) {
     await attempt(result, "bounce notes", async () => {

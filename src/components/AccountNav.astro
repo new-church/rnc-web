@@ -1,0 +1,30 @@
+---
+interface Props {
+  current: 'details' | 'membership' | 'leave';
+  csrf: string;
+}
+const { current, csrf } = Astro.props;
+const items = [
+  { id: 'details', href: '/account/details', label: 'Your details' },
+  { id: 'membership', href: '/account/membership', label: 'Membership' },
+  { id: 'leave', href: '/account/leave', label: 'Deactivate' },
+];
+---
+
+<nav class="flex flex-wrap items-center gap-x-6 gap-y-2 mb-8 border-b border-border-soft pb-3" aria-label="Your account">
+  {
+    items.map((i) => (
+      <a
+        href={i.href}
+        aria-current={i.id === current ? 'page' : undefined}
+        class:list={[
+          'font-display text-sm no-underline',
+          i.id === current ? 'text-text-heading font-semibold' : 'text-link hover:text-link-hover',
+        ]}>{i.label}</a>
+    ))
+  }
+  <form method="post" action="/api/account/logout" class="ml-auto m-0">
+    <input type="hidden" name="csrf" value={csrf} />
+    <button type="submit" class="bg-transparent border-0 p-0 font-display text-sm text-link hover:text-link-hover cursor-pointer">Sign out</button>
+  </form>
+</nav>

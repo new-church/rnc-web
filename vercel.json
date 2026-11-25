@@ -1,7 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
-    { "path": "/api/cron/mailchimp_sync", "schedule": "0 17 * * *" },
-    { "path": "/api/cron/postgrid_sync", "schedule": "30 17 * * *" }
+    {
+      "path": "/api/cron/mailchimp_sync",
+      "schedule": "0 17 * * *"
+    },
+    {
+      "path": "/api/cron/postgrid_sync",
+      "schedule": "30 17 * * *"
+    },
+    {
+      "path": "/api/cron/pco_backup",
+      "schedule": "0 17 1 * *"
+    }
   ]
 }

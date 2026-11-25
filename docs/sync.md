@@ -6,6 +6,7 @@ Planning Center is the master for contacts. Two jobs push from it, daily, from t
 |---|---|---|
 | `mailchimp_sync` | Planning Center -> Mailchimp church audience | 17:00 (about 4am Sydney) |
 | `postgrid_sync` | Planning Center -> PostGrid contacts and mailing lists (nothing is mailed) | 17:30 |
+| `pco_backup` | Planning Center People data zipped (JSON files + people.csv) and emailed to `BACKUP_EMAIL_TO` through Postmark; medical notes are left out | 17:00 on the 1st of each month |
 
 Code: `src/lib/sync/` (TypeScript port of `~/dev/ssnc.mailchimp-sync/pco_to_mailchimp.py` and
 `pco_to_postgrid.py`). Entry points: `src/pages/api/cron/[job].ts` (Vercel Cron), the admin page
@@ -20,6 +21,9 @@ Code: `src/lib/sync/` (TypeScript port of `~/dev/ssnc.mailchimp-sync/pco_to_mail
   Unsubscribes in Mailchimp are pulled back (Unsubscribed flag + "Unsubscribed on"). Untick Unsubscribed but keep
   the date = resubscribe request (Mailchimp `pending`, confirmation email). Cleaned (bounced) rows are a worklist and
   a profile note; a changed address adds the new row and archives the old cleaned one. Never permanently deletes.
+- Deactivated people (Planning Center status inactive, e.g. after "Deactivate my account" on the site): never added.
+  If one is still subscribed in Mailchimp, the sync unsubscribes then archives them (reversible, never a permanent
+  delete). The sync never resubscribes anyone, so a reactivated person confirms by email as before.
 - PostGrid: one contact per household when anyone is ticked "Society news (printed)" or "Candela (printed)";
   name line has no titles; one mailing list per run per hub (AU, GB, CA, US & Intl.). State lives in the items
   table (`SYNC#postgrid` / `STATE#live`).
@@ -31,6 +35,7 @@ Code: `src/lib/sync/` (TypeScript port of `~/dev/ssnc.mailchimp-sync/pco_to_mail
 | `PLANNING_CENTER_PAT`, `PLANNING_CENTER_PAT_SECRET` | Planning Center API |
 | `MAILCHIMP_API_KEY`, `MAILCHIMP_AUDIENCE_ID` | church Mailchimp audience |
 | `POSTGRID_PRINT_MAIL_API_KEY` | PostGrid Print & Mail (live key) |
+| `BACKUP_EMAIL_TO` | where the monthly Planning Center backup is emailed (the job fails loudly if unset) |
 | `CRON_SECRET` | Vercel sends it as `Authorization: Bearer ...`; the cron route rejects anything else |
 | `POSTMARK_SERVER_TOKEN`, `ALERT_EMAIL_FROM`, `ALERT_EMAIL_TO` | failure and "needs a look" emails (optional until Postmark is set up) |
 | `POSTMARK_MESSAGE_STREAM` | optional, default `outbound` |

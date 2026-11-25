@@ -4,6 +4,7 @@ import { createItemsStoreFromEnv, type ItemsStore } from "../items-table";
 import { Pco } from "./pco";
 import { syncMailchimp } from "./mailchimp-sync";
 import { syncPostGrid } from "./postgrid";
+import { runBackup } from "./backup";
 import { pingHealthcheck, sendAlert } from "./notify";
 import { newResult, type JobResult } from "./util";
 
@@ -41,7 +42,9 @@ export async function runJob(id: ActionId, opts: RunOptions): Promise<JobResult>
     result =
       id === ACTION_IDS.mailchimpSync
         ? await syncMailchimp({ apply: opts.apply, pco })
-        : await syncPostGrid({ apply: opts.apply, pco, store });
+        : id === ACTION_IDS.pcoBackup
+          ? await runBackup({ apply: opts.apply, pco })
+          : await syncPostGrid({ apply: opts.apply, pco, store });
   } catch (e) {
     result = newResult(opts.apply);
     result.status = "error";
@@ -91,7 +94,7 @@ async function recordAndAlert(id: ActionId, store: ItemsStore, result: JobResult
   const attentionChanged = result.attention.length > 0 && prev.lastAttentionHash !== attentionHash;
   const recovered = result.status === "ok" && wasBad;
   if (result.status === "error" || attentionChanged || recovered) {
-    const label = id === ACTION_IDS.mailchimpSync ? "Mailchimp sync" : "PostGrid sync";
+    const label = id === ACTION_IDS.mailchimpSync ? "Mailchimp sync" : id === ACTION_IDS.pcoBackup ? "Planning Center backup" : "PostGrid sync";
     const subject = result.status === "error" ? `[RNC] ${label} FAILED` : recovered ? `[RNC] ${label} back to normal` : `[RNC] ${label}: needs a look`;
     const text = [result.summary, "", ...(result.errors.length ? ["Errors:", ...result.errors.map((e) => `  - ${e}`), ""] : []), ...(result.attention.length ? ["Needs attention:", ...result.attention.map((a) => `  - ${a}`), ""] : []), `Run at ${at} (${opts.trigger}, ${Math.round(durationMs / 1000)}s). Admin: /admin/actions`].join("\n");
     const sent = await sendAlert(subject, text).catch((e) => ({ sent: false, reason: String(e) }));
