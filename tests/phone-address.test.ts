@@ -62,3 +62,9 @@ test("the form reads the phone with its country and the address with a country t
   const b = fd({ street1: "1 A St", city: "Auckland", zip: "1010", country: "NZ" });
   assert.ok(b.ok && b.value.address?.country === "NZ", "non-Australian postcodes aren't forced to four digits");
 });
+
+test("a resignation needs the word yes typed in, in any case and with stray spaces", async () => {
+  const { typedYes } = await import("../src/lib/members/validate");
+  for (const ok of ["yes", "YES", " Yes ", "yEs\n"]) assert.equal(typedYes(ok), true, ok);
+  for (const no of ["", "y", "yeah", "no", "yes please", null, undefined]) assert.equal(typedYes(no as never), false, String(no));
+});

@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { memberConfig } from '../../../lib/members/config';
 import { applyForMembership, requestResignation, withdrawRequest } from '../../../lib/members/membership';
 import { postContext, see } from '../../../lib/members/guard';
+import { typedYes } from '../../../lib/members/validate';
 
 export const prerender = false;
 
@@ -25,6 +26,7 @@ export const POST: APIRoute = async ({ request, cookies, clientAddress }) => {
     return r.ok ? see('/account/membership?applied=1') : fail(r.error);
   }
   if (action === 'resign') {
+    if (!typedYes(form.get('confirm'))) return fail('To ask to resign, please type yes in the box to confirm.');
     const r = await requestResignation(deps, who, false, ip);
     return r.ok ? see('/account/membership?resigned=1') : fail(r.error);
   }

@@ -5,6 +5,9 @@ const trim = (v: FormDataEntryValue | null | undefined, max: number) => String(v
 
 export const isEmail = (s: string) => /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]{2,}$/.test(s) && s.length <= 200;
 
+/** True only when the person typed "yes" (any case, spaces ignored) into a confirmation box. */
+export const typedYes = (v: FormDataEntryValue | null | undefined) => String(v ?? '').trim().toLowerCase() === 'yes';
+
 export const normaliseEmail = (s: string) => s.trim().toLowerCase();
 
 /** A plausible past date as YYYY-MM-DD, or null. */
