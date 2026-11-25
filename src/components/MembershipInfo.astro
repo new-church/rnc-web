@@ -1,0 +1,32 @@
+---
+import { memberConfig } from '../lib/members/config';
+
+interface Props {
+  /** True on the application page, where the beliefs are listed in the form below. */
+  applying?: boolean;
+}
+const { applying = false } = Astro.props;
+---
+
+<h3 class="mt-0 mb-2 font-display text-sm text-text-heading">What you can do as a member</h3>
+<ul class="m-0 pl-5 list-disc flex flex-col gap-2">
+  <li><strong>Vote</strong> at any general meeting, including the Annual General Meeting.</li>
+  <li><strong>Elect the Committee</strong>, the Minister and the auditor, and adopt the Society’s accounts. Only members can serve on the Committee.</li>
+  <li><strong>Receive notice</strong> of general meetings, and the audited accounts before the AGM.</li>
+  <li><strong>Call a special meeting.</strong> Ten members together can require one.</li>
+  <li><strong>Attend</strong> the Society’s lectures and meetings and use its library and rooms, subject to any by-laws.</li>
+</ul>
+<h3 class="mt-4 mb-2 font-display text-sm text-text-heading">What it asks of you</h3>
+<ul class="m-0 pl-5 list-disc flex flex-col gap-2">
+  <li>{applying ? 'You affirm the beliefs the constitution asks of members (listed in the form below).' : 'You affirmed the beliefs the constitution asks of members: the Deity of the Lord Jesus Christ, the holiness of the Word, the necessity of shunning evils as sins against God, and leading a life of universal charity.'}</li>
+  <li>The Society is a company limited by guarantee. If it were ever wound up, a member may be asked to contribute <strong>{memberConfig.guarantee}</strong>, and nothing more, during membership or within a year after. There are no fees or dues.</li>
+  <li>Your name and address go on the Society’s register of members.</li>
+  <li>The Committee decides on applications at a meeting, with the advice of our Minister.</li>
+  <li>You can ask to <strong>resign at any time</strong> and stay on as a friend. The Committee deals with it at its next meeting.</li>
+</ul>
+<p class="mt-4 mb-0 text-sm text-text-muted">
+  The full details are in the Society’s{' '}
+  <a href="/documents/sydney-society-constitution.pdf" class="text-link hover:text-link-hover" target="_blank" rel="noopener">constitution (PDF)</a>.
+  The Society is a registered charity. You can see its public documents and financial reports on the{' '}
+  <a href="https://www.acnc.gov.au/charity/charities/f2aa6689-38af-e811-a95e-000d3ad24c60/documents/" class="text-link hover:text-link-hover" target="_blank" rel="noopener">Australian Charities and Not-for-profits Commission (ACNC) register</a>.
+</p>

@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Button from '../../components/Button.astro';
 import Card from '../../components/Card.astro';
 import AccountNav from '../../components/AccountNav.astro';
+import MembershipInfo from '../../components/MembershipInfo.astro';
 import { memberConfig } from '../../lib/members/config';
 import { personContext } from '../../lib/members/guard';
 import { isMember, pendingOf, requestsFor } from '../../lib/members/membership';
@@ -38,14 +39,22 @@ const notice = Object.keys(notices).find((k) => sp.get(k) === '1');
     <div class="max-w-[640px]">
       <AccountNav current="membership" csrf={session.csrf} />
 
+      <p class="m-0 mb-6 rounded-md border border-border-soft bg-surface-tint px-4 py-3 text-sm text-text-body">
+        This page shows the membership status in our records. Our records aren’t perfect, so if it doesn’t look right
+        to you, please{' '}
+        <a href="/contact" class="text-link hover:text-link-hover">contact us</a>{' '}
+        and we’ll talk it through and put it right.
+      </p>
+
       {error && <p class="m-0 mb-4 font-body text-[14px] text-status-error" role="alert">{error}</p>}
       {notice && <p class="m-0 mb-4 font-body text-[14px] text-text-heading font-semibold" role="status">{notices[notice]}</p>}
 
       <div class="flex flex-col gap-6">
         {member ? (
-          <Card title="You’re a member">
+          <>
+          <Card title="Our records show you’re a member">
             <p class="m-0 mb-3">
-              You’re a member of The Sydney Society of The New Church. You can vote at general meetings and be nominated for the Committee. There are no fees.
+              You’re a member of The Sydney Society of The New Church. Thank you.
             </p>
             {pendingResign ? (
               <>
@@ -72,7 +81,12 @@ const notice = Object.keys(notices).find((k) => sp.get(k) === '1');
               </>
             )}
           </Card>
+            <Card variant="tint" title="What membership means">
+              <MembershipInfo />
+            </Card>
+          </>
         ) : pendingApply ? (
+          <>
           <Card variant="tint" title="Your application">
             <p class="m-0 mb-3">
               We received your application on {new Date(pendingApply.data.submittedAt).toLocaleDateString('en-AU', { dateStyle: 'long' })}. The Committee considers it at its next meeting, with the advice of our Minister, and we’ll email you.
@@ -84,33 +98,18 @@ const notice = Object.keys(notices).find((k) => sp.get(k) === '1');
               <Button type="submit" size="sm" variant="secondary">Withdraw my application</Button>
             </form>
           </Card>
+            <Card title="What membership means">
+              <MembershipInfo />
+            </Card>
+          </>
         ) : (
           <>
             <Card variant="tint" title="Becoming a member">
               <p class="mt-0 mb-3">
-                You’re a friend of the Society, and that’s a lovely place to be. If you’d like to be a member too, here is what it means. It’s all set out in the Society’s{' '}
+                Our records show you as a friend of the Society, and that’s a lovely place to be. If you’d like to be a member too, here is what it means. It’s all set out in the Society’s{' '}
                 <a href="/documents/sydney-society-constitution.pdf" class="text-link hover:text-link-hover" target="_blank" rel="noopener">constitution (PDF)</a>.
               </p>
-              <h3 class="mt-4 mb-2 font-display text-sm text-text-heading">What you can do as a member</h3>
-              <ul class="m-0 pl-5 list-disc flex flex-col gap-2">
-                <li><strong>Vote</strong> at any general meeting, including the Annual General Meeting.</li>
-                <li><strong>Elect the Committee</strong>, the Minister and the auditor, and adopt the Society’s accounts. Only members can serve on the Committee.</li>
-                <li><strong>Receive notice</strong> of general meetings, and the audited accounts before the AGM.</li>
-                <li><strong>Call a special meeting.</strong> Ten members together can require one.</li>
-                <li><strong>Attend</strong> the Society’s lectures and meetings and use its library and rooms, subject to any by-laws.</li>
-              </ul>
-              <h3 class="mt-4 mb-2 font-display text-sm text-text-heading">What it asks of you</h3>
-              <ul class="m-0 pl-5 list-disc flex flex-col gap-2">
-                <li>You affirm the beliefs the constitution asks of members (listed in the form below).</li>
-                <li>The Society is a company limited by guarantee. If it were ever wound up, a member may be asked to contribute <strong>{memberConfig.guarantee}</strong>, and nothing more, during membership or within a year after. There are no fees or dues.</li>
-                <li>Your name and address go on the Society’s register of members.</li>
-                <li>The Committee decides on applications at a meeting, with the advice of our Minister.</li>
-                <li>You can ask to <strong>resign at any time</strong> and stay on as a friend. The Committee deals with it at its next meeting.</li>
-              </ul>
-              <p class="mt-4 mb-0 text-sm text-text-muted">
-                The Society is a registered charity. You can see its public documents and financial reports on the{' '}
-                <a href="https://www.acnc.gov.au/charity/charities/f2aa6689-38af-e811-a95e-000d3ad24c60/documents/" class="text-link hover:text-link-hover" target="_blank" rel="noopener">Australian Charities and Not-for-profits Commission (ACNC) register</a>.
-              </p>
+              <MembershipInfo applying />
             </Card>
             <Card title="Apply to become a member">
               <form method="post" action="/api/account/membership" class="flex flex-col gap-4">

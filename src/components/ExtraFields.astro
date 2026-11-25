@@ -123,10 +123,21 @@ const label = 'flex flex-col gap-1.5 font-display text-sm text-text-heading';
     newSession(); // one search session per address: Google bills the typing plus the pick as one
     var timer, abort, items = [], active = -1;
 
+    // A dropdown can't be read-only, and CSS alone doesn't stop its label or the keyboard from changing it. While locked
+    // it is truly disabled, and a hidden copy keeps its value in the form (disabled fields are not submitted).
+    var mirrors = {};
     function lock(on) {
       inputs.forEach(function (i) {
-        if (i.tagName === 'INPUT') i.readOnly = on;
-        else { i.classList.toggle('locked', on); i.tabIndex = on ? -1 : 0; }
+        if (i.tagName === 'INPUT') { i.readOnly = on; return; }
+        i.classList.toggle('locked', on);
+        i.disabled = on;
+        if (on) {
+          var m = mirrors[i.name] || (mirrors[i.name] = document.createElement('input'));
+          m.type = 'hidden'; m.name = i.name; m.value = i.value;
+          if (!m.parentNode) i.parentNode.appendChild(m);
+        } else if (mirrors[i.name] && mirrors[i.name].parentNode) {
+          mirrors[i.name].parentNode.removeChild(mirrors[i.name]);
+        }
       });
       edit.textContent = fields.hidden ? 'Or type the address in yourself' : 'Edit address manually';
       edit.hidden = !on && !fields.hidden;
