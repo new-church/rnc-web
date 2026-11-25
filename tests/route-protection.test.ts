@@ -102,3 +102,23 @@ test("every form page that posts to a Turnstile route renders the widget", () =>
     }
   }
 });
+
+test("no page renders two Turnstile widgets, and the address search keeps its own widget outside the form", () => {
+  for (const f of files.filter((x) => x.endsWith(".astro"))) {
+    const src = read(f);
+    const widgets = (src.match(/class="cf-turnstile"/g) ?? []).length + (src.match(/<TurnstileGuard\b/g) ?? []).length;
+    assert.ok(widgets <= 1, `${f} renders ${widgets} Turnstile widgets; a form that posts two tokens fails the server check`);
+  }
+  const extra = readFileSync(join(root, "..", "components", "ExtraFields.astro"), "utf8");
+  assert.ok(!extra.includes("data-address-turnstile"), "the address widget must not be placed inside the form");
+  assert.match(extra, /document\.body\.appendChild\(holder\)/, "the address widget must be added to the page body, outside any form");
+  assert.match(extra, /script\[src\*="turnstile\/v0\/api\.js"\]/, "the address search must reuse the page's Turnstile script");
+});
+
+test("forms that send in the background have a place for the error", () => {
+  for (const [file, id] of [["subscribe/index.astro", "subscribe-form"], ["contact.astro", "contact-form"]] as const) {
+    const src = read(file);
+    assert.ok(src.includes(`id="${id}-error"`) && src.includes(`id="${id}"`), `${file} needs #${id} and #${id}-error`);
+    assert.ok(src.includes(`<AjaxForm formId="${id}"`), `${file} must use AjaxForm`);
+  }
+});

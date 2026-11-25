@@ -60,7 +60,6 @@ const label = 'flex flex-col gap-1.5 font-display text-sm text-text-heading';
         </label>
         <ul id={`${idPrefix}-addr-list`} data-address-list role="listbox" hidden class="absolute z-20 left-0 right-0 mt-1 max-h-64 overflow-auto rounded-md border border-border-soft bg-white py-1 shadow-md list-none m-0 p-0"></ul>
         <p data-address-status class="m-0 mt-1 text-[13px] text-text-muted" role="status"></p>
-        <div data-address-turnstile></div>
       </div>
     )}
 
@@ -155,6 +154,15 @@ const label = 'flex flex-col gap-1.5 font-display text-sm text-text-heading';
     function loadTurnstile() {
       return new Promise(function (resolve, reject) {
         if (window.turnstile) return resolve();
+        // The page may already be loading Turnstile for its own form: wait for that copy, never add a second one.
+        if (document.querySelector('script[src*="turnstile/v0/api.js"]')) {
+          var tries = 0;
+          var wait = setInterval(function () {
+            if (window.turnstile) { clearInterval(wait); resolve(); }
+            else if (++tries > 80) { clearInterval(wait); reject(new Error('check')); }
+          }, 125);
+          return;
+        }
         var s = document.createElement('script');
         s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
         s.async = true; s.onload = function () { resolve(); }; s.onerror = reject;
@@ -166,7 +174,11 @@ const label = 'flex flex-col gap-1.5 font-display text-sm text-text-heading';
       if (accessWait) return accessWait;
       accessWait = loadTurnstile().then(function () {
         return new Promise(function (resolve, reject) {
-          var holder = root.querySelector('[data-address-turnstile]');
+          // The widget must live OUTSIDE the form: inside it, its token would be posted with the form (next to the page's own)
+          // and the server would check the one that has already been used.
+          var holder = document.createElement('div');
+          holder.style.cssText = 'position:fixed;right:16px;bottom:16px;z-index:60';
+          document.body.appendChild(holder);
           window.turnstile.render(holder, {
             sitekey: root.getAttribute('data-sitekey'),
             appearance: 'interaction-only',

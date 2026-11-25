@@ -8,6 +8,13 @@ import { isEmail, normaliseEmail, parseExtra } from './validate';
 
 export type SignupData = { email: string; first: string; last: string; lists: string[]; extra: DetailsInput };
 
+/** What each way a signup can fail says to the visitor (the page and the background post both use these). */
+export const signupErrors: Record<string, string> = {
+  invalid: 'Please check your name and email address, and choose at least one list.',
+  check: 'We couldn’t complete the security check. Please try again.',
+  send: 'We couldn’t send the confirmation email just now. Please try again in a little while.',
+};
+
 export function parseSignupForm(form: FormData): { ok: true; value: SignupData } | { ok: false; error: string } {
   const text = (k: string, max: number) => String(form.get(k) ?? '').trim().slice(0, max);
   const email = normaliseEmail(text('email', 200));

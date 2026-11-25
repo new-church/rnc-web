@@ -4,6 +4,8 @@ import Button from '../../components/Button.astro';
 import Card from '../../components/Card.astro';
 import Input from '../../components/Input.astro';
 import ExtraFields from '../../components/ExtraFields.astro';
+import AjaxForm from '../../components/AjaxForm.astro';
+import { signupErrors } from '../../lib/members/signup';
 import { signupConfig } from '../../lib/signup/config';
 import { apiPath, turnstileKeys } from '../../lib/signup';
 
@@ -13,11 +15,7 @@ const keys = turnstileKeys();
 const sp = Astro.url.searchParams;
 const sent = sp.get('sent') === '1';
 const error = sp.get('error');
-const messages: Record<string, string> = {
-  invalid: 'Please check your name and email address, and choose at least one list.',
-  check: 'We couldn’t complete the security check. Please try again.',
-  send: 'We couldn’t send the confirmation email just now. Please try again in a little while.',
-};
+const messages = signupErrors;
 const detail = sp.get('detail');
 ---
 
@@ -58,7 +56,8 @@ const detail = sp.get('detail');
           {error && (messages[error] || detail) && (
             <p class="m-0 mb-4 font-body text-[14px] text-status-error" role="alert">{(error === 'invalid' && detail) || messages[error]}</p>
           )}
-          <form method="post" action={apiPath()} class="flex flex-col gap-4">
+          <p id="subscribe-form-error" hidden class="m-0 mb-4 font-body text-[14px] text-status-error" role="alert"></p>
+          <form id="subscribe-form" method="post" action={apiPath()} class="flex flex-col gap-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input label="First name" id="sub-first" name="first" autocomplete="given-name" required />
               <Input label="Last name" id="sub-last" name="last" autocomplete="family-name" required />
@@ -110,6 +109,7 @@ const detail = sp.get('detail');
         window.turnstileDone = () => { document.getElementById('subscribe-submit').disabled = false; };
         window.turnstileReset = () => { document.getElementById('subscribe-submit').disabled = true; };
       </script>
+      <AjaxForm formId="subscribe-form" />
       <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline></script>
     </>
   )}

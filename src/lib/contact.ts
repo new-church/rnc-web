@@ -6,6 +6,14 @@
 import { signupConfig } from './signup/config';
 import { isLive } from './signup';
 
+/** What each way the enquiry form can fail says to the visitor (the page and the background post both use these). */
+export const contactErrors: Record<string, string> = {
+  invalid: 'Please check your name, email address and message.',
+  check: 'We couldn’t complete the security check. Please try again.',
+  limit: 'There have been a lot of messages from your network. Please try again in a little while, or email us directly.',
+  send: 'We couldn’t send your message just now. Please try again in a little while, or email us directly.',
+};
+
 export type Enquiry = { name: string; email: string; subject: string; message: string };
 
 function env(name: string): string | undefined {

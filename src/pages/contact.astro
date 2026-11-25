@@ -3,6 +3,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Button from '../components/Button.astro';
 import Card from '../components/Card.astro';
 import Input from '../components/Input.astro';
+import AjaxForm from '../components/AjaxForm.astro';
+import { contactErrors } from '../lib/contact';
 import SoftPhoto from '../components/SoftPhoto.astro';
 import { turnstileKeys } from '../lib/signup';
 
@@ -12,12 +14,7 @@ const keys = turnstileKeys();
 const sp = Astro.url.searchParams;
 const sent = sp.get('sent') === '1';
 const error = sp.get('error');
-const messages: Record<string, string> = {
-  invalid: 'Please check your name, email address and message.',
-  check: 'We couldn’t complete the security check. Please try again.',
-  limit: 'There have been a lot of messages from your network. Please try again in a little while, or email us directly.',
-  send: 'We couldn’t send your message just now. Please try again in a little while, or email us directly.',
-};
+const messages = contactErrors;
 ---
 
 <BaseLayout
@@ -136,7 +133,8 @@ const messages: Record<string, string> = {
               {error && messages[error] && (
                 <p class="m-0 mb-4 font-body text-[14px] text-status-error" role="alert">{messages[error]}</p>
               )}
-              <form method="post" action="/api/contact" class="flex flex-col gap-4">
+              <p id="contact-form-error" hidden class="m-0 mb-4 font-body text-[14px] text-status-error" role="alert"></p>
+              <form id="contact-form" method="post" action="/api/contact" class="flex flex-col gap-4">
                 <Input label="Your name" id="contact-name" name="name" autocomplete="name" required placeholder="Your name" />
                 <Input label="Your email" id="contact-email" name="email" type="email" autocomplete="email" required placeholder="you@example.com" />
                 <Input label="Subject" id="contact-subject" name="subject" placeholder="How can we help?" />
@@ -209,6 +207,7 @@ const messages: Record<string, string> = {
         window.turnstileDone = () => { document.getElementById('contact-submit').disabled = false; };
         window.turnstileReset = () => { document.getElementById('contact-submit').disabled = true; };
       </script>
+      <AjaxForm formId="contact-form" />
       <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline></script>
     </>
   )

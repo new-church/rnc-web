@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
-import { parseEnquiry, sendEnquiry } from '../../lib/contact';
+import { contactErrors, parseEnquiry, sendEnquiry } from '../../lib/contact';
+import { formAnswer } from '../../lib/form-response';
 import { verifyTurnstile } from '../../lib/signup';
 import { alertStaff } from '../../lib/signup/alert';
 import { memberConfig } from '../../lib/members/config';
@@ -9,18 +10,18 @@ import { withinLimit } from '../../lib/members/rate';
 
 export const prerender = false;
 
-const back = (q: string) => new Response(null, { status: 303, headers: { Location: `/contact?${q}#enquiry` } });
+const back = (q: string) => `/contact?${q}#enquiry`;
 
 /** The general enquiry form: Turnstile check, then email to the church office. */
 export const POST: APIRoute = async ({ request, clientAddress }) => {
   const form = await request.formData();
 
   const parsed = parseEnquiry(form);
-  if (!parsed.ok) return back('error=invalid');
+  if (!parsed.ok) return formAnswer(request, { ok: false, redirect: back('error=invalid'), message: contactErrors.invalid });
 
   const passed = await verifyTurnstile(String(form.get('cf-turnstile-response') ?? ''), clientAddress);
-  if (!passed) return back('error=check');
-  if (!(await withinLimit(memberKv(), 'contact-ip', ipHash(clientAddress), memberConfig.rate.contactPerIp))) return back('error=limit');
+  if (!passed) return formAnswer(request, { ok: false, redirect: back('error=check'), message: contactErrors.check, status: 403 });
+  if (!(await withinLimit(memberKv(), 'contact-ip', ipHash(clientAddress), memberConfig.rate.contactPerIp))) return formAnswer(request, { ok: false, redirect: back('error=limit'), message: contactErrors.limit, status: 429 });
 
   try {
     await sendEnquiry(parsed.value);
@@ -40,7 +41,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       ],
       ['A contact-form message could not be sent. Check the alerts email for the message, and check Postmark.'],
     );
-    return back('error=send');
+    return formAnswer(request, { ok: false, redirect: back('error=send'), message: contactErrors.send, status: 502 });
   }
-  return back('sent=1');
+  return formAnswer(request, { ok: true, redirect: back('sent=1') });
 };
