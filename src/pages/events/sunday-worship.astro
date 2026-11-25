@@ -3,13 +3,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Button from '../../components/Button.astro';
 import SoftPhoto from '../../components/SoftPhoto.astro';
 import Card from '../../components/Card.astro';
-import { formatServiceDate, getUpcomingSundayTheme } from '../../lib/site/sunday-theme';
 import UpcomingDates from '../../components/UpcomingDates.astro';
 import { getEvents } from '../../lib/events';
 
 export const prerender = false;
 
-const sunday = await getUpcomingSundayTheme();
 // Dates come from the church calendar (matched by the event-info file sunday-worship.md).
 const services = (await getEvents().catch(() => [])).filter((e) => e.info?.id === 'sunday-worship');
 Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
@@ -66,15 +64,6 @@ const testimonials = [
         >← Events</a
       >
     </p>
-
-    {
-      sunday && (
-        <Card variant="tint" class="mb-8" eyebrow={formatServiceDate(sunday.serviceDate)} title="Next service">
-          <p class="m-0 font-display text-lg text-text-heading">{sunday.theme}</p>
-          {sunday.note && <p class="mt-2 mb-0 text-sm text-text-muted">{sunday.note}</p>}
-        </Card>
-      )
-    }
 
     <article class="prose-rnc">
       <div

@@ -75,6 +75,7 @@ After login, admins use a separate shell (left nav) at `/admin/*`:
 | Route | Purpose |
 |---|---|
 | `/admin/actions` | Planning Center to Mailchimp / PostGrid syncs: Run now, Dry run, last result (see `docs/sync.md`) |
+| `/admin/membership` | The Secretary records the Committee's decisions on membership applications and resignations; register-of-members CSV |
 | `/admin/users` | Login accounts + scopes |
 | `/admin/account` | Your display name |
 
@@ -143,7 +144,6 @@ Use `key("USER", email)` rather than string concat.
 | Lookup user by email | **GSI1** | `EMAIL#{email}` | `USER` |
 | List users | **GSI2** | `USERS#rnc` | `EMAIL#{email}` |
 | (legacy) user by old Supabase auth uid | **GSI3** | `AUTH#{uid}` | `USER` |
-| Site setting (e.g. Sunday theme) | table | `SITE#sunday` | `THEME` |
 
 Helpers: `UserKeys` in `src/lib/auth/user-keys.ts`; build other keys with `key()` from `keys.ts`.
 

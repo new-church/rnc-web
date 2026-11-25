@@ -3,12 +3,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Button from '../components/Button.astro';
 import Card from '../components/Card.astro';
 import Badge from '../components/Badge.astro';
-import { formatServiceDate, getUpcomingSundayTheme } from '../lib/site/sunday-theme';
 import { getEvents, getInfos, whenLabel } from '../lib/events';
 
 export const prerender = false;
-
-const sunday = await getUpcomingSundayTheme();
 
 // "Visiting us" comes from the church calendar: the featured event write-ups, each with its next date. Never fatal.
 const calendarEvents = await getEvents().catch(() => []);
@@ -176,11 +173,6 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-re
               title={info.data.shortTitle ?? info.data.title}
             >
               {info.data.summary}
-              {info.id === 'sunday-worship' && sunday && (
-                <span class="mt-3 block text-sm">
-                  <strong>{formatServiceDate(sunday.serviceDate)}:</strong> {sunday.theme}
-                </span>
-              )}
               <Badge slot="footer" tone={info.data.where === 'In person' ? 'gold' : 'info'}>
                 {info.data.where === 'In person' ? 'Morning tea after' : info.data.where}
               </Badge>
