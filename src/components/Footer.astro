@@ -2,6 +2,17 @@
 import Button from './Button.astro';
 
 const year = new Date().getFullYear();
+
+// ACNC register listing (public documents and financial reports) for The Sydney Society of The New Church.
+const ACNC_URL = 'https://www.acnc.gov.au/charity/charities/f2aa6689-38af-e811-a95e-000d3ad24c60/documents/';
+// The ACNC Registered Charity Tick can only be downloaded by the charity from the ACNC Charity Portal (it is licensed,
+// not freely copyable). Save it as src/assets/acnc/registered-charity-tick.png (or .svg/.jpg/.webp) and it appears here
+// by itself, on a white tile as the ACNC style guide allows. Keep its proportions and at least 15mm (about 60px) wide.
+const ticks = import.meta.glob<{ default: { src: string; width: number; height: number } }>(
+  '../assets/acnc/registered-charity-tick.{png,jpg,jpeg,svg,webp}',
+  { eager: true },
+);
+const tick = Object.values(ticks)[0]?.default;
 // The signup block is the footer's main call to action; hide it on the signup pages themselves.
 const showSignup = !Astro.url.pathname.startsWith('/subscribe');
 ---
@@ -126,6 +137,26 @@ const showSignup = !Astro.url.pathname.startsWith('/subscribe');
         swedenborg.com.au →
       </a>
     </div>
+  </div>
+  <div class="border-t border-white/10 mx-auto max-w-[1100px] px-6 py-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-5 text-center sm:text-left">
+    {
+      tick && (
+        <a href={ACNC_URL} rel="noopener noreferrer" target="_blank" class="shrink-0 rounded-md bg-white p-2 leading-none">
+          <img src={tick.src} width="64" alt="ACNC Registered Charity Tick" class="block h-auto w-16" />
+        </a>
+      )
+    }
+    <p class="m-0 text-[13px] leading-[1.6] text-text-on-dark/75 max-w-[560px]">
+      The Sydney Society of The New Church is a registered Australian charity (ABN 39 929 678 230). Its public documents
+      and financial reports are on the{' '}
+      <a
+        href={ACNC_URL}
+        class="text-violet-200 no-underline hover:text-gold-300"
+        rel="noopener noreferrer"
+        target="_blank"
+        >ACNC Charity Register →</a
+      >
+    </p>
   </div>
   <div
     class="text-center pb-7 font-display text-[12px] tracking-[0.1em] text-text-on-dark/50 px-6"
