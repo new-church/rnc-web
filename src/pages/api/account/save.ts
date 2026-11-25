@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { audit } from '../../../lib/members/audit';
+import { announce } from '../../../lib/notify';
 import { parseExtra } from '../../../lib/members/validate';
 import { postContext, see } from '../../../lib/members/guard';
 
@@ -21,6 +22,7 @@ export const POST: APIRoute = async ({ request, cookies, clientAddress }) => {
     const changed = await people.updateDetails(personId, { ...extra.value, firstName: first, lastName: last });
     if (changed.length) {
       await audit(kv, personId, { action: 'details_updated', fields: changed, via: 'member', ipHash: ip });
+      await announce('details_updated', `${first} ${last}`, changed.join(', '));
       await people.addNote(personId, `Updated their own details through the website (${changed.join(', ')}).`).catch(() => {});
     }
   } catch (err) {

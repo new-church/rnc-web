@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { verifyTurnstile } from '../../../lib/signup';
+import { announce } from '../../../lib/notify';
 import { memberConfig } from '../../../lib/members/config';
 import { ipHash } from '../../../lib/members/crypto';
 import { withinLimit } from '../../../lib/members/rate';
@@ -60,6 +61,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   }
   if (ref) await deleteSignup(kv, ref);
   if (result.personId) await audit(kv, result.personId, { action: 'signup_confirmed', via: 'signup' });
+  if (result.personId && !result.inactive) await announce('signup_confirmed', `${sub.first} ${sub.last}`.trim());
 
   if (result.inactive) {
     await alertStaff('problem', 'a deactivated person asked to subscribe again', [

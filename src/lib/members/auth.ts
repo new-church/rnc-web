@@ -69,7 +69,7 @@ export async function startLogin(deps: Deps, rawEmail: string, ip: string | unde
  * session if it belongs to an administrator. `needsChoice` means several people share the address.
  */
 export type VerifyResult =
-  | { ok: true; member: { token: string; needsChoice: boolean } | null; admin: { token: string } | null }
+  | { ok: true; member: { token: string; needsChoice: boolean } | null; admin: { token: string } | null; who: string }
   | { ok: false };
 
 /** Step 2: checks the code (5 tries, 10 minutes, single use) and starts the session or sessions. */
@@ -109,5 +109,7 @@ export async function verifyLogin(deps: Deps, rawEmail: string, rawCode: string,
     const candidates: Candidate[] = active.map((p) => ({ id: p.id, label: `${p.firstName} ${p.lastName.slice(0, 1)}.`.trim() }));
     member = { token: await createSession(kv, { email, personId: null, candidates }, now), needsChoice: true };
   }
-  return { ok: true, member, admin: admin ? { token: await createAdminSession(kv, email, now) } : null };
+  // Only for the committee's "signed in" line: a name when one person has the address, never the address itself.
+  const who = active.length === 1 ? `${active[0].firstName} ${active[0].lastName}`.trim() : active.length > 1 ? 'Someone sharing an email address' : 'An administrator';
+  return { ok: true, member, admin: admin ? { token: await createAdminSession(kv, email, now) } : null, who };
 }

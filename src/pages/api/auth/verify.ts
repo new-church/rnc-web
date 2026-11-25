@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { verifyLogin } from "../../../lib/members/auth";
 import { loginEmail } from "../../../lib/members/session";
+import { announce } from "../../../lib/notify";
 import { finishSignIn, signInDeps } from "../../../lib/members/sign-in";
 import { verifyTurnstile } from "../../../lib/signup";
 
@@ -16,5 +17,7 @@ export const POST: APIRoute = async ({ request, cookies, clientAddress }) => {
   if (!(await verifyTurnstile(String(form.get("cf-turnstile-response") ?? ""), clientAddress))) return see("/login/code?error=check");
   const r = await verifyLogin(signInDeps(), email, String(form.get("code") ?? ""), clientAddress);
   if (!r.ok) return see("/login/code?error=code");
-  return see(finishSignIn(cookies, r, "login"));
+  const to = finishSignIn(cookies, r, "login");
+  await announce("signed_in", r.who, r.admin ? "administrator" : undefined);
+  return see(to);
 };

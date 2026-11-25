@@ -7,6 +7,7 @@ import type { Kv } from './kv';
 import { key } from '../items-table/keys';
 import { alertStaff } from '../signup/alert';
 import { signupConfig } from '../signup/config';
+import { announce } from '../notify';
 import { audit } from './audit';
 import { memberConfig } from './config';
 import { randomToken } from './crypto';
@@ -133,6 +134,7 @@ export async function applyForMembership(
   };
   await putRequest(kv, who.personId, sk, data);
   await audit(kv, who.personId, { action: 'membership_apply', via: 'member', ipHash });
+  await announce('membership_applied', data.name);
   await note(people, who.personId, `Applied for membership through the website on ${day(now)}. Acknowledged the guarantee, affirmed the four beliefs in Article 4 (wording ${memberConfig.avowalVersion}) and agreed to be on the register of members. Awaiting the Committee.`);
   await tell('membership application', async () => {
     await sendMail({ ...mails.notifyCommittee('apply', { name: data.name, email: who.email }, adminLink()), to: memberConfig.notifyTo() });
@@ -146,6 +148,7 @@ export async function deactivateAccount(deps: Deps, personId: string, email: str
   const p = await deps.people.get(personId);
   await deps.people.deactivate(personId);
   await audit(deps.kv, personId, { action: 'deactivate', via: 'member', ipHash });
+  await announce('account_deactivated', p ? `${p.firstName} ${p.lastName}`.trim() : 'Someone');
   await note(deps.people, personId, `Account deactivated through the website on ${day()}. Set inactive and unsubscribed.`);
   await tell('deactivation', () => sendMail(mails.deactivated(email, p?.firstName ?? 'there')));
 }
@@ -174,6 +177,7 @@ export async function requestResignation(
   };
   await putRequest(kv, who.personId, `MEMBERREQ#${now.toISOString()}#${randomToken(3)}`, data);
   await audit(kv, who.personId, { action: 'membership_resign_request', via: 'member', ipHash });
+  await announce('resignation_requested', data.name, alsoDeactivate ? 'and deactivating their account' : undefined);
   await note(people, who.personId, `Asked to resign as a member through the website on ${day(now)}${alsoDeactivate ? ' and deactivated their account' : ''}. Awaiting the Committee.`);
   await tell('resignation request', async () => {
     await sendMail({ ...mails.notifyCommittee('resign', { name: data.name, email: who.email, deactivating: alsoDeactivate }, adminLink()), to: memberConfig.notifyTo() });
@@ -191,6 +195,7 @@ export async function withdrawRequest(deps: Deps, personId: string, sk: string):
   if (data.status !== 'pending') return { ok: false, error: 'That request has already been dealt with.' };
   await putRequest(kv, personId, sk, { ...data, status: 'withdrawn', decision: { at: new Date().toISOString(), by: 'member' } });
   await audit(kv, personId, { action: `membership_${data.kind}_withdrawn`, via: 'member' });
+  await announce('request_withdrawn', data.name, data.kind === 'apply' ? 'membership application' : 'resignation request');
   await note(people, personId, `Withdrew their ${data.kind === 'apply' ? 'membership application' : 'resignation request'} on ${day()}.`);
   return { ok: true };
 }
@@ -243,6 +248,7 @@ export async function decideRequest(deps: Deps, d: Decision): Promise<Result> {
     await note(people, d.personId, `Admitted as a member. Committee ${ref}. Proposed by ${proposedBy}, seconded by ${secondedBy}. Avowed the four beliefs in Article 4 (${req.consent?.version ?? memberConfig.avowalVersion}) on ${req.consent?.at.slice(0, 10) ?? 'unknown date'}. Recorded by ${d.decidedBy}.${roll.missing.length ? ` (Roll Book fields not set up yet: ${roll.missing.join(', ')}.)` : ''}`);
     await putRequest(kv, d.personId, d.sk, { ...req, status: 'approved', decision });
     await audit(kv, d.personId, { action: 'membership_approved', via: 'admin', by: d.decidedBy });
+    await announce('membership_approved', req.name, d.decidedBy);
     await tell('welcome', () => sendMail(mails.approved(req.email, p.firstName)));
     return { ok: true };
   }
@@ -251,6 +257,7 @@ export async function decideRequest(deps: Deps, d: Decision): Promise<Result> {
     await note(people, d.personId, `Membership application declined. Committee ${ref}.${reason ? ` Reason: ${reason}.` : ''} Recorded by ${d.decidedBy}.`);
     await putRequest(kv, d.personId, d.sk, { ...req, status: 'declined', decision });
     await audit(kv, d.personId, { action: 'membership_declined', via: 'admin', by: d.decidedBy });
+    await announce('membership_declined', req.name, d.decidedBy);
     await tell('decline', () => sendMail(mails.declined(req.email, p.firstName)));
     return { ok: true };
   }
@@ -262,6 +269,7 @@ export async function decideRequest(deps: Deps, d: Decision): Promise<Result> {
     await note(people, d.personId, `Resigned as a member. Committee ${ref}. Now a friend${p.status === 'active' ? '' : ' (account deactivated)'}. Recorded by ${d.decidedBy}.${roll.missing.length ? ` (Roll Book fields not set up yet: ${roll.missing.join(', ')}.)` : ''}`);
     await putRequest(kv, d.personId, d.sk, { ...req, status: 'approved', decision });
     await audit(kv, d.personId, { action: 'membership_resignation_recorded', via: 'admin', by: d.decidedBy });
+    await announce('resignation_recorded', req.name, d.decidedBy);
     if (p.status === 'active') await tell('resignation confirmation', () => sendMail(mails.resignationRecorded(req.email, p.firstName)));
     return { ok: true };
   }

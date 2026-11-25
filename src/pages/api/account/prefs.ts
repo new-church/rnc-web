@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { signupConfig } from '../../../lib/signup/config';
 import { audit } from '../../../lib/members/audit';
+import { announce } from '../../../lib/notify';
 import { postContext, see } from '../../../lib/members/guard';
 import { finishResubscribe, type ResubscribeOutcome } from '../../../lib/members/resubscribe';
 
@@ -41,6 +42,7 @@ export const POST: APIRoute = async ({ request, cookies, clientAddress }) => {
     }
     if (fields.length) {
       await audit(kv, personId, { action: 'preferences_updated', fields, via: 'member', ipHash: ip });
+      await announce('preferences_updated', `${person.firstName} ${person.lastName}`.trim(), fields.join(', '));
       await people.addNote(personId, `Changed mailing preferences through the website (${fields.join(', ')}).`).catch(() => {});
     }
   } catch (err) {
