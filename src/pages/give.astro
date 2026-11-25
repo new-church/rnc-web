@@ -49,12 +49,12 @@ const qrSvg = await QRCode.toString(GIVE_URL, { type: 'svg', margin: 1, errorCor
               In your banking app choose <strong>Pay anyone</strong>, then{' '}
               <strong>PayID</strong>, and enter:
             </p>
-            <dl class="m-0 mt-4 grid grid-cols-[7.5rem_1fr_auto] gap-x-4 gap-y-3 items-center">
-              <dt class="text-sm text-text-muted">PayID</dt>
+            <dl class="m-0 mt-4 grid grid-cols-[1fr_auto] gap-x-3 items-center sm:grid-cols-[7.5rem_1fr_auto] sm:gap-x-4 sm:gap-y-3">
+              <dt class="text-sm text-text-muted col-span-2 mt-4 first:mt-0 mb-1 sm:col-span-1 sm:mt-0 sm:mb-0">PayID</dt>
               <dd class="m-0 font-mono text-text-heading break-all select-text" id="give-payid-value"></dd>
               <dd class="m-0"><button type="button" data-copy="give-payid-value" class="copy-btn">Copy</button></dd>
 
-              <dt class="text-sm text-text-muted" id="give-type-label">PayID type</dt>
+              <dt class="text-sm text-text-muted col-span-2 mt-4 first:mt-0 mb-1 sm:col-span-1 sm:mt-0 sm:mb-0" id="give-type-label">PayID type</dt>
               <dd class="m-0 text-text-heading" id="give-payid-type"></dd>
               <dd class="m-0" aria-hidden="true"></dd>
             </dl>
@@ -67,16 +67,16 @@ const qrSvg = await QRCode.toString(GIVE_URL, { type: 'svg', margin: 1, errorCor
 
         <div id="give-bank" hidden>
           <Card title="Or use the bank account" class="select-none">
-            <dl class="m-0 grid grid-cols-[7.5rem_1fr_auto] gap-x-4 gap-y-3 items-center">
-              <dt class="text-sm text-text-muted">Account name</dt>
+            <dl class="m-0 grid grid-cols-[1fr_auto] gap-x-3 items-center sm:grid-cols-[7.5rem_1fr_auto] sm:gap-x-4 sm:gap-y-3">
+              <dt class="text-sm text-text-muted col-span-2 mt-4 first:mt-0 mb-1 sm:col-span-1 sm:mt-0 sm:mb-0">Account name</dt>
               <dd class="m-0 font-mono text-text-heading break-words select-text" id="give-name"></dd>
               <dd class="m-0"><button type="button" data-copy="give-name" class="copy-btn">Copy</button></dd>
 
-              <dt class="text-sm text-text-muted">BSB</dt>
+              <dt class="text-sm text-text-muted col-span-2 mt-4 first:mt-0 mb-1 sm:col-span-1 sm:mt-0 sm:mb-0">BSB</dt>
               <dd class="m-0 font-mono text-text-heading select-text" id="give-bsb"></dd>
               <dd class="m-0"><button type="button" data-copy="give-bsb" class="copy-btn">Copy</button></dd>
 
-              <dt class="text-sm text-text-muted">Account number</dt>
+              <dt class="text-sm text-text-muted col-span-2 mt-4 first:mt-0 mb-1 sm:col-span-1 sm:mt-0 sm:mb-0">Account number</dt>
               <dd class="m-0 font-mono text-text-heading select-text" id="give-acct"></dd>
               <dd class="m-0"><button type="button" data-copy="give-acct" class="copy-btn">Copy</button></dd>
             </dl>
