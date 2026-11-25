@@ -1,4 +1,8 @@
 import type { APIRoute } from 'astro';
+import { verifyTurnstile } from '../../../lib/signup';
+import { memberConfig } from '../../../lib/members/config';
+import { ipHash } from '../../../lib/members/crypto';
+import { withinLimit } from '../../../lib/members/rate';
 import { listsFor, readToken, signupPath, subscribeInPlanningCenter } from '../../../lib/signup';
 import { alertStaff } from '../../../lib/signup/alert';
 import { memberKv } from '../../../lib/members/kv';
@@ -11,11 +15,14 @@ export const prerender = false;
 const go = (suffix: string, query = '') => new Response(null, { status: 303, headers: { Location: `${signupPath(suffix)}${query}` } });
 
 /** Step 2: the person pressed Confirm on the page the email linked to. */
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, clientAddress }) => {
   const form = await request.formData();
   const ref = String(form.get('s') ?? '');
   const legacy = String(form.get('t') ?? '');
   const kv = memberKv();
+  const param0 = ref ? `s=${encodeURIComponent(ref)}` : `t=${encodeURIComponent(legacy)}`;
+  if (!(await verifyTurnstile(String(form.get('cf-turnstile-response') ?? ''), clientAddress))) return go('/confirm', `?error=check&${param0}`);
+  if (!(await withinLimit(kv, 'confirm-ip', ipHash(clientAddress), memberConfig.rate.confirmPerIp))) return go('/confirm', `?error=limit&${param0}`);
 
   let sub: SignupData | null = null;
   if (ref) sub = await readSignup(kv, ref);

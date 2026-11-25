@@ -4,6 +4,7 @@ import { ipHash } from '../../../lib/members/crypto';
 import { memberKv } from '../../../lib/members/kv';
 import { withinLimit } from '../../../lib/members/rate';
 import { addressLookupAvailable, resolve, suggest } from '../../../lib/address';
+import { hasAddressAccess } from '../../../lib/address-access';
 
 export const prerender = false;
 
@@ -15,14 +16,17 @@ const json = (data: unknown, status = 200) =>
 
 /**
  * Address suggestions for the signup and details forms (Google Places, see lib/address.ts). Public (the signup form
- * is), so it is rate limited per IP; picking a suggestion (POST) is the tighter limit.
+ * is), so it needs the signed cookie earned with a Turnstile check (/api/address/session), is rate limited per IP, and
+ * has a daily cap across everyone; picking a suggestion (POST) has the tighter limits.
  */
-export const GET: APIRoute = async ({ url, clientAddress }) => {
+export const GET: APIRoute = async ({ url, clientAddress, cookies }) => {
   if (!addressLookupAvailable()) return json({ previews: [] }, 503);
+  if (!hasAddressAccess(cookies)) return json({ error: 'check' }, 403);
   const q = (url.searchParams.get('q') ?? '').trim().slice(0, 120);
   const session = sessionOf(url.searchParams.get('session'));
   if (q.length < 3) return json({ previews: [] });
   if (!(await withinLimit(memberKv(), 'addr-suggest', ipHash(clientAddress), memberConfig.rate.addressSuggestPerIp))) return json({ error: 'Too many searches. Please type the address in.' }, 429);
+  if (!(await withinLimit(memberKv(), 'addr-suggest-all', 'day', memberConfig.rate.addressSuggestAllPerDay))) return json({ error: 'Address search is busy. Please type the address in.' }, 429);
   try {
     return json({ previews: await suggest({ q, session }) });
   } catch (err) {
@@ -31,8 +35,9 @@ export const GET: APIRoute = async ({ url, clientAddress }) => {
   }
 };
 
-export const POST: APIRoute = async ({ request, clientAddress }) => {
+export const POST: APIRoute = async ({ request, clientAddress, cookies }) => {
   if (!addressLookupAvailable()) return json({ error: 'Not available' }, 503);
+  if (!hasAddressAccess(cookies)) return json({ error: 'check' }, 403);
   let id = '';
   let session: string | undefined;
   try {
@@ -44,6 +49,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   }
   if (!id) return json({ error: 'Missing id' }, 400);
   if (!(await withinLimit(memberKv(), 'addr-resolve', ipHash(clientAddress), memberConfig.rate.addressResolvePerIp))) return json({ error: 'Too many lookups. Please type the address in.' }, 429);
+  if (!(await withinLimit(memberKv(), 'addr-resolve-all', 'day', memberConfig.rate.addressResolveAllPerDay))) return json({ error: 'Address search is busy. Please type the address in.' }, 429);
   try {
     return json({ address: await resolve(id, session) });
   } catch (err) {

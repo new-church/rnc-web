@@ -10,6 +10,7 @@
 import Input from './Input.astro';
 import { countryOptions } from '../lib/phone';
 import { addressLookupAvailable } from '../lib/address';
+import { turnstileKeys } from '../lib/signup';
 import type { Address } from '../lib/members/people';
 
 interface Props {
@@ -23,7 +24,9 @@ interface Props {
 const { birthdate = '', phone = '', phoneCountry = 'AU', address = null, idPrefix = 'x' } = Astro.props;
 const a = address ?? { street1: '', street2: '', city: '', state: '', zip: '', country: 'AU' };
 const country = a.country || 'AU';
-const lookup = addressLookupAvailable();
+const siteKey = turnstileKeys()?.siteKey ?? '';
+// Address search needs the robot check, so without Turnstile keys (a misconfigured production) it stays off.
+const lookup = addressLookupAvailable() && Boolean(siteKey);
 const hasAddress = Boolean(a.street1 || a.city || a.zip);
 const { priority, rest } = countryOptions();
 
@@ -46,7 +49,7 @@ const label = 'flex flex-col gap-1.5 font-display text-sm text-text-heading';
     </div>
   </div>
 
-  <fieldset class="border-0 p-0 m-0 flex flex-col gap-3" data-address data-lookup={lookup ? '1' : '0'} data-has={hasAddress ? '1' : '0'}>
+  <fieldset class="border-0 p-0 m-0 flex flex-col gap-3" data-address data-lookup={lookup ? '1' : '0'} data-has={hasAddress ? '1' : '0'} data-sitekey={siteKey}>
     <legend class="font-display text-sm text-text-heading mb-1">Postal address</legend>
 
     {lookup && (
@@ -57,6 +60,7 @@ const label = 'flex flex-col gap-1.5 font-display text-sm text-text-heading';
         </label>
         <ul id={`${idPrefix}-addr-list`} data-address-list role="listbox" hidden class="absolute z-20 left-0 right-0 mt-1 max-h-64 overflow-auto rounded-md border border-border-soft bg-white py-1 shadow-md list-none m-0 p-0"></ul>
         <p data-address-status class="m-0 mt-1 text-[13px] text-text-muted" role="status"></p>
+        <div data-address-turnstile></div>
       </div>
     )}
 
@@ -146,6 +150,37 @@ const label = 'flex flex-col gap-1.5 font-display text-sm text-text-heading';
     lock(true);
     edit.addEventListener('click', function () { showFields(); lock(false); inputs[0].focus(); edit.hidden = true; });
 
+    // The lookup costs money, so it answers only after a Turnstile check has been passed (a signed cookie, 30 minutes).
+    var access = false, accessWait = null, retried = false;
+    function loadTurnstile() {
+      return new Promise(function (resolve, reject) {
+        if (window.turnstile) return resolve();
+        var s = document.createElement('script');
+        s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+        s.async = true; s.onload = function () { resolve(); }; s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+    function ensureAccess() {
+      if (access) return Promise.resolve();
+      if (accessWait) return accessWait;
+      accessWait = loadTurnstile().then(function () {
+        return new Promise(function (resolve, reject) {
+          var holder = root.querySelector('[data-address-turnstile]');
+          window.turnstile.render(holder, {
+            sitekey: root.getAttribute('data-sitekey'),
+            appearance: 'interaction-only',
+            callback: function (token) {
+              fetch('/api/address/session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: token }) })
+                .then(function (r) { if (r.ok) { access = true; resolve(); } else reject(new Error('check')); })
+                .catch(reject);
+            },
+            'error-callback': function () { reject(new Error('check')); },
+          });
+        });
+      }).catch(function (e) { accessWait = null; throw e; });
+      return accessWait;
+    }
     function setStatus(msg) { status.textContent = msg || ''; }
     function close() { list.hidden = true; search.setAttribute('aria-expanded', 'false'); active = -1; }
     function render(previews) {
@@ -172,13 +207,18 @@ const label = 'flex flex-col gap-1.5 font-display text-sm text-text-heading';
       if (abort) abort.abort(); abort = new AbortController();
       var params = new URLSearchParams(); params.set('q', q); if (session) params.set('session', session);
       setStatus('Searching…');
-      fetch('/api/address/complete?' + params.toString(), { signal: abort.signal }).then(function (r) { return r.json().then(function (b) { return { ok: r.ok, b: b }; }); })
-        .then(function (x) { if (!x.ok) { fail(x.b.error || 'Address search isn’t working just now. Please type the address in.'); return; } setStatus(''); render(x.b.previews || []); })
+      ensureAccess().then(function () { return fetch('/api/address/complete?' + params.toString(), { signal: abort.signal }); }).then(function (r) { return r.json().then(function (b) { return { ok: r.ok, b: b }; }); })
+        .then(function (x) {
+          if (x.b && x.b.error === 'check') { access = false; accessWait = null; if (!retried) { retried = true; query(); return; } fail('We couldn’t complete the security check. Please type the address in.'); return; }
+          retried = false;
+          if (!x.ok) { fail(x.b.error || 'Address search isn’t working just now. Please type the address in.'); return; }
+          setStatus(''); render(x.b.previews || []);
+        })
         .catch(function (e) { if (e.name !== 'AbortError') fail('Address search isn’t working just now. Please type the address in.'); });
     }
     function pick(p) {
       setStatus('Getting the address…');
-      fetch('/api/address/complete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: p.id, session: session }) })
+      ensureAccess().then(function () { return fetch('/api/address/complete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: p.id, session: session }) }); })
         .then(function (r) { return r.json().then(function (b) { return { ok: r.ok, b: b }; }); })
         .then(function (x) {
           if (!x.ok || !x.b.address) { fail(x.b.error || 'Couldn’t get that address. Please type it in.'); return; }

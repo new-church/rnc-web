@@ -86,3 +86,12 @@ export const loginEmail = (cookies: AstroCookies) => cookies.get(loginCookieName
 export const setLoginEmail = (cookies: AstroCookies, email: string) =>
   cookies.set(loginCookieName(isProduction()), email, { ...cookieBase(), maxAge: memberConfig.ttl.login });
 export const clearLoginEmail = (cookies: AstroCookies) => cookies.delete(loginCookieName(isProduction()), { path: '/' });
+
+/**
+ * A plain "signed in" marker (no personal data, readable by the page) so the header only asks the server who is signed
+ * in when there is a session at all: visitors who never signed in make no extra request.
+ */
+export const MARKER_COOKIE = 'rnc_in';
+export const setSignedInMarker = (cookies: AstroCookies) =>
+  cookies.set(MARKER_COOKIE, '1', { path: '/', httpOnly: false, secure: isProduction(), sameSite: 'lax', maxAge: memberConfig.ttl.sessionAbsolute });
+export const clearSignedInMarker = (cookies: AstroCookies) => cookies.delete(MARKER_COOKIE, { path: '/' });

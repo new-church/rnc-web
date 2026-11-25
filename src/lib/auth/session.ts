@@ -1,33 +1,26 @@
 import type { AstroCookies } from "astro";
-import { createSupabaseServerClient } from "./supabase";
-import {
-  type AppUser,
-  getAppUserByAuthId,
-  getAppUserByEmail,
-  userHasAdminAccess,
-} from "./users";
+import { memberKv } from "../members/kv";
+import { adminToken, readAdminSession } from "./admin-session";
+import { type AppUser, getAppUserByEmail, userHasAdminAccess } from "./users";
 
 export type SessionContext = {
-  authUserId: string;
   email: string;
-  appUser: AppUser | null;
+  appUser: AppUser;
 };
 
-export async function getSessionContext(opts: {
-  request: Request;
-  cookies: AstroCookies;
-}): Promise<SessionContext | null> {
-  const supabase = createSupabaseServerClient(opts);
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user?.email) return null;
-
-  const email = data.user.email;
-  const authUserId = data.user.id;
-  const appUser =
-    (await getAppUserByAuthId(authUserId)) ||
-    (await getAppUserByEmail(email));
-
-  return { authUserId, email, appUser };
+/**
+ * The signed-in admin behind the cookie, or null. The USER# row is read on every request, so taking someone's admin
+ * scope away (or deleting them) ends their access immediately.
+ */
+export async function getSessionContext(
+  opts: { cookies: AstroCookies },
+  deps: { findUser?: (email: string) => Promise<AppUser | null> } = {},
+): Promise<SessionContext | null> {
+  const session = await readAdminSession(memberKv(), adminToken(opts.cookies));
+  if (!session) return null;
+  const appUser = await (deps.findUser ?? getAppUserByEmail)(session.email);
+  if (!appUser || !userHasAdminAccess(appUser)) return null;
+  return { email: session.email, appUser };
 }
 
 export async function requireAdminSession(opts: {
@@ -37,9 +30,6 @@ export async function requireAdminSession(opts: {
   const session = await getSessionContext(opts);
   if (!session) {
     return Response.redirect(new URL("/login", opts.request.url), 302);
-  }
-  if (!userHasAdminAccess(session.appUser)) {
-    return Response.redirect(new URL("/login?error=forbidden", opts.request.url), 302);
   }
   return session;
 }

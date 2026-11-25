@@ -11,6 +11,8 @@ export default defineConfig({
   // www is the live host; the apex redirects to it.
   site: 'https://www.rosevillenewchurch.com.au',
   adapter: vercel({ maxDuration: 300 }),
+  // Refuse form posts that come from another site. This is Astro's default; it is written down so nobody turns it off.
+  security: { checkOrigin: true },
 
   redirects: {
     '/join': '/events',

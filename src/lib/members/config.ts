@@ -29,7 +29,13 @@ export const memberConfig = {
     verifyPerIp: { limit: 60, windowSeconds: HOUR },
     signupPerEmail: { limit: 3, windowSeconds: HOUR },
     signupPerIp: { limit: 20, windowSeconds: HOUR },
+    contactPerIp: { limit: 10, windowSeconds: HOUR },
+    givePerIp: { limit: 60, windowSeconds: HOUR },
+    confirmPerIp: { limit: 30, windowSeconds: HOUR },
     addressSuggestPerIp: { limit: 300, windowSeconds: HOUR },
+    /** Everyone together, per day: a hard stop on cost if the per-IP limits and the robot check are ever got around. */
+    addressSuggestAllPerDay: { limit: 3000, windowSeconds: 86_400 },
+    addressResolveAllPerDay: { limit: 500, windowSeconds: 86_400 },
     addressResolvePerIp: { limit: 30, windowSeconds: HOUR },
   },
   /** Planning Center membership types (People > Membership). */

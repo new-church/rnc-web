@@ -55,7 +55,7 @@ export const mails = {
     text: [
       `Your code is ${code}`,
       '',
-      'Enter it on the website to manage your details. It works once and expires in 10 minutes.',
+      'Enter it on the website to sign in. It works once and expires in 10 minutes.',
       "If you didn't ask for this, you can ignore this email. Nobody can see your details without the code.",
       '',
       sign,

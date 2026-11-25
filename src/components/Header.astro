@@ -136,6 +136,48 @@ const linkBase =
         </svg>
       </button>
     </div>
+
+    <!-- Account menu: hidden for everyone until they have signed in (see the script below) -->
+    <div id="account-menu" class="relative" hidden>
+      <button
+        type="button"
+        id="account-toggle"
+        class="inline-flex items-center justify-center size-10 rounded-pill text-violet-900 hover:bg-violet-100 transition-colors duration-150"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        aria-controls="account-panel"
+        aria-label="Your account"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.75"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="8" r="4"></circle>
+          <path d="M4 20c0-3.6 3.6-6 8-6s8 2.4 8 6"></path>
+        </svg>
+      </button>
+      <div
+        id="account-panel"
+        role="menu"
+        hidden
+        class="absolute right-0 top-full mt-2 w-60 rounded-md border border-border-soft bg-white py-2 shadow-md z-50"
+      >
+        <p id="account-email" class="m-0 px-4 pb-2 mb-1 text-xs text-text-muted truncate border-b border-border-soft"></p>
+        <a id="account-link-member" href="/account/details" role="menuitem" hidden class="block px-4 py-2 font-display text-sm text-text-heading no-underline hover:bg-violet-50">Your account</a>
+        <a id="account-link-admin" href="/admin/actions" role="menuitem" hidden class="block px-4 py-2 font-display text-sm text-text-heading no-underline hover:bg-violet-50">Admin</a>
+        <form method="post" action="/api/auth/logout" class="m-0">
+          <button type="submit" role="menuitem" class="block w-full text-left px-4 py-2 font-display text-sm text-text-heading bg-transparent border-0 cursor-pointer hover:bg-violet-50">Sign out</button>
+        </form>
+      </div>
+    </div>
   </div>
 
   <!-- Mobile drawer -->
@@ -217,4 +259,46 @@ const linkBase =
   mq.addEventListener('change', (e) => {
     if (e.matches) setOpen(false);
   });
+
+  // Account menu. A plain "signed in" cookie (no personal details) is set when someone signs in; only then do we ask the
+  // server who they are. Visitors who never signed in see nothing and make no extra request.
+  (function () {
+    const wrap = document.getElementById('account-menu');
+    if (!wrap || !document.cookie.split('; ').includes('rnc_in=1')) return;
+    const toggle = document.getElementById('account-toggle');
+    const panel = document.getElementById('account-panel');
+    const closeMenu = () => {
+      if (!toggle || !panel) return;
+      panel.hidden = true;
+      toggle.setAttribute('aria-expanded', 'false');
+    };
+    fetch('/api/account/whoami', { credentials: 'same-origin', cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((w) => {
+        if (!w || (!w.member && !w.admin)) {
+          // The server session has ended: forget the marker so we stop asking.
+          document.cookie = 'rnc_in=; Max-Age=0; path=/';
+          return;
+        }
+        const email = document.getElementById('account-email');
+        if (email) email.textContent = w.email || '';
+        const member = document.getElementById('account-link-member');
+        const admin = document.getElementById('account-link-admin');
+        if (member) member.hidden = !w.member;
+        if (admin) admin.hidden = !w.admin;
+        wrap.hidden = false;
+      })
+      .catch(() => {});
+    toggle?.addEventListener('click', () => {
+      const open = toggle.getAttribute('aria-expanded') === 'true';
+      if (panel) panel.hidden = open;
+      toggle.setAttribute('aria-expanded', open ? 'false' : 'true');
+    });
+    document.addEventListener('pointerdown', (e) => {
+      if (!wrap.contains(e.target as Node)) closeMenu();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeMenu();
+    });
+  })();
 </script>

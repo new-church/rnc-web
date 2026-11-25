@@ -35,25 +35,6 @@ export function supabasePublicUrl(): string {
   return url;
 }
 
-/**
- * Anon / publishable key for Auth + RLS-scoped clients (OTP login cookies).
- * Same value whether named SUPABASE_ANON_KEY or SUPABASE_PUBLISHABLE_KEY.
- */
-export function supabaseAnonKey(): string {
-  const key = firstEnv(
-    "SUPABASE_ANON_KEY",
-    "SUPABASE_PUBLISHABLE_KEY",
-    "PUBLIC_SUPABASE_ANON_KEY",
-    "PUBLIC_SUPABASE_PUBLISHABLE_KEY",
-  );
-  if (!key) {
-    throw new Error(
-      "Missing SUPABASE_ANON_KEY (or SUPABASE_PUBLISHABLE_KEY). From the Vercel Supabase integration or Project Settings → API.",
-    );
-  }
-  return key;
-}
-
 /** Secret / service_role — server only; bypasses RLS. */
 export function supabaseSecretKey(): string {
   const key = firstEnv("SUPABASE_SECRET_KEY", "SUPABASE_SERVICE_ROLE_KEY");

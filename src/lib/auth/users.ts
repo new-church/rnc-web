@@ -69,21 +69,6 @@ export async function getAppUserByEmail(
   return { row, data: parseUserData(row) };
 }
 
-export async function getAppUserByAuthId(
-  authUserId: string,
-  store: ItemsStore = createItemsStoreFromEnv(),
-): Promise<AppUser | null> {
-  const { items } = await store.query({
-    index: "gsi3",
-    pk: UserKeys.authGsi3(authUserId).pk,
-    sk: { op: "eq", sk: "USER" },
-    limit: 1,
-  });
-  const row = items[0];
-  if (!row) return null;
-  return { row, data: parseUserData(row) };
-}
-
 export async function listAppUsers(
   store: ItemsStore = createItemsStoreFromEnv(),
 ): Promise<AppUser[]> {
@@ -96,32 +81,6 @@ export async function listAppUsers(
   return items
     .filter((row) => row.entity_type === "user")
     .map((row) => ({ row, data: parseUserData(row) }));
-}
-
-/**
- * After OTP verify: link auth uid onto the USER# row.
- * Scopes are never granted here — seed or an admin must set them.
- * Unprovisioned emails get a row with empty scopes (visible in /admin/users).
- */
-export async function ensureAppUserAfterLogin(opts: {
-  email: string;
-  authUserId: string;
-  displayName?: string | null;
-}): Promise<AppUser> {
-  const store = createItemsStoreFromEnv();
-  const email = normalizeEmail(opts.email);
-  const existing = await getAppUserByEmail(email, store);
-
-  return putUser(store, email, {
-    email,
-    displayName:
-      opts.displayName ||
-      existing?.data.displayName ||
-      email.split("@")[0],
-    scopes: existing?.data.scopes ?? [],
-    authUserId: opts.authUserId,
-    createdAt: existing?.data.createdAt,
-  });
 }
 
 export async function updateAppUser(opts: {

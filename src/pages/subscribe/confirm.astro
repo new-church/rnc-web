@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Button from '../../components/Button.astro';
 import Card from '../../components/Card.astro';
+import TurnstileGuard from '../../components/TurnstileGuard.astro';
 import { apiPath, listsFor, readToken, signupPath } from '../../lib/signup';
 import { memberKv } from '../../lib/members/kv';
 import { readSignup } from '../../lib/members/signup';
@@ -18,6 +19,11 @@ const t = Astro.url.searchParams.get('t') ?? '';
 // New links carry a random reference (s); links emailed before the change carry a signed token (t) and still work.
 const sub = ref ? await readSignup(memberKv(), ref) : readToken(t);
 const failed = Astro.url.searchParams.get('error') === 'failed';
+const errorKey = Astro.url.searchParams.get('error');
+const notice: Record<string, string> = {
+  check: 'We couldn’t complete the security check. Please press the button to try again.',
+  limit: 'There have been a lot of attempts from your network. Please try again in a little while.',
+};
 ---
 
 <BaseLayout title="Confirm your subscription" currentPath="/subscribe" noindex>
@@ -34,13 +40,17 @@ const failed = Astro.url.searchParams.get('error') === 'failed';
               Something went wrong saving your subscription. Please press the button to try again.
             </p>
           )}
+          {errorKey && notice[errorKey] && (
+            <p class="m-0 mb-4 font-body text-[14px] text-status-error" role="alert">{notice[errorKey]}</p>
+          )}
           <p class="m-0">Press the button to receive:</p>
           <ul class="mt-2 mb-5">
             {listsFor(sub.lists).map((l) => <li>{l.label}</li>)}
           </ul>
           <form method="post" action={apiPath('/confirm')}>
             {ref ? <input type="hidden" name="s" value={ref} /> : <input type="hidden" name="t" value={t} />}
-            <Button type="submit">Confirm my subscription</Button>
+            <div class="mb-4"><TurnstileGuard buttonId="confirm-submit" /></div>
+            <Button type="submit" id="confirm-submit" disabled>Confirm my subscription</Button>
           </form>
         </Card>
       ) : (

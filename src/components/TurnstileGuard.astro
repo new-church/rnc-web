@@ -1,0 +1,36 @@
+---
+/**
+ * The Cloudflare Turnstile check for a form. Renders the (usually invisible) widget and keeps the form's submit button
+ * switched off until the visitor has passed. The server checks the token again (verifyTurnstile), so this is only the
+ * friendly half: a request without a valid token is refused whatever the page does.
+ */
+import { turnstileKeys } from '../lib/signup';
+
+interface Props {
+  /** The id of the form's submit button. */
+  buttonId: string;
+}
+
+const keys = turnstileKeys();
+const { buttonId } = Astro.props;
+---
+
+{
+  keys && (
+    <>
+      <div
+        class="cf-turnstile"
+        data-sitekey={keys.siteKey}
+        data-appearance="interaction-only"
+        data-callback="turnstileDone"
+        data-expired-callback="turnstileReset"
+        data-error-callback="turnstileReset"
+      />
+      <script is:inline define:vars={{ buttonId }}>
+        window.turnstileDone = function () { var b = document.getElementById(buttonId); if (b) b.disabled = false; };
+        window.turnstileReset = function () { var b = document.getElementById(buttonId); if (b) b.disabled = true; };
+      </script>
+      <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline />
+    </>
+  )
+}

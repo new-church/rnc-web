@@ -29,11 +29,10 @@ If the TTL migration fails on `pg_cron`, enable **pg_cron** under Dashboard → 
 
 5. (Optional) Apply example RLS from `supabase/seed/rls.example.sql` in the SQL editor after you decide auth rules. Service role bypasses RLS; the anon/user key needs policies.
 
-6. Env for the **app** — use the Vercel Supabase integration names (or copy the same from Project Settings → API). **Three values**; ignore `POSTGRES_*`:
+6. Env for the **app** — use the Vercel Supabase integration names (or copy the same from Project Settings → API). **Two values**; ignore `POSTGRES_*`:
 
 ```bash
 SUPABASE_URL="https://xxxx.supabase.co"
-SUPABASE_ANON_KEY="..."       # Auth / OTP (SSR)
 SUPABASE_SECRET_KEY="..."     # server items store (or SERVICE_ROLE_KEY)
 ```
 
@@ -54,38 +53,20 @@ That is the Data API (HTTPS + API key), same idea as Dynamo’s SDK. The **app**
 2. Ensure `.env.local` has `SUPABASE_URL` and `SUPABASE_SECRET_KEY`.
 3. Run `npm run dev`, then sign in at `/login` and open `/admin`. A working login proves the items store can read the `USER#{email} / PROFILE` row.
 
-## Auth (OTP) + app users
+## Admin sign-in (emailed code) + app users
 
-Supabase Auth proves email ownership (OTP). **Permissions** live on `USER#{email} / PROFILE` items (`data.scopes`), not in `auth.users`.
+Admins sign in with a 6-digit code emailed through Postmark (`src/lib/auth/admin-login.ts`); there is no Supabase Auth. **Who may sign in** is the `USER#{email} / PROFILE` item (`data.scopes` includes `admin` or `super_admin`), read on every request, so removing a scope or the row ends access at once. Typing an unknown email does nothing: no account is created and no code is sent, and the page answers the same either way. Sessions are rows in this table (`ADMINSESSION#{sha256(token)}`, 30 minutes idle, 8 hours at most) behind an httpOnly cookie, separate from the member sessions.
 
 | Piece | Role |
 |---|---|
-| `/login` | Request email magic link / OTP |
-| `/login/verify` | Waiting page + optional code entry |
-| `/login/callback` | Completes magic-link redirect (free-plan default) |
+| `/login` | Enter your email (robot check), we email a code |
+| `/login/code` | Enter the code; starts the admin session |
 | `/admin/users` | List users + scopes (requires `admin` or `super_admin`) |
 | Seed migration | Inserts `USER#joel@duckworth.me` with `super_admin` — scopes only come from DB |
 
-Extra env (Vercel Supabase integration names — prefer these over inventing `PUBLIC_` copies):
+Env: `SUPABASE_URL` and `SUPABASE_SECRET_KEY` (the items store), `TURNSTILE_KEYS`, `POSTMARK_TOKEN` and `SIGNUP_SECRET` (hashing the codes). The anon key is no longer used.
 
-```bash
-SUPABASE_URL="https://xxxx.supabase.co"
-SUPABASE_ANON_KEY="..."       # or SUPABASE_PUBLISHABLE_KEY (same role)
-SUPABASE_SECRET_KEY="..."     # or SUPABASE_SERVICE_ROLE_KEY (server only)
-```
-
-Ignore `POSTGRES_*` and `SUPABASE_JWT_SECRET` for this app (Data API + Auth only, no Prisma wire connection).
-
-Our auth flow is SSR-only, so the anon key does **not** need a `PUBLIC_` prefix. `PUBLIC_SUPABASE_*` still works as a fallback if you already set those.
-
-Login never grants scopes. To bootstrap admin access, seed a `USER#{email} / PROFILE` row with `data.scopes` (see `supabase/migrations/*_app_users_seed.sql`). After magic-link/OTP, `authUserId` is linked onto that row.
-
-**Email on free plan:** you usually can’t customize the Magic Link template, so the email is a **clickable link**. The app handles that at `/login/callback`. Code entry on `/login/verify` still works if a numeric token is present.
-
-In Supabase **Authentication → URL configuration**:
-
-- Site URL: `http://localhost:4321` (local) or your Vercel URL  
-- Redirect URLs: `http://localhost:4321/login/callback` and `https://<your-domain>/login/callback`
+To add an admin, create their `USER#{email} / PROFILE` row with `data.scopes` (see `supabase/migrations/*_app_users_seed.sql`, or the Users page for scopes of existing rows). `authUserId` and the GSI3 `AUTH#` key are left over from the old Supabase login and are no longer used.
 
 ## Admin app
 
@@ -161,7 +142,7 @@ Use `key("USER", email)` rather than string concat.
 | Get app user | table | `USER#{email}` | `PROFILE` |
 | Lookup user by email | **GSI1** | `EMAIL#{email}` | `USER` |
 | List users | **GSI2** | `USERS#rnc` | `EMAIL#{email}` |
-| User by Supabase auth uid | **GSI3** | `AUTH#{uid}` | `USER` |
+| (legacy) user by old Supabase auth uid | **GSI3** | `AUTH#{uid}` | `USER` |
 | Site setting (e.g. Sunday theme) | table | `SITE#sunday` | `THEME` |
 
 Helpers: `UserKeys` in `src/lib/auth/user-keys.ts`; build other keys with `key()` from `keys.ts`.

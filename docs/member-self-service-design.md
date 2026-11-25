@@ -276,3 +276,20 @@ While testing, a test application, approval or deactivation changes your real Pl
 3. Create the Roll Book fields in Planning Center (names in `src/lib/members/config.ts`): Membership joined, Membership left, Committee resolution, Proposed by, Seconded by, Belief avowal. Until then the site writes notes only.
 4. Done 2026-11-25 on a temporary test person (deleted): the API accepts `status` (inactive and active), `membership` and `birthdate`, and phone numbers and addresses as described above. It does not accept a title.
 5. Remove the legacy signed-link code in `src/lib/signup/index.ts` (and in `sc-www`) once links emailed before the change have expired (7 days after deploy).
+
+## How every endpoint is protected
+
+`tests/route-protection.test.ts` holds the table: every API route is listed with the protection it relies on, the test checks the file really has it, and a new route that isn't listed fails the test.
+
+| Kind | Routes | Protection |
+|---|---|---|
+| Anonymous submissions | contact, subscribe, give, `/api/account/login`, `/api/auth/login`, both `verify` steps, `/api/subscribe/confirm`, `/api/address/session` | A passed **Turnstile** check, checked on the server before any work (the widgets only switch the button on). Most also have per-IP limits |
+| Signed-in members | save, prefs, membership, deactivate, who, logout | A live session and a matching CSRF token |
+| Administrators | `/admin/*`, `/api/admin/*` | The middleware needs an admin session (our emailed-code sign-in) and re-reads the user's scopes on every request |
+| Address lookup | `/api/address/complete` | A signed 30-minute cookie earned with a Turnstile check, per-IP limits, and a daily cap across everyone |
+| Cron | `/api/cron/*` | `Authorization: Bearer CRON_SECRET` |
+| Nothing to protect | whoami, auth logout, event calendar files | Read-only, or only ends the caller's own session |
+
+Also on for every POST: Astro's cross-site form check (`security.checkOrigin`, written into `astro.config.mjs`), so a form posted from another site is refused with 403. Without Turnstile keys in production every one of these fails closed.
+
+**One sign-in code.** The same emailed code opens a member session (if an active person has the address) and an admin session (if the address has an admin scope). `/account` and `/login` both use it; administrators who come in at `/login` land in the admin area. Signed-in people get an account menu (people icon) in the top bar, with "Your account", "Admin" for administrators, and "Sign out".
