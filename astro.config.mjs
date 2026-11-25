@@ -20,6 +20,20 @@ export default defineConfig({
     '/join/meditation': '/events/meditation',
     '/join/family-retreat-2027': '/events/family-retreat',
     '/events/family-retreat-2027': '/events/family-retreat',
+    // Old Wix pages (titles from the Wayback copy). Wix named them /blank-N and /about-N, and Google
+    // still lists some of them. Each goes to the nearest page on this site.
+    '/blank': '/about', // Understanding the Bible
+    '/blank-1': '/about', // About
+    '/blank-2': '/contact', // Contact
+    '/blank-3': '/events', // Join Us
+    '/blank-4': '/newsletters', // Newsletter
+    '/about-3': '/about', // Road Map to the Bible
+    '/about-5': '/about', // Meet our Minister
+    '/services-4': '/events/sunday-worship', // What to Expect
+    '/general-8': '/events', // Christmas Readings
+    '/search': '/',
+    '/newsletter': '/newsletters',
+    '/meet-our-minister': '/about',
     // Old Wix blog URLs (/post/<slug>) keep their slugs under /blog.
     '/post/[slug]': '/blog/[slug]',
   },
