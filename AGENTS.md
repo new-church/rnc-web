@@ -8,6 +8,10 @@ astro dev --background
 
 Manage the background server with `astro dev stop`, `astro dev status`, and `astro dev logs`.
 
+## Deploying
+
+Pushing to `main` deploys to production through Vercel's GitHub connection, and the deployment shows the commit message. After a push, check that a deployment appears (`vercel ls`, or the Deployments page) and that `gh api repos/new-church/rnc-web/commits/<sha>/status` leaves "pending". On 2026-11-26 one push was never picked up by Vercel. If that happens, make a small real commit (not `vercel deploy` from an export, which shows a random name with no commit or branch) and push again, and tell Joel before deploying any other way.
+
 ## Brand & design
 
 Visual reference and original tokens live in `design-system-claude/`. The live site implements that brand with Tailwind v4 `@theme` tokens in `src/styles/global.css` — do not import the React design-system bundle into pages.
