@@ -61,7 +61,7 @@ const summary = 'flex cursor-pointer items-center justify-between gap-4 font-dis
           <svg class="h-4 w-4 shrink-0 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 8l5 5 5-5" /></svg>
         </summary>
         <ul class={boxList + ' mt-4'}>
-          <li>To share the Society’s core beliefs (see “What the Society is for”, further down).</li>
+          <li>To share the Society’s core beliefs (see <a href="#what-the-society-is-for">What the Society is for</a>, further down).</li>
           <li>
             To stand behind the Society in a small way. The Society is a company limited by guarantee, so if it were ever
             wound up each member may be asked to contribute <strong>{memberConfig.guarantee}</strong>, and nothing more,
@@ -122,10 +122,11 @@ const summary = 'flex cursor-pointer items-center justify-between gap-4 font-dis
         The Sydney Society of The New Church is the organisation behind Roseville New Church. It was established in 1875
         and incorporated in 1886. It is a company limited by guarantee (ACN 000 001 105, ABN 39 929 678 230) and a
         registered charity with the Australian Charities and Not-for-profits Commission (ACNC), advancing religion. Its
-        registered office is 4 Shirley Rd, Roseville NSW 2069.
+        registered office is 4 Shirley Rd, Roseville NSW 2069. You can read more of our story on the{' '}
+        <a href="/about">About page</a>.
       </p>
 
-      <h3>What the Society is for</h3>
+      <h3 id="what-the-society-is-for">What the Society is for</h3>
       <p>
         The constitution sets four aims. Here they are in everyday words (the original wording is in the constitution
         linked at the bottom of this page):
@@ -188,7 +189,9 @@ const summary = 'flex cursor-pointer items-center justify-between gap-4 font-dis
     <Card variant="tint" class="mt-12" title="Questions about any of this?">
       <p class="m-0">
         The Committee is glad to talk it through with you, whether you are thinking about membership or just curious
-        how the Society works.
+        how the Society works. If you’d simply like to explore Swedenborg’s writings, the{' '}
+        <a href="/about/swedenborg-centre" class="text-link hover:text-link-hover">Swedenborg Centre</a>{' '}
+        offers online talks and groups open to everyone.
       </p>
       <div slot="footer"><Button size="sm" href="/contact">Contact us</Button></div>
     </Card>

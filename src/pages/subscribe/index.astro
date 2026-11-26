@@ -38,6 +38,15 @@ const detail = sp.get('detail');
     </div>
 
     <div class="max-w-[560px]">
+      {!sent && (
+        <div class="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-md border border-border-soft bg-white px-5 py-4">
+          <p class="m-0 text-sm text-text-body">
+            <strong class="font-display text-text-heading">Already on our list?</strong> Log in to manage your details,
+            choose your emails, or apply to become a member.
+          </p>
+          <Button size="sm" variant="secondary" href="/login">Log in</Button>
+        </div>
+      )}
       {sent ? (
         <Card variant="tint" title="Check your email">
           <p class="m-0">
@@ -111,6 +120,13 @@ const detail = sp.get('detail');
             </p>
           </form>
         </Card>
+      )}
+      {!sent && (
+        <p class="mt-5 mb-0 text-sm text-text-muted">
+          Joining also creates your record. Once you’ve confirmed your email, you can{' '}
+          <a href="/login" class="text-link hover:text-link-hover">log in</a>{' '}
+          with the same address to see and change your details, choose your emails, or apply to become a member.
+        </p>
       )}
     </div>
   </main>

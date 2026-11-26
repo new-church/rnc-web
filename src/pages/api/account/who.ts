@@ -7,7 +7,7 @@ export const prerender = false;
 /** Several people share the email address: the person picks who they are from the list the session holds. */
 export const POST: APIRoute = async ({ request, cookies }) => {
   const ctx = await memberContext(cookies);
-  if (!ctx) return see('/account');
+  if (!ctx) return see('/login');
   const form = await request.formData();
   if (!csrfOk(ctx.session, form.get('csrf'))) return see('/account/who?error=csrf');
   try {

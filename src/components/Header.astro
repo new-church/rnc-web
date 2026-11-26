@@ -19,8 +19,9 @@ const aboutLinks = [
   { href: '/about', label: 'About the church' },
   { href: '/about/membership', label: 'Membership and governance' },
   { href: '/about/swedenborg-centre', label: 'Swedenborg Centre' },
+  { href: '/contact', label: 'Contact us' },
 ];
-const aboutActive = currentPath === '/about' || currentPath.startsWith('/about/');
+const aboutActive = currentPath === '/about' || currentPath.startsWith('/about/') || currentPath === '/contact';
 
 function isActive(href: string) {
   if (href === '/') return currentPath === '/';
@@ -119,8 +120,8 @@ const linkBase =
       <Button variant="secondary" size="sm" href="/login" id="login-link" class="ml-2">
         Log in
       </Button>
-      <Button variant="gold" size="sm" href="/contact" class="ml-1">
-        Contact us
+      <Button variant="gold" size="sm" href="/subscribe" id="signup-link" class="ml-1">
+        Sign up
       </Button>
     </nav>
 
@@ -129,10 +130,11 @@ const linkBase =
       <Button
         variant="gold"
         size="sm"
-        href="/contact"
+        href="/subscribe"
+        id="signup-link-compact"
         class="!px-3 !pt-2 !pb-1.5 !text-[12px]"
       >
-        Contact
+        Sign up
       </Button>
       <button
         type="button"
@@ -272,8 +274,8 @@ const linkBase =
         <Button variant="secondary" size="md" href="/login" id="login-link-mobile" class="w-full">
           Log in
         </Button>
-        <Button variant="gold" size="md" href="/contact" class="w-full">
-          Contact us
+        <Button variant="gold" size="md" href="/subscribe" id="signup-link-mobile" class="w-full">
+          Sign up
         </Button>
       </div>
     </div>
@@ -340,10 +342,10 @@ const linkBase =
     });
   })();
 
-  // The Log in buttons give way to the account menu once someone is signed in (the marker cookie only says "a session
+  // The Log in and Sign up buttons give way to the account menu once someone is signed in (the marker cookie only says "a session
   // may exist"; the account menu script below confirms it and puts them back if it has ended).
   (function () {
-    const login = [document.getElementById('login-link'), document.getElementById('login-link-mobile')];
+    const login = ['login-link', 'login-link-mobile', 'signup-link', 'signup-link-compact', 'signup-link-mobile'].map((id) => document.getElementById(id));
     if (document.cookie.split('; ').includes('rnc_in=1')) login.forEach((el) => el && (el.hidden = true));
     window.addEventListener('rnc:signed-out', () => login.forEach((el) => el && (el.hidden = false)));
   })();

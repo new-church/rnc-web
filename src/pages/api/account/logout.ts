@@ -12,5 +12,5 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     if (!csrfOk(ctx.session, form.get('csrf'))) return see('/account/details?error=csrf');
   }
   await signOutEverywhere(cookies);
-  return see('/account?signedout=1');
+  return see('/login?signedout=1');
 };

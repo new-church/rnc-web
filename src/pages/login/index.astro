@@ -4,6 +4,7 @@ export const prerender = false;
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Button from '../../components/Button.astro';
 import Input from '../../components/Input.astro';
+import Card from '../../components/Card.astro';
 import { getSessionContext } from '../../lib/auth/session';
 import { turnstileKeys } from '../../lib/signup';
 import { memberContext } from '../../lib/members/guard';
@@ -12,11 +13,13 @@ if (await getSessionContext({ cookies: Astro.cookies })) return Astro.redirect('
 if (await memberContext(Astro.cookies)) return Astro.redirect('/account/details');
 
 const keys = turnstileKeys();
-const error = Astro.url.searchParams.get('error');
+const sp = Astro.url.searchParams;
+const error = sp.get('error');
 const messages: Record<string, string> = {
   invalid: 'Please check your email address.',
   check: 'We couldn’t complete the security check. Please try again.',
   expired: 'That took a little too long, or you’ve been signed out. Please start again.',
+  gone: 'We couldn’t find an active record for you. Please start again, or contact us.',
 };
 ---
 
@@ -27,6 +30,9 @@ const messages: Record<string, string> = {
       For members, friends and church administrators. We’ll email you a 6-digit code. No password.
     </p>
 
+    {sp.get('signedout') === '1' && (
+      <p class="mb-4 text-sm text-ink-muted" role="status">You’ve signed out.</p>
+    )}
     {error && messages[error] && (
       <p class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-900 text-sm" role="alert">{messages[error]}</p>
     )}
@@ -47,6 +53,15 @@ const messages: Record<string, string> = {
         <Button type="submit" id="admin-submit" variant="primary" disabled>Email me a code</Button>
       </form>
     )}
+
+    <Card class="mt-8" title="New here? Create your account">
+      <p class="m-0 mb-3">
+        There’s no separate sign-up. When you join our mailing list we create your record, and once you’ve confirmed
+        your email you can log in with the same address to see and change your details, choose your emails, or apply to
+        become a member. It takes about a minute.
+      </p>
+      <div slot="footer"><Button size="sm" href="/subscribe">Join the mailing list</Button></div>
+    </Card>
   </main>
   {keys && (
     <>

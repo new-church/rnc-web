@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Button from '../components/Button.astro';
 import SoftPhoto from '../components/SoftPhoto.astro';
 import Badge from '../components/Badge.astro';
+import Card from '../components/Card.astro';
 
 const ministers = [
   {
@@ -154,7 +155,8 @@ const placeholders = [
           rel="noopener noreferrer"
           target="_blank">newchurch.net.au/beliefs</a
         >. You can also ask questions via the New Church Chatbot at the bottom of
-        that page.
+        that page. The Society’s own aims, in everyday words, are on our{' '}
+        <a href="/about/membership#what-the-society-is-for">membership and governance page</a>.
       </p>
 
       <h2>Serving the local community</h2>
@@ -164,14 +166,11 @@ const placeholders = [
         hall lettings throughout the week.
       </p>
 
-      <h2>How the Society is run</h2>
+      <h2>The Swedenborg Centre</h2>
       <p>
-        The Sydney Society of The New Church is a registered charity run by a Committee elected by its members. Read
-        about{' '}
-        <a href="/about/membership">membership and governance</a>, including who is responsible and how to become a
-        member, or about{' '}
-        <a href="/about/swedenborg-centre">the Swedenborg Centre</a>, our online service for exploring Swedenborg’s
-        writings.
+        The Swedenborg Centre is the Society’s online service for exploring Swedenborg’s writings, with talks, discussion
+        groups and study groups open to people across Australia and beyond. Find out{' '}
+        <a href="/about/swedenborg-centre">what it offers and how to join in</a>.
       </p>
 
       <h2>Come and worship with us</h2>
@@ -182,6 +181,18 @@ const placeholders = [
         <a href="/events">what's on</a>.
       </p>
     </article>
+
+    <Card variant="tint" class="mt-10" title="Belong to the Society">
+      <p class="m-0">
+        Anyone is welcome to worship and join in. If you’d like to belong more formally, the Society is a registered
+        charity run by a Committee elected by its members, and members have a say in how it is run. Our membership and
+        governance page explains what membership means, how to join, and who is responsible.
+      </p>
+      <div slot="footer" class="flex flex-wrap gap-3">
+        <Button size="sm" href="/about/membership">Membership and governance</Button>
+        <Button size="sm" variant="secondary" href="/about/membership#check-membership">Check if you are a member</Button>
+      </div>
+    </Card>
 
     <div
       class="mt-10 grid grid-cols-1 sm:grid-cols-[1.2fr_0.8fr] gap-3 sm:gap-4"

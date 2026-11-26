@@ -21,8 +21,8 @@ test("a sign-in is one quiet line, with no heading or button", () => {
   assert.equal(content.actions, undefined);
 });
 
-test("both sign-in endpoints announce a successful sign-in", () => {
-  for (const f of ["pages/api/auth/verify.ts", "pages/api/account/verify.ts"]) assert.match(read(f), /announce\(["']signed_in["']/);
+test("the sign-in endpoint announces a successful sign-in", () => {
+  assert.match(read("pages/api/auth/verify.ts"), /announce\(["']signed_in["']/);
 });
 
 test("announce does nothing, and does not fail, when nothing is configured", async () => {

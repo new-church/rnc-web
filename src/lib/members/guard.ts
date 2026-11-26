@@ -23,10 +23,10 @@ export async function memberContext(cookies: AstroCookies): Promise<Context | nu
  */
 export async function personContext(cookies: AstroCookies): Promise<PersonContext | { redirect: string }> {
   const ctx = await memberContext(cookies);
-  if (!ctx) return { redirect: '/account' };
+  if (!ctx) return { redirect: '/login' };
   if (!ctx.session.personId) return { redirect: '/account/who' };
   const person = await ctx.people.get(ctx.session.personId);
-  if (!person || person.status !== 'active') return { redirect: '/account?error=gone' };
+  if (!person || person.status !== 'active') return { redirect: '/login?error=gone' };
   return { ...ctx, personId: ctx.session.personId, person };
 }
 

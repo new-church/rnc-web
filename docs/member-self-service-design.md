@@ -304,3 +304,7 @@ Successful sign-ins are announced too, as one quiet line in Teams ("Jane Citizen
 ## How people heard about us (2026-11-26)
 
 The mailing list signup asks an optional "How did you hear about us?" (a short list in `memberConfig.signupSources`, with a text box for Other). The answer is kept with the pending signup and, once the person confirms, goes to: the Teams and email subscriber alert (one extra line), a General note on their Planning Center record, and a Planning Center text field named **How they heard about us** if one exists (create it by hand in People > Custom fields; until then the note is the only record). Only the listed choices are accepted.
+
+## One sign-in page (2026-11-26)
+
+`/login` is the only sign-in page. `/account` now just redirects to it (or to `/account/details` when signed in), so old links work; `/account/...` is the signed-in member area. The duplicate `/account` sign-in endpoints and code page were removed. After sign-in everyone lands in the member area (`/account/details`), except an administrator with no member record, who lands in `/admin/actions`; administrators who are also members use the account menu to reach the admin area. The header's main button is **Sign up** (to `/subscribe`, which creates the person's record) with **Log in** beside it; both give way to the account menu once signed in. Contact us is in the About drop-down. The sign-up page leads existing people to Log in, and the login page explains how to sign up.

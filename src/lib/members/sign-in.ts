@@ -1,6 +1,6 @@
 /**
  * One sign-in for everything: the same emailed code opens a member session (if an active person has the address) and an
- * admin session (if the address belongs to an administrator). The endpoints for /account and /login both use this.
+ * admin session (if the address belongs to an administrator). The /login page is the one front door; /account redirects there.
  */
 import type { AstroCookies } from 'astro';
 import { adminToken, clearAdminCookie, destroyAdminSession, setAdminCookie } from '../auth/admin-session';
@@ -25,15 +25,16 @@ export const signInDeps = () => ({
 });
 
 /**
- * Sets the cookies for a successful sign-in and says where to go: the admin area if you came in at /login and are an
- * admin, otherwise your details page (or "who are you?" when an address is shared).
+ * Sets the cookies for a successful sign-in and says where to go: your details page (or "who are you?" when an address is
+ * shared), or the admin area if you are an administrator with no member record. Administrators who are also members
+ * reach the admin area from the account menu.
  */
-export function finishSignIn(cookies: AstroCookies, r: Extract<VerifyResult, { ok: true }>, via: 'account' | 'login'): string {
+export function finishSignIn(cookies: AstroCookies, r: Extract<VerifyResult, { ok: true }>): string {
   clearLoginEmail(cookies);
   if (r.member) setSessionCookie(cookies, r.member.token);
   if (r.admin) setAdminCookie(cookies, r.admin.token);
   setSignedInMarker(cookies);
-  if (r.admin && (via === 'login' || !r.member)) return '/admin/actions';
+  if (r.admin && !r.member) return '/admin/actions';
   return r.member?.needsChoice ? '/account/who' : '/account/details';
 }
 

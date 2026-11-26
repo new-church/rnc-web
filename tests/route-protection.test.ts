@@ -17,12 +17,10 @@ import { join, relative } from "node:path";
 type Kind = "turnstile" | "session-csrf" | "admin" | "cron" | "address-access" | "safe";
 const routes: Record<string, { kind: Kind; limited?: "inline" | "lib" }> = {
   "api/account/deactivate.ts": { kind: "session-csrf" },
-  "api/account/login.ts": { kind: "turnstile", limited: "lib" },
   "api/account/logout.ts": { kind: "session-csrf" },
   "api/account/membership.ts": { kind: "session-csrf" },
   "api/account/prefs.ts": { kind: "session-csrf" },
   "api/account/save.ts": { kind: "session-csrf" },
-  "api/account/verify.ts": { kind: "turnstile", limited: "lib" },
   "api/account/who.ts": { kind: "session-csrf" },
   "api/account/whoami.ts": { kind: "safe" }, // returns only this browser's own signed-in state
   "api/address/complete.ts": { kind: "address-access", limited: "inline" },

@@ -17,7 +17,7 @@ export const POST: APIRoute = async ({ request, cookies, clientAddress }) => {
   if (!(await verifyTurnstile(String(form.get("cf-turnstile-response") ?? ""), clientAddress))) return see("/login/code?error=check");
   const r = await verifyLogin(signInDeps(), email, String(form.get("code") ?? ""), clientAddress);
   if (!r.ok) return see("/login/code?error=code");
-  const to = finishSignIn(cookies, r, "login");
+  const to = finishSignIn(cookies, r);
   await announce("signed_in", r.who, r.admin ? "administrator" : undefined);
   return see(to);
 };
