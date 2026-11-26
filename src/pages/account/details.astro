@@ -8,6 +8,7 @@ import AccountNav from '../../components/AccountNav.astro';
 import { signupConfig } from '../../lib/signup/config';
 import { personContext } from '../../lib/members/guard';
 import { isMember } from '../../lib/members/membership';
+import { birthdayWithoutYear, birthYearKnown } from '../../lib/members/validate';
 
 export const prerender = false;
 
@@ -23,6 +24,10 @@ const errors: Record<string, string> = {
   invalid: sp.get('detail') ?? 'Please check your details.',
   save: 'We couldn’t save that just now. Please try again in a little while, or contact us.',
 };
+// A birthday saved without a year is held by Planning Center with a placeholder year, which would show as e.g. 1885.
+// Leave the box empty and ask for the full date instead (leaving it blank keeps what we have).
+const noYear = birthdayWithoutYear(person.birthdate);
+const birthdate = birthYearKnown(person.birthdate) ? person.birthdate : '';
 const primaryEmail = person.emails.find((e) => e.primary)?.address ?? person.emails[0]?.address ?? session.email;
 ---
 
@@ -60,7 +65,8 @@ const primaryEmail = person.emails.find((e) => e.primary)?.address ?? person.ema
             </div>
             <ExtraFields
               idPrefix="d"
-              birthdate={person.birthdate}
+              birthdate={birthdate}
+              birthdateHint={noYear ? `We only have your birthday as ${noYear}, without the year. If you’re happy to, please add your full date of birth so our records are complete.` : ''}
               phone={person.phone}
               phoneCountry={person.phoneCountry}
               address={person.address}

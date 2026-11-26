@@ -14,7 +14,7 @@ import { randomToken } from './crypto';
 import { mails, sendMail } from './mail';
 import type { PeopleApi, PersonDetails } from './people';
 import { friendTypeFor } from './people';
-import { parseBirthdate } from './validate';
+import { cleanMessage, parseBirthdate } from './validate';
 
 export type RequestKind = 'apply' | 'resign';
 export type RequestStatus = 'pending' | 'approved' | 'declined' | 'withdrawn';
@@ -29,6 +29,8 @@ export type MemberRequest = {
   /** resignation lodged together with deactivating the account */
   alsoDeactivated?: boolean;
   consent?: { version: string; items: string[]; at: string };
+  /** Optional note the person wrote for the Committee when applying */
+  message?: string;
   decision?: {
     at: string;
     by: string;
@@ -109,7 +111,7 @@ export type Result<T = object> = ({ ok: true } & T) | { ok: false; error: string
 export async function applyForMembership(
   deps: Deps,
   who: { personId: string; email: string },
-  consent: { avowed: boolean[]; guarantee: boolean; register: boolean },
+  consent: { avowed: boolean[]; guarantee: boolean; register: boolean; message?: string },
   ipHash?: string,
 ): Promise<Result> {
   const { kv, people } = deps;
@@ -121,6 +123,7 @@ export async function applyForMembership(
   if (isMember(p)) return { ok: false, error: 'You are already a member.' };
   if (pendingOf(await requestsFor(kv, who.personId), 'apply')) return { ok: false, error: 'Your application is already with the Committee.' };
 
+  const message = cleanMessage(consent.message);
   const now = new Date();
   const sk = `MEMBERREQ#${now.toISOString()}#${randomToken(3)}`;
   const data: MemberRequest = {
@@ -131,13 +134,14 @@ export async function applyForMembership(
     email: who.email,
     submittedAt: now.toISOString(),
     consent: { version: memberConfig.avowalVersion, items: [...memberConfig.avowals.map((_, i) => `avowal:${i + 1}`), 'guarantee', 'register'], at: now.toISOString() },
+    ...(message ? { message } : {}),
   };
   await putRequest(kv, who.personId, sk, data);
   await audit(kv, who.personId, { action: 'membership_apply', via: 'member', ipHash });
-  await announce('membership_applied', data.name);
-  await note(people, who.personId, `Applied for membership through the website on ${day(now)}. Acknowledged the guarantee, affirmed the four beliefs in Article 4 (wording ${memberConfig.avowalVersion}) and agreed to be on the register of members. Awaiting the Committee.`);
+  await announce('membership_applied', data.name, message ? 'with a message for the Committee' : undefined);
+  await note(people, who.personId, `Applied for membership through the website on ${day(now)}. Acknowledged the guarantee, affirmed the four beliefs in Article 4 (wording ${memberConfig.avowalVersion}) and agreed to be on the register of members.${message ? ` Their message to the Committee: "${message}"` : ''} Awaiting the Committee.`);
   await tell('membership application', async () => {
-    await sendMail({ ...mails.notifyCommittee('apply', { name: data.name, email: who.email }, adminLink()), to: memberConfig.notifyTo() });
+    await sendMail({ ...mails.notifyCommittee('apply', { name: data.name, email: who.email, message }, adminLink()), to: memberConfig.notifyTo() });
   });
   await tell('application receipt', () => sendMail(mails.applicationReceived(who.email, p.firstName)));
   return { ok: true };
@@ -158,6 +162,7 @@ export async function requestResignation(
   who: { personId: string; email: string },
   alsoDeactivate: boolean,
   ipHash?: string,
+  rawMessage?: string,
 ): Promise<Result> {
   const { kv, people } = deps;
   const p = await people.get(who.personId);
@@ -165,6 +170,7 @@ export async function requestResignation(
   if (!isMember(p)) return { ok: false, error: 'You are not a member.' };
   if (pendingOf(await requestsFor(kv, who.personId), 'resign')) return { ok: false, error: 'Your resignation request is already with the Committee.' };
 
+  const message = cleanMessage(rawMessage);
   const now = new Date();
   const data: MemberRequest = {
     kind: 'resign',
@@ -174,13 +180,14 @@ export async function requestResignation(
     email: who.email,
     submittedAt: now.toISOString(),
     alsoDeactivated: alsoDeactivate,
+    ...(message ? { message } : {}),
   };
   await putRequest(kv, who.personId, `MEMBERREQ#${now.toISOString()}#${randomToken(3)}`, data);
   await audit(kv, who.personId, { action: 'membership_resign_request', via: 'member', ipHash });
-  await announce('resignation_requested', data.name, alsoDeactivate ? 'and deactivating their account' : undefined);
-  await note(people, who.personId, `Asked to resign as a member through the website on ${day(now)}${alsoDeactivate ? ' and deactivated their account' : ''}. Awaiting the Committee.`);
+  await announce('resignation_requested', data.name, [alsoDeactivate ? 'also deactivating their account' : '', message ? 'with a message for the Committee' : ''].filter(Boolean).join(', ') || undefined);
+  await note(people, who.personId, `Asked to resign as a member through the website on ${day(now)}${alsoDeactivate ? ' and deactivated their account' : ''}.${message ? ` Their message to the Committee: "${message}"` : ''} Awaiting the Committee.`);
   await tell('resignation request', async () => {
-    await sendMail({ ...mails.notifyCommittee('resign', { name: data.name, email: who.email, deactivating: alsoDeactivate }, adminLink()), to: memberConfig.notifyTo() });
+    await sendMail({ ...mails.notifyCommittee('resign', { name: data.name, email: who.email, deactivating: alsoDeactivate, message }, adminLink()), to: memberConfig.notifyTo() });
   });
   await tell('resignation receipt', () => sendMail(mails.resignationReceived(who.email, p.firstName)));
   if (alsoDeactivate) await deactivateAccount(deps, who.personId, who.email, ipHash);

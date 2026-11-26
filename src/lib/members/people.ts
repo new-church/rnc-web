@@ -10,6 +10,7 @@ import { isLive } from '../signup';
 import { countryOfNumber, e164Of, splitPhone } from '../phone';
 import { signupConfig } from '../signup/config';
 import { memberConfig } from './config';
+import { birthYearKnown } from './validate';
 
 export type Address = { street1: string; street2: string; city: string; state: string; zip: string; country: string };
 export type DetailsInput = {
@@ -244,7 +245,7 @@ export class LivePeople implements PeopleApi {
     const cur = await this.get(id);
     if (!cur) return [];
     const fill: DetailsInput = {};
-    if (!cur.birthdate && input.birthdate) fill.birthdate = input.birthdate;
+    if (!birthYearKnown(cur.birthdate) && input.birthdate) fill.birthdate = input.birthdate;
     if (!cur.phone && input.phone) fill.phone = input.phone;
     if (!cur.address && input.address && Object.values(input.address).some(Boolean)) fill.address = input.address;
     return Object.keys(fill).length ? this.updateDetails(id, fill) : [];
@@ -439,7 +440,7 @@ export class DemoPeople implements PeopleApi {
   async fillBlanks(id: string, input: DetailsInput): Promise<string[]> {
     const p = this.must(id);
     const fill: DetailsInput = {};
-    if (!p.birthdate && input.birthdate) fill.birthdate = input.birthdate;
+    if (!birthYearKnown(p.birthdate) && input.birthdate) fill.birthdate = input.birthdate;
     if (!p.phone && input.phone) fill.phone = input.phone;
     if (!p.address && input.address && Object.values(input.address).some(Boolean)) fill.address = input.address;
     return this.updateDetails(id, fill);

@@ -8,7 +8,32 @@ export const isEmail = (s: string) => /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]{2,}$/.t
 /** True only when the person typed "yes" (any case, spaces ignored) into a confirmation box. */
 export const typedYes = (v: FormDataEntryValue | null | undefined) => String(v ?? '').trim().toLowerCase() === 'yes';
 
+/** An optional free-text note from a person: no control characters, trimmed, at most 1000 characters. */
+export const MESSAGE_MAX = 1000;
+export const cleanMessage = (v: FormDataEntryValue | string | null | undefined) =>
+  String(v ?? '')
+    .replace(/\r\n?/g, '\n')
+    // eslint-disable-next-line no-control-regex
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '')
+    .trim()
+    .slice(0, MESSAGE_MAX);
+
 export const normaliseEmail = (s: string) => s.trim().toLowerCase();
+
+/**
+ * Planning Center holds a birthday with no year as a placeholder year (1885 in our data). Anything before 1900 is
+ * therefore "year not known", which is also what parseBirthdate refuses.
+ */
+export const birthYearKnown = (s: string | null | undefined) => /^\d{4}-\d{2}-\d{2}$/.test(s ?? '') && +String(s).slice(0, 4) >= 1900;
+
+/** "3 October" for a stored birthday whose year is not known, else null. */
+export function birthdayWithoutYear(s: string | null | undefined): string | null {
+  const m = /^\d{4}-(\d{2})-(\d{2})$/.exec(s ?? '');
+  if (!m || birthYearKnown(s)) return null;
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const month = months[+m[1] - 1];
+  return month ? `${+m[2]} ${month}` : null;
+}
 
 /** A plausible past date as YYYY-MM-DD, or null. */
 export function parseBirthdate(s: string, now = new Date()): string | null {

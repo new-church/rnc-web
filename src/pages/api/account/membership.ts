@@ -20,14 +20,14 @@ export const POST: APIRoute = async ({ request, cookies, clientAddress }) => {
     const r = await applyForMembership(
       deps,
       who,
-      { avowed: memberConfig.avowals.map((_, i) => form.get(`avow${i}`) === '1'), guarantee: form.get('guarantee') === '1', register: form.get('register') === '1' },
+      { avowed: memberConfig.avowals.map((_, i) => form.get(`avow${i}`) === '1'), guarantee: form.get('guarantee') === '1', register: form.get('register') === '1', message: String(form.get('message') ?? '') },
       ip,
     );
     return r.ok ? see('/account/membership?applied=1') : fail(r.error);
   }
   if (action === 'resign') {
     if (!typedYes(form.get('confirm'))) return fail('To ask to resign, please type yes in the box to confirm.');
-    const r = await requestResignation(deps, who, false, ip);
+    const r = await requestResignation(deps, who, false, ip, String(form.get('message') ?? ''));
     return r.ok ? see('/account/membership?resigned=1') : fail(r.error);
   }
   if (action === 'withdraw') {

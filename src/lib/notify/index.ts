@@ -32,7 +32,7 @@ const admin = `${signupConfig.siteUrl}/admin/membership`;
 const info: Record<MemberEvent, Info> = {
   membership_applied: {
     title: 'Membership application',
-    text: (n) => `${n} has asked to become a member. The Committee needs to consider it at its next meeting.`,
+    text: (n, x) => `${n} has asked to become a member${x ? ` (${x})` : ''}. The Committee needs to consider it at its next meeting.`,
     link: admin,
     needsAction: true,
   },

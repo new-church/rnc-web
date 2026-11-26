@@ -75,7 +75,7 @@ export const mails = {
     ].join('\n'),
   }),
 
-  notifyCommittee: (kind: 'apply' | 'resign', who: { name: string; email: string; deactivating?: boolean }, link: string): Mail => ({
+  notifyCommittee: (kind: 'apply' | 'resign', who: { name: string; email: string; deactivating?: boolean; message?: string }, link: string): Mail => ({
     to: '',
     subject: kind === 'apply' ? `Membership application: ${who.name}` : `Membership resignation request: ${who.name}`,
     text:
@@ -83,12 +83,15 @@ export const mails = {
         ? [
             `${who.name} <${who.email}> has applied to become a member through the website.`,
             'They acknowledged the guarantee, affirmed the four beliefs in Article 4, and agreed to be on the register of members.',
+            ...(who.message ? ['', 'Their message to the Committee:', who.message] : []),
             '',
             'For the Committee: a member proposes and another seconds, a majority approves having regard to the Minister’s advice, then the Secretary records the decision here:',
             link,
           ].join('\n')
         : [
             `${who.name} <${who.email}> has asked to resign as a member through the website${who.deactivating ? ', and has also deactivated their account' : ''}.`,
+            ...(who.message ? ['', 'Their message to the Committee:', who.message] : []),
+            '',
             'The Committee resolves resignations at its next meeting; the Secretary then records the decision here:',
             link,
           ].join('\n'),

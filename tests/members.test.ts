@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { test, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { memoryKv } from "../src/lib/members/memory-kv";
@@ -7,7 +8,7 @@ import { createSession, readSession, setSessionPerson } from "../src/lib/members
 import { withinLimit } from "../src/lib/members/rate";
 import { DemoPeople, resetDemoPeople } from "../src/lib/members/people";
 import { applyForMembership, decideRequest, openRequests, requestResignation, requestsFor, withdrawRequest } from "../src/lib/members/membership";
-import { parseBirthdate, parseExtra } from "../src/lib/members/validate";
+import { birthdayWithoutYear, birthYearKnown, parseBirthdate, parseExtra } from "../src/lib/members/validate";
 import { memberConfig } from "../src/lib/members/config";
 
 const quiet = console.log;
@@ -208,4 +209,50 @@ test("signup in people: an inactive person is not quietly reactivated, and blank
 
 test.after(() => {
   console.log = quiet;
+});
+
+test("membership: an optional message is cleaned, kept with the request, noted in Planning Center and shown to the Committee", async () => {
+  const deps = { kv: memoryKv(), people: new DemoPeople() };
+  const long = "Hello\r\n" + "x".repeat(2000) + "\u0007";
+  assert.equal((await applyForMembership(deps, who, { ...consent, message: long })).ok, true);
+  const [req] = await openRequests(deps.kv);
+  assert.ok(req.data.message && req.data.message.length === 1000, "capped at 1000");
+  assert.ok(req.data.message.startsWith("Hello\nx"), "line endings tidied");
+  assert.ok(!req.data.message.includes("\u0007"), "control characters removed");
+  assert.ok(logged.some((l) => l.includes("Their message to the Committee")), "recorded as a Planning Center note");
+});
+
+test("membership: no message means none is stored", async () => {
+  const deps = { kv: memoryKv(), people: new DemoPeople() };
+  await applyForMembership(deps, who, { ...consent, message: "   " });
+  const [req] = await openRequests(deps.kv);
+  assert.equal(req.data.message, undefined);
+});
+
+test("a birthday Planning Center holds without a year (placeholder 1885) counts as year not known", () => {
+  assert.equal(birthYearKnown("1885-10-03"), false);
+  assert.equal(birthYearKnown("1962-10-03"), true);
+  assert.equal(birthYearKnown(""), false);
+  assert.equal(birthdayWithoutYear("1885-10-03"), "3 October");
+  assert.equal(birthdayWithoutYear("1885-04-28"), "28 April");
+  assert.equal(birthdayWithoutYear("1962-10-03"), null);
+  assert.equal(birthdayWithoutYear(""), null);
+});
+
+test("details page does not prefill a placeholder year, so saving other details cannot fail on it", () => {
+  const page = readFileSync(new URL("../src/pages/account/details.astro", import.meta.url), "utf8");
+  assert.match(page, /birthYearKnown\(person\.birthdate\)/);
+  assert.match(page, /birthdate=\{birthdate\}/);
+  assert.doesNotMatch(page, /birthdate=\{person\.birthdate\}/);
+});
+
+test("resignation: an optional message is kept with the request, noted and cleaned", async () => {
+  const deps = { kv: memoryKv(), people: new DemoPeople() };
+  // the demo person starts as a Society Friend, so make them a member first
+  await deps.people.setMembership("1", memberConfig.membership.member);
+  assert.equal((await requestResignation(deps, who, false, undefined, "  Moving overseas.\u0007  ")).ok, true);
+  const [req] = await openRequests(deps.kv);
+  assert.equal(req.data.kind, "resign");
+  assert.equal(req.data.message, "Moving overseas.");
+  assert.ok(logged.some((l) => l.includes("Their message to the Committee") && l.includes("Moving overseas.")));
 });

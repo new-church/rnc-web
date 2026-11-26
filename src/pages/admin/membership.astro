@@ -61,6 +61,11 @@ const field = 'rounded-md border border-border-strong bg-white px-3 py-2 text-sm
               Acknowledged the guarantee, affirmed the four beliefs in Article 4 (wording {data.consent?.version}) and agreed to be on the register, on {data.consent ? when(data.consent.at) : '—'}.
             </p>
           )}
+          {data.message && (
+            <p class="m-0 rounded-md border border-border-soft bg-surface-tint px-3 py-2 text-sm text-text-body whitespace-pre-line">
+              <strong>Their message to the Committee:</strong>{'\n'}{data.message}
+            </p>
+          )}
           <form method="post" action="/api/admin/membership" class="grid gap-3 sm:grid-cols-2">
             <input type="hidden" name="personId" value={personId} />
             <input type="hidden" name="sk" value={sk} />
