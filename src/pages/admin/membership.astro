@@ -2,6 +2,7 @@
 export const prerender = false;
 
 import AdminLayout from '../../layouts/AdminLayout.astro';
+import Select from '../../components/Select.astro';
 import { memberKv } from '../../lib/members/kv';
 import { openRequests } from '../../lib/members/membership';
 import { memberConfig } from '../../lib/members/config';
@@ -71,10 +72,10 @@ const field = 'rounded-md border border-border-strong bg-white px-3 py-2 text-sm
             <input type="hidden" name="sk" value={sk} />
             <label class="text-xs font-semibold">
               Decision
-              <select name="decision" required class={field}>
+              <Select name="decision" required class={field}>
                 <option value="approve">{data.kind === 'apply' ? 'Approved by the Committee' : 'Resignation accepted'}</option>
                 {data.kind === 'apply' && <option value="decline">Declined</option>}
-              </select>
+              </Select>
             </label>
             <label class="text-xs font-semibold">
               Date of the Committee resolution

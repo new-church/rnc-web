@@ -8,6 +8,7 @@
  * manually" unlocks them. Without it (no key) the fields are plain inputs.
  */
 import Input from './Input.astro';
+import Select from './Select.astro';
 import { countryOptions } from '../lib/phone';
 import { addressLookupAvailable } from '../lib/address';
 import { turnstileKeys } from '../lib/signup';
@@ -47,11 +48,11 @@ const label = 'flex flex-col gap-1.5 font-display text-sm text-text-heading';
   <div class={label}>
     <label for={`${idPrefix}-phone`}>Phone</label>
     <div class="grid grid-cols-[minmax(0,9.5rem)_1fr] gap-3">
-      <select name="phoneCountry" aria-label="Phone country" autocomplete="off" class:list={[field, 'select-field']}>
+      <Select name="phoneCountry" ariaLabel="Phone country" autocomplete="off">
         {priority.map((c) => <option value={c.iso} selected={c.iso === phoneCountry}>{c.iso} {c.callingCode}</option>)}
         <option disabled>──────────</option>
         {rest.map((c) => <option value={c.iso} selected={c.iso === phoneCountry}>{c.name} {c.callingCode}</option>)}
-      </select>
+      </Select>
       <input id={`${idPrefix}-phone`} name="phone" type="tel" value={phone} autocomplete="tel-national" placeholder="0412 345 678" class={field} />
     </div>
   </div>
@@ -78,14 +79,11 @@ const label = 'flex flex-col gap-1.5 font-display text-sm text-text-heading';
         <label class={label}>State<input name="state" value={a.state} autocomplete="address-level1" class={field} /></label>
         <label class={label}>Postcode<input name="zip" value={a.zip} autocomplete="postal-code" class={field} /></label>
       </div>
-      <label class={label}>
-        Country
-        <select name="country" autocomplete="country" class:list={[field, 'select-field']}>
-          {priority.map((c) => <option value={c.iso} selected={c.iso === country}>{c.name}</option>)}
-          <option disabled>──────────</option>
-          {rest.map((c) => <option value={c.iso} selected={c.iso === country}>{c.name}</option>)}
-        </select>
-      </label>
+      <Select label="Country" name="country" autocomplete="country">
+        {priority.map((c) => <option value={c.iso} selected={c.iso === country}>{c.name}</option>)}
+        <option disabled>──────────</option>
+        {rest.map((c) => <option value={c.iso} selected={c.iso === country}>{c.name}</option>)}
+      </Select>
     </div>
 
     {lookup && <button type="button" data-address-edit class="self-start bg-transparent border-0 p-0 font-display text-sm text-link hover:text-link-hover cursor-pointer"></button>}
@@ -93,16 +91,6 @@ const label = 'flex flex-col gap-1.5 font-display text-sm text-text-heading';
 </div>
 
 <style>
-  /* One chevron, inset from the right edge, for every dropdown (the browser's own arrow sits oddly in these rounded boxes). */
-  .select-field {
-    appearance: none;
-    -webkit-appearance: none;
-    padding-right: 2.75rem;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235b3fa0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 1.1rem center;
-    background-size: 14px;
-  }
   [data-address-fields] input[readonly] {
     background-color: var(--color-surface-tint);
     color: var(--color-text-muted);

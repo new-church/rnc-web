@@ -1,0 +1,46 @@
+---
+/**
+ * The one dropdown for the whole site. It carries the chevron (see .select-field in global.css), so never write a bare
+ * <select>: a test fails if one appears. Pass the <option>s as the slot.
+ *
+ * With a `label` it renders a labelled field like <Input>; without one, give it an `ariaLabel` and wrap it yourself.
+ * `class` replaces the default box styling (for example the smaller admin fields); the chevron is always added.
+ */
+interface Props {
+  label?: string;
+  id?: string;
+  name: string;
+  required?: boolean;
+  autocomplete?: string;
+  ariaLabel?: string;
+  class?: string;
+  /** Classes for the wrapping label when `label` is given */
+  labelClass?: string;
+}
+
+const {
+  label,
+  id,
+  name,
+  required = false,
+  autocomplete,
+  ariaLabel,
+  class: boxClass = 'font-body text-base text-text-body px-4 py-3 rounded-md border border-border-strong bg-white outline-none transition-[box-shadow,border-color] duration-150 ease-[var(--ease-gentle)] focus:border-accent-primary focus:shadow-glow w-full',
+  labelClass = 'flex flex-col gap-1.5 font-display text-sm text-text-heading',
+} = Astro.props;
+---
+
+{
+  label ? (
+    <label class={labelClass}>
+      <span>{label}</span>
+      <select id={id} name={name} required={required} autocomplete={autocomplete} aria-label={ariaLabel} class:list={[boxClass, 'select-field']}>
+        <slot />
+      </select>
+    </label>
+  ) : (
+    <select id={id} name={name} required={required} autocomplete={autocomplete} aria-label={ariaLabel} class:list={[boxClass, 'select-field']}>
+      <slot />
+    </select>
+  )
+}

@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Button from '../../components/Button.astro';
 import Card from '../../components/Card.astro';
 import Input from '../../components/Input.astro';
+import Select from '../../components/Select.astro';
 import ExtraFields from '../../components/ExtraFields.astro';
 import AjaxForm from '../../components/AjaxForm.astro';
 import { signupErrors } from '../../lib/members/signup';
@@ -79,13 +80,10 @@ const detail = sp.get('detail');
             </fieldset>
 
             <div class="flex flex-col gap-2">
-              <label for="sub-source" class="flex flex-col gap-1.5 font-display text-sm text-text-heading">
-                <span>How did you hear about us? <span class="font-body text-text-muted">(optional)</span></span>
-                <select id="sub-source" name="source" class="font-body text-base text-text-body px-4 py-3 rounded-md border border-border-strong bg-white outline-none focus:border-accent-primary focus:shadow-glow w-full">
-                  <option value="">Choose one…</option>
-                  {memberConfig.signupSources.map((o) => <option value={o.id}>{o.label}</option>)}
-                </select>
-              </label>
+              <Select label="How did you hear about us? (optional)" id="sub-source" name="source">
+                <option value="">Choose one…</option>
+                {memberConfig.signupSources.map((o) => <option value={o.id}>{o.label}</option>)}
+              </Select>
               <div id="sub-source-other" hidden>
                 <Input label="Tell us a little more" id="sub-source-other-text" name="sourceOther" placeholder="e.g. a website, a talk, a person" />
               </div>
