@@ -48,7 +48,6 @@ test("About, Membership and governance and the Swedenborg Centre link to one ano
   const membership = read("pages/about/membership.astro");
   const centre = read("pages/about/swedenborg-centre.astro");
   assert.match(about, /href="\/about\/membership"/);
-  assert.match(about, /href="\/about\/membership#check-membership"/);
   assert.match(about, /href="\/about\/swedenborg-centre"/);
   assert.match(membership, /href="\/about"/);
   assert.match(membership, /href="\/about\/swedenborg-centre"/);
@@ -79,4 +78,32 @@ test("the header's main button is Sign up, Log in is the second button, and Cont
   assert.match(header, /href: '\/contact', label: 'Contact us'/);
   assert.ok(!/variant="gold"[^>]*href="\/contact"/s.test(header), "no gold Contact button any more");
   for (const id of ["signup-link", "signup-link-compact", "signup-link-mobile", "login-link", "login-link-mobile"]) assert.match(header, new RegExp(`'${id}'`), `${id} hides once signed in`);
+});
+
+test("the draft intro page lives at /about/new-church, stays noindex, and is linked from the menu and home page", () => {
+  const page = read("pages/about/new-church.astro");
+  assert.match(page, /currentPath="\/about\/new-church"/);
+  assert.match(page, /\bnoindex\b/);
+  assert.match(read("../astro.config.mjs"), /'\/new-church': '\/about\/new-church'/);
+  const header = read("components/Header.astro");
+  assert.match(header, /href: '\/about\/new-church', label: 'What is the New Church\?'/);
+  assert.match(read("pages/index.astro"), /href="\/about\/new-church"/);
+});
+
+test("old slugs that moved still redirect", () => {
+  const config = read("../astro.config.mjs");
+  for (const [from, to] of [["/about/governance", "/about/membership"], ["/new-church", "/about/new-church"], ["/account/code", "/login/code"], ["/login/verify", "/login"], ["/login/callback", "/login"]]) {
+    assert.ok(config.includes(`'${from}': '${to}'`), `${from} must redirect to ${to}`);
+  }
+});
+
+test("each About page ends by leading on to the next one in the reading order", () => {
+  const chain = [
+    ["pages/about/new-church.astro", "/about"],
+    ["pages/about.astro", "/about/membership"],
+    ["pages/about/membership.astro", "/about/swedenborg-centre"],
+  ];
+  for (const [page, next] of chain) {
+    assert.match(read(page), new RegExp(`<NextPage[^>]*href="${next.replace(/\//g, "\\/")}"`), `${page} should lead on to ${next}`);
+  }
 });

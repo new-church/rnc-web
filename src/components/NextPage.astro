@@ -1,0 +1,27 @@
+---
+/**
+ * The box at the foot of an About page that leads on to the next page in the reading order:
+ * What is the New Church? → Our church → Membership and governance → Swedenborg Centre.
+ * The main button is always the next page; other options (such as "Plan a Sunday visit") go in the `more` slot
+ * as secondary or ghost buttons.
+ */
+import Card from './Card.astro';
+import Button from './Button.astro';
+
+interface Props {
+  title: string;
+  href: string;
+  label: string;
+  class?: string;
+}
+
+const { title, href, label, class: className = 'mt-12 mb-4' } = Astro.props;
+---
+
+<Card variant="tint" class={className} eyebrow="Keep reading" title={title}>
+  <p class="m-0"><slot /></p>
+  <div slot="footer" class="flex flex-wrap gap-3">
+    <Button href={href}>{label}</Button>
+    <slot name="more" />
+  </div>
+</Card>

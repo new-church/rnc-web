@@ -1,9 +1,10 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Button from '../components/Button.astro';
-import Card from '../components/Card.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Button from '../../components/Button.astro';
+import Card from '../../components/Card.astro';
+import NextPage from '../../components/NextPage.astro';
 
-// DRAFT (2026-11-24): not linked from the menu, noindex and out of the sitemap until the committee has reviewed it.
+// DRAFT (2026-11-24): noindex and out of the sitemap until the committee has reviewed it. Moved to /about/new-church 2026-11-27 and linked from the menu, home page and About pages.
 // Written for someone with no church background: who we are first, belief in one sentence, then "why new"
 // lightly, and the detail (Swedenborg's claims, Christian differences) further down for those who want it.
 const doors = [
@@ -69,7 +70,7 @@ const different = [
   },
   {
     title: 'Heaven and hell are chosen',
-    text: 'God does not send anyone anywhere. People move towards the kind of life they have come to love. Heaven is open to everyone who loves God and tries to live well.',
+    text: 'God does not send anyone anywhere. People move towards the kind of life they have come to love, and heaven is open to everyone who loves God and tries to live well.',
   },
   {
     title: 'Marriage can last for ever',
@@ -81,7 +82,7 @@ const different = [
 <BaseLayout
   title="What is the New Church?"
   description="A small, friendly Christian church in Roseville. Who we are, what we believe in a sentence, and why it's called the New Church."
-  currentPath="/about"
+  currentPath="/about/new-church"
   noindex
 >
   <main class="container-prose px-6 md:px-8 pt-10 md:pt-14 pb-16">
@@ -89,22 +90,24 @@ const different = [
       <div
         class="font-display font-semibold text-eyebrow tracking-eyebrow uppercase text-accent-primary mb-2.5 !mt-0"
       >
-        ✦ About the New Church
+        ✦ New here?
       </div>
-      <h1>Who we are</h1>
+      <h1>What is the New Church?</h1>
 
       <p class="text-lg">
-        We’re a small Christian community that meets in the brick church on
-        Shirley Road, Roseville. People come for all sorts of reasons: a quiet
-        hour on a Sunday, a chat over a cup of tea, or a place to think about the
-        bigger questions in life. Some grew up going to church. Plenty didn’t.
+        The New Church is a Christian church: we follow Jesus Christ and read the
+        Bible, and we try to live what we believe. People come to us for all
+        sorts of reasons: a quiet hour on a Sunday, a chat over a cup of tea, or
+        a place to think about the bigger questions in life. Some grew up going
+        to church. Plenty didn’t.
       </p>
 
       <h2>What we believe, in a sentence</h2>
       <p>
-        That God is love, that the Bible has more to say about everyday life than
-        it might first appear, and that faith is something you live out by being
-        kind and useful to the people around you.
+        That Jesus Christ is the one God, and that God is love; that the Bible is
+        sacred, with more to say about everyday life than it might first appear;
+        and that faith is something you live, by turning away from what harms and
+        caring for the people around you.
       </p>
 
       <h2>So why “new”?</h2>
@@ -117,8 +120,15 @@ const different = [
       <p>
         Many of those fresh ideas come from <strong>Emanuel Swedenborg</strong>,
         a Swedish scientist of the 1700s who spent the second half of his life
-        writing about the Bible. You’ll hear his books read alongside the Bible
-        on a Sunday. You don’t need to have read any of them to feel at home.
+        writing about the Bible. The name comes from the “new Jerusalem” in the
+        book of Revelation, which he read as a picture of a renewed Christianity
+        rather than a new religion.
+      </p>
+      <p>
+        You’ll hear his books read alongside the Bible on a Sunday, but you don’t
+        need to have read any of them to feel at home. We don’t ask anyone to
+        take his word for it, either: we read his work, ask questions and weigh
+        it for ourselves, and you’re welcome to do the same.
       </p>
     </article>
 
@@ -135,7 +145,7 @@ const different = [
       </div>
     </section>
 
-    <section id="questions" class="mt-14 scroll-mt-24 prose-rnc">
+    <section id="questions" class="mt-12 scroll-mt-24 prose-rnc">
       <h2>Life’s big questions</h2>
       <p>
         You don’t need any background in church or the Bible. These are a few of
@@ -151,7 +161,7 @@ const different = [
       }
     </section>
 
-    <section id="christian" class="mt-14 scroll-mt-24">
+    <section id="christian" class="mt-12 scroll-mt-24">
       <div class="prose-rnc">
         <h2 class="!mt-0">If you grew up in another Christian church</h2>
         <p>
@@ -179,34 +189,26 @@ const different = [
         }
       </div>
 
-      <div class="prose-rnc mt-8">
-        <h3>Where the name comes from</h3>
-        <p>
-          The name comes from the “new Jerusalem” in the book of Revelation, which
-          Swedenborg read as a picture of a renewed Christianity rather than a
-          new religion. He believed he had been given insight into the Bible’s
-          inner meaning. We don’t ask anyone to accept that on his say-so. We
-          read his work alongside the Bible, ask questions, and weigh it for
-          ourselves, and we would encourage you to do the same.
-        </p>
-      </div>
     </section>
 
-    <Card variant="tint" class="mt-14" eyebrow="Come as you are" title="If you’d like to come along">
-      <p class="m-0">
-        Just turn up. You don’t need to know anything, and nobody will put you on
-        the spot. Services are on the first and third Sundays of the month at
-        10am, and there’s tea and coffee afterwards. Questions are always welcome,
-        over tea or by email.
+    <section class="mt-12 prose-rnc">
+      <h2 class="!mt-0">Come as you are</h2>
+      <p>
+        If you’d like to come along, just turn up. You don’t need to know anything, and nobody will put you on the
+        spot. We meet in the brick church on Shirley Road, Roseville, on the first and third Sundays of the month at
+        10am, with tea and coffee afterwards. Questions are always welcome, over tea or by email.
       </p>
-      <div slot="footer" class="flex flex-wrap gap-3">
-        <Button href="/events/sunday-worship">What a Sunday is like</Button>
-        <Button variant="secondary" href="/events">What’s on</Button>
-        <Button variant="ghost" href="/contact">Ask a question</Button>
-      </div>
-    </Card>
+    </section>
 
-    <p class="mt-8 text-sm text-text-muted">
+    <NextPage title="Our church" href="/about" label="Read about our church">
+      Meet the people of Roseville New Church, our minister, and the story of the Society since 1875.
+      <Fragment slot="more">
+        <Button variant="secondary" href="/events/sunday-worship">Plan a Sunday visit</Button>
+        <Button variant="ghost" href="/contact">Ask a question</Button>
+      </Fragment>
+    </NextPage>
+
+    <p class="mt-6 text-sm text-text-muted">
       Want to read more first? The New Church in Australia has a plain-language
       guide to its{' '}
       <a href="https://newchurch.net.au/beliefs" rel="noopener noreferrer" target="_blank">core beliefs</a>.

@@ -181,6 +181,24 @@
     line-height: 1.65;
   }
 
+  /*
+   * When the lead runs straight into ordinary body text (no heading, button or card between them), a short brand
+   * rule marks where the larger intro ends, so the drop in text size reads as intended.
+   */
+  .prose-rnc :where(h1 + p + p) {
+    margin-top: 1.75rem;
+  }
+
+  .prose-rnc :where(h1 + p + p)::before {
+    content: "";
+    display: block;
+    width: 3rem;
+    height: 3px;
+    margin-bottom: 1.75rem;
+    border-radius: var(--radius-pill);
+    background-image: linear-gradient(115deg, #7c5cbf 0%, #d96ba0 55%, #e8a33d 100%);
+  }
+
   .prose-rnc :where(blockquote) {
     margin: 2.25rem 0 0;
     padding: 0;
@@ -214,15 +232,6 @@
     color: var(--color-text-heading);
   }
 
-  .prose-rnc :where(a) {
-    color: var(--color-link);
-    text-underline-offset: 3px;
-    text-decoration-color: var(--color-violet-200);
-  }
-
-  .prose-rnc :where(a:hover) {
-    color: var(--color-link-hover);
-  }
 }
 
 @layer base {
@@ -249,6 +258,23 @@
 
   a:hover {
     @apply text-link-hover;
+  }
+
+  /*
+   * Links inside running text (paragraphs, lists, definition lists, tables, captions) are underlined so they read as
+   * links at a glance, not only on hover. Purple underline at rest, pink with the text on hover. This sits in the base
+   * layer, so a `no-underline` utility on a link (menus, cards, footer) still wins. Buttons opt out in Button.astro.
+   */
+  :where(p, li, dd, td, th, figcaption, blockquote, small) a {
+    text-decoration-line: underline;
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 3px;
+    text-decoration-color: color-mix(in srgb, var(--color-accent-primary) 55%, transparent);
+    transition: color 150ms var(--ease-gentle), text-decoration-color 150ms var(--ease-gentle);
+  }
+
+  :where(p, li, dd, td, th, figcaption, blockquote, small) a:hover {
+    text-decoration-color: currentColor;
   }
 }
 

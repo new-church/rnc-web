@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Button from '../components/Button.astro';
 import SoftPhoto from '../components/SoftPhoto.astro';
 import Badge from '../components/Badge.astro';
-import Card from '../components/Card.astro';
+import NextPage from '../components/NextPage.astro';
 
 const ministers = [
   {
@@ -69,130 +69,29 @@ const placeholders = [
 ---
 
 <BaseLayout
-  title="About"
-  description="An old faith, seen in new light — The Sydney Society of The New Church and Roseville New Church."
+  title="Our church"
+  description="Roseville New Church and The Sydney Society of The New Church: church life today, our minister, and our story since 1875."
   currentPath="/about"
 >
   <main class="container-prose px-6 md:px-8 pt-10 md:pt-14 pb-4">
     <div
       class="font-display font-semibold text-eyebrow tracking-eyebrow uppercase text-accent-primary mb-2.5"
     >
-      ✦ About us
+      ✦ Our church
     </div>
 
     <article class="prose-rnc">
-      <h1>An old faith, seen in new light</h1>
-      <p>
-        The organisation behind the Roseville New Church is The Sydney Society of The New Church, governing and maintaining its activities. The Sydney Society of The New Church has been nourishing people’s spiritual journey
-        for more than 150 years. Established in 1875, the Society was formed by
-        people inspired by the teachings of the eighteenth-century Swedish
-        scientist, philosopher, and theologian Emanuel Swedenborg. Since then,
-        it has sought to encourage a practical Christianity centred on love to
-        the Lord, kindness towards others, and the understanding that genuine
-        faith finds its fulfilment in a life of useful service.
+      <h1>Our church</h1>
+      <p class="text-lg">
+        Roseville New Church is a small, friendly Christian community that meets in the brick church at 2B Shirley Road,
+        Roseville. It is looked after by The Sydney Society of The New Church, a charity that has been part of Sydney’s
+        life since 1875.
       </p>
-      <p>
-        A long-standing tradition connects the Society's story with the very
-        beginnings of European settlement in Australia. It has been widely held
-        within the New Church that a collection of Swedenborg's theological
-        writings travelled with the First Fleet and arrived in Sydney Cove in
-        1788. While historians continue to discuss the details, the tradition
-        reflects the belief that Swedenborg’s influence was present from the
-        colony's earliest days and forms a meaningful part of the Society's
-        heritage.
-      </p>
-      <p>
-        Throughout its history, the Sydney Society has sought to make
-        Swedenborg's vision of Christianity accessible to each new generation.
-        His writings present a picture of God as the Lord Jesus Christ, teach
-        that the Bible contains profound spiritual meaning, and emphasise that
-        heaven begins within us as we freely choose lives shaped by love,
-        wisdom, and service. These teachings continue to offer hope and
-        practical guidance for people seeking a thoughtful and life-affirming
-        spirituality.
-      </p>
-      <p>
-        Over the decades the Society has adapted to changing times while
-        remaining faithful to its purpose. Worship services, Sunday school,
-        Bible study, public lectures, pastoral care, and community gatherings
-        have all played their part in fostering a community where questions are
-        encouraged, spiritual growth is nurtured, and people from different
-        backgrounds are made to feel at home.
-      </p>
-      <p>
-        A significant milestone was reached in 2025, when The Sydney Society of The New Church celebrated its 150th Anniversary of faithful service. The
-        anniversary honoured the dedication of generations who have preserved
-        and shared these teachings while looking forward with confidence to the
-        future. It was both a celebration of the past and a renewed commitment
-        to serving the spiritual needs of those who participate in its
-        activities.
-      </p>
-      <p>
-        Today, the Sydney Society warmly welcomes all who are searching for a
-        deeper understanding of God, the Bible, and the purpose of life. Whether
-        you are exploring Swedenborg's writings for the first time or are simply
-        looking for a thoughtful and friendly Christian community, we invite you
-        to discover a tradition that has quietly enriched lives in Sydney for
-        over a century and a half.
-      </p>
-
-      <h2>Part of a larger network</h2>
-      <p>
-        The Roseville New Church is part of a larger network of like-minded
-        communities around Australia and New Zealand. To find out more visit{' '}
-        <a
-          href="https://newchurch.net.au/"
-          rel="noopener noreferrer"
-          target="_blank">newchurch.net.au</a
-        >.
-      </p>
-
-      <h2>Beliefs</h2>
-      <p>
-        If you are wishing to explore core beliefs of our communities visit{' '}
-        <a
-          href="https://newchurch.net.au/beliefs"
-          rel="noopener noreferrer"
-          target="_blank">newchurch.net.au/beliefs</a
-        >. You can also ask questions via the New Church Chatbot at the bottom of
-        that page. The Society’s own aims, in everyday words, are on our{' '}
-        <a href="/about/membership#what-the-society-is-for">membership and governance page</a>.
-      </p>
-
-      <h2>Serving the local community</h2>
-      <p>
-        Our hall is part of the life of the neighbourhood. Alongside our own
-        activities, we serve the local community through a number of regular
-        hall lettings throughout the week.
-      </p>
-
-      <h2>The Swedenborg Centre</h2>
-      <p>
-        The Swedenborg Centre is the Society’s online service for exploring Swedenborg’s writings, with talks, discussion
-        groups and study groups open to people across Australia and beyond. Find out{' '}
-        <a href="/about/swedenborg-centre">what it offers and how to join in</a>.
-      </p>
-
-      <h2>Come and worship with us</h2>
-      <p>
-        You’re warmly invited — find service times, what to expect, and how to
-        find us on our{' '}
-        <a href="/events/sunday-worship">Sunday worship</a> page, or browse{' '}
-        <a href="/events">what's on</a>.
+      <p class="text-text-muted">
+        New to the New Church? <a href="/about/new-church">What is the New Church?</a> explains what we believe and why
+        it’s called “new”, in everyday words.
       </p>
     </article>
-
-    <Card variant="tint" class="mt-10" title="Belong to the Society">
-      <p class="m-0">
-        Anyone is welcome to worship and join in. If you’d like to belong more formally, the Society is a registered
-        charity run by a Committee elected by its members, and members have a say in how it is run. Our membership and
-        governance page explains what membership means, how to join, and who is responsible.
-      </p>
-      <div slot="footer" class="flex flex-wrap gap-3">
-        <Button size="sm" href="/about/membership">Membership and governance</Button>
-        <Button size="sm" variant="secondary" href="/about/membership#check-membership">Check if you are a member</Button>
-      </div>
-    </Card>
 
     <div
       class="mt-10 grid grid-cols-1 sm:grid-cols-[1.2fr_0.8fr] gap-3 sm:gap-4"
@@ -209,7 +108,27 @@ const placeholders = [
       />
     </div>
 
-    <section class="mt-14">
+    <article class="prose-rnc">
+      <h2>Church life today</h2>
+      <p>
+        We worship together on the first and third Sundays of the month at 10am, with tea and coffee afterwards.
+        Through the year there are also discussion groups, times to read and reflect together, meditation, and a family
+        retreat. <a href="/events/sunday-worship">What a Sunday is like</a> has the details for a first visit, and{' '}
+        <a href="/events">what’s on</a> lists everything coming up.
+      </p>
+      <p>
+        Our hall is part of the life of the neighbourhood. Alongside our own activities, it is let to local groups
+        through the week.
+      </p>
+      <p>
+        The Society also runs the <a href="/about/swedenborg-centre">Swedenborg Centre</a>, an online service with talks
+        and study groups for people across Australia and beyond. And we are part of a wider family of New Church
+        communities around Australia and New Zealand, at{' '}
+        <a href="https://newchurch.net.au/" rel="noopener noreferrer" target="_blank">newchurch.net.au</a>.
+      </p>
+    </article>
+
+    <section class="mt-12">
       <h2 class="text-h2 mt-0 mb-6">Our minister</h2>
       <div class="flex flex-col gap-10">
         {
@@ -248,10 +167,36 @@ const placeholders = [
           Julian will continue as interim minister until then.
         </p>
       </div>
+      <p class="mt-8 mb-0 text-text-body">
+        Alongside the minister, the Society is run by a Committee elected by its members.{' '}
+        <a href="/about/membership#how-we-are-run" class="text-link hover:text-link-hover">How the Society is run</a>{' '}
+        explains who is responsible and{' '}
+        <a href="/about/membership#what-the-society-is-for" class="text-link hover:text-link-hover">what the Society is for</a>.
+      </p>
     </section>
 
-    <section class="mt-14">
-      <h2 class="text-h2 mt-0 mb-6">Past ministers</h2>
+    <article class="prose-rnc mt-12">
+      <h2 class="!mt-0">Our story</h2>
+      <p>
+        The Sydney Society of The New Church was founded in 1875 by people inspired by the writings of Emanuel
+        Swedenborg, and incorporated in 1886. From the start it encouraged a practical Christianity: love for the Lord,
+        kindness towards others, and faith that shows itself in a useful life.
+      </p>
+      <p>
+        There is a much-loved tradition that a set of Swedenborg’s writings came to Sydney Cove with the First Fleet in
+        1788. Historians still debate the details, but the story is part of the Society’s heritage, and a reminder that
+        these ideas have been in Australia from the colony’s earliest days.
+      </p>
+      <p>
+        Over the years the Society has changed with the times. Worship, Sunday school, Bible study, public lectures,
+        pastoral care and community gatherings have all played their part in a community where questions are welcome
+        and people from many backgrounds feel at home. In 2025 the Society celebrated its 150th anniversary, giving
+        thanks for the generations who kept it going and looking ahead with confidence.
+      </p>
+    </article>
+
+    <section class="mt-10">
+      <h3 class="m-0 mb-6 font-display text-h3 tracking-display text-text-heading">Past ministers</h3>
       <div class="flex flex-col gap-10">
         {
           pastMinisters.map((m) => (
@@ -263,9 +208,9 @@ const placeholders = [
                 class="max-w-[200px]"
               />
               <div>
-                <h3 class="m-0 font-display text-h3 tracking-display text-text-heading">
+                <h4 class="m-0 font-display text-lg tracking-display text-text-heading">
                   {m.name}
-                </h3>
+                </h4>
                 {m.title && (
                   <div class="mt-1 text-sm text-accent-primary-strong">{m.title}</div>
                 )}
@@ -281,32 +226,15 @@ const placeholders = [
       </div>
     </section>
 
-    {/* Hidden until descriptions and photos are confirmed (2026-11-13):
-      <h2 class="text-h2 mt-0 mb-2">Society & Centre roles</h2>
-      <p class="text-text-muted mb-6 max-w-[560px]">
-        Placeholders until descriptions and photos are confirmed.
-      </p>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {
-          placeholders.map((p) => (
-            <div class="rounded-lg border border-border-soft border-dashed bg-surface-tint/60 p-5">
-              <Badge tone="violet">Coming soon</Badge>
-              <div class="mt-3 font-display font-semibold text-text-heading">
-                {p.role}
-              </div>
-              {p.name && (
-                <div class="mt-1 text-sm text-accent-primary-strong">{p.name}</div>
-              )}
-              <p class="mt-2 mb-0 text-sm text-text-muted">{p.note}</p>
-            </div>
-          ))
-        }
-      </div>
-    */}
-    <section class="mt-14 mb-4">
-      <div class="mt-8">
-        <Button href="/contact">Contact us</Button>
-      </div>
-    </section>
+    {/* Hidden until descriptions and photos are confirmed (2026-11-13): Society & Centre roles (see `placeholders` above). */}
+
+    <NextPage title="Membership and governance" href="/about/membership" label="How membership works">
+      Anyone is welcome to worship and join in. If you’d like to belong more formally, find out what membership means,
+      how to join, and how the Society is run.
+      <Fragment slot="more">
+        <Button variant="secondary" href="/about/swedenborg-centre">Swedenborg Centre</Button>
+        <Button variant="secondary" href="/events/sunday-worship">Plan a Sunday visit</Button>
+      </Fragment>
+    </NextPage>
   </main>
 </BaseLayout>

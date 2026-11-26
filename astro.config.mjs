@@ -16,6 +16,11 @@ export default defineConfig({
 
   redirects: {
     '/about/governance': '/about/membership', // renamed 2026-11-26
+    '/new-church': '/about/new-church', // draft intro page moved under About 2026-11-27
+    // One sign-in page at /login (2026-11-25/26). Old links and bookmarks land there.
+    '/account/code': '/login/code',
+    '/login/verify': '/login',
+    '/login/callback': '/login',
     '/join': '/events',
     '/join/sunday-worship': '/events/sunday-worship',
     '/join/open-discussion': '/events/open-discussion',

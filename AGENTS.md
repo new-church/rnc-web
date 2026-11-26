@@ -20,9 +20,9 @@ Visual reference and original tokens live in `design-system-claude/`. The live s
 
 In `.astro` templates, a line break between text and an inline element (`<a>`, `<strong>`, `<em>`) is not rendered as a space. Wrapped text like `by emailing` then a new line then `<a href=...>` comes out as "emailing<a>" with no gap, and the same happens after the closing `</a>`. Write the space explicitly with `{' '}` at the end of the line before the link and after its closing tag, or keep the text and link on one line. After editing prose with links, check the built HTML (`.vercel/output/static/<page>/index.html`) for glued text like `emailing<a` or `</a>or`.
 
-## Markup gotcha: dropdowns
+## Links in running text
 
-Never write a bare `<select>`. The browser's own arrow sits hard against the right edge of our rounded boxes. Use `<Select>` (`src/components/Select.astro`), which adds the `.select-field` chevron defined once in `src/styles/global.css`. Pass the `<option>`s as the slot, and `label` for a labelled field or `ariaLabel` for a bare one. `tests/forms.test.ts` fails if a bare `<select>` appears or the chevron style goes missing. When you add or change a dropdown, look at it in the browser: the arrow should sit inset from the edge with the text clear of it.
+Links inside paragraphs, lists, definition lists, tables and captions are underlined globally (`src/styles/global.css`, base layer), so they read as links at a glance. Don't remove the underline on in-text links. Links that aren't in running text (menus, cards, footer) carry `no-underline`; `Button` already does.
 
 ## Markup gotcha: dropdowns
 

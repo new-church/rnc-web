@@ -25,3 +25,15 @@ test("dropdowns: the shared Select adds the chevron class, and the chevron is st
   const scoped = files.filter((f) => /<style[^>]*>[^<]*\.select-field/.test(readFileSync(f, "utf8")));
   assert.deepEqual(scoped, []);
 });
+
+test("links in running text are underlined, and buttons opt out", () => {
+  const css = readFileSync(join(import.meta.dirname, "..", "src", "styles", "global.css"), "utf8");
+  assert.match(css, /:where\(p, li, dd, td, th, figcaption, blockquote, small\) a \{[^}]*text-decoration-line: underline/);
+  const button = readFileSync(join(import.meta.dirname, "..", "src", "components", "Button.astro"), "utf8");
+  assert.match(button, /no-underline/);
+});
+
+test("a lead paragraph that runs straight into body text gets a short divider", () => {
+  const css = readFileSync(join(import.meta.dirname, "..", "src", "styles", "global.css"), "utf8");
+  assert.match(css, /\.prose-rnc :where\(h1 \+ p \+ p\)::before \{/);
+});
