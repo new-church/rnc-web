@@ -45,6 +45,8 @@ export interface PeopleApi {
   updateDetails(id: string, input: DetailsInput): Promise<string[]>;
   /** Fills fields that are blank on the record and never overwrites a value. Returns what it filled. */
   fillBlanks(id: string, input: DetailsInput): Promise<string[]>;
+  /** Writes "How they heard about us" if that custom field exists in Planning Center; false when it does not. */
+  setSource(id: string, text: string): Promise<boolean>;
   /** Makes the person's ticked options exactly `selected` within the `managed` set. */
   setLists(id: string, selected: string[], managed: string[]): Promise<string[]>;
   setUnsubscribed(id: string, unsubscribed: boolean): Promise<void>;
@@ -239,6 +241,14 @@ export class LivePeople implements PeopleApi {
       }
     }
     return changed;
+  }
+
+  async setSource(id: string, text: string): Promise<boolean> {
+    const fieldId = await this.fieldId(memberConfig.sourceField);
+    if (!fieldId) return false;
+    for (const r of await this.fieldRows(id, fieldId)) await this.pco.request('DELETE', `/people/${id}/field_data/${r.id}`);
+    await this.pco.request('POST', `/people/${id}/field_data`, this.datum(fieldId, text));
+    return true;
   }
 
   async fillBlanks(id: string, input: DetailsInput): Promise<string[]> {
@@ -436,6 +446,11 @@ export class DemoPeople implements PeopleApi {
       if (JSON.stringify(next) !== JSON.stringify(p.address)) (p.address = next), changed.push('address');
     }
     return changed;
+  }
+  async setSource(id: string, text: string): Promise<boolean> {
+    this.must(id);
+    console.log(`[demo people] source for ${id}: ${text}`);
+    return true;
   }
   async fillBlanks(id: string, input: DetailsInput): Promise<string[]> {
     const p = this.must(id);

@@ -8,6 +8,7 @@ import { createSession, readSession, setSessionPerson } from "../src/lib/members
 import { withinLimit } from "../src/lib/members/rate";
 import { DemoPeople, resetDemoPeople } from "../src/lib/members/people";
 import { applyForMembership, decideRequest, openRequests, requestResignation, requestsFor, withdrawRequest } from "../src/lib/members/membership";
+import { parseSource } from "../src/lib/members/signup";
 import { birthdayWithoutYear, birthYearKnown, parseBirthdate, parseExtra } from "../src/lib/members/validate";
 import { memberConfig } from "../src/lib/members/config";
 
@@ -255,4 +256,28 @@ test("resignation: an optional message is kept with the request, noted and clean
   assert.equal(req.data.kind, "resign");
   assert.equal(req.data.message, "Moving overseas.");
   assert.ok(logged.some((l) => l.includes("Their message to the Committee") && l.includes("Moving overseas.")));
+});
+
+test("signup: how they heard about us accepts only the listed choices", () => {
+  const f = (o: Record<string, string>) => { const fd = new FormData(); for (const [k, v] of Object.entries(o)) fd.set(k, v); return fd; };
+  assert.equal(parseSource(f({ source: "friend" })), "Friend or family");
+  assert.equal(parseSource(f({ source: "search" })), "Internet search");
+  assert.equal(parseSource(f({ source: "other", sourceOther: "  a talk\n at Lane Cove " })), "Other: a talk at Lane Cove");
+  assert.equal(parseSource(f({ source: "other" })), "Other");
+  assert.equal(parseSource(f({ source: "<script>" })), undefined, "unknown values are dropped");
+  assert.equal(parseSource(f({ source: "friend", sourceOther: "ignored" })), "Friend or family", "extra text only counts for Other");
+  assert.equal(parseSource(f({})), undefined);
+  assert.equal(parseSource(f({ source: "other", sourceOther: "x".repeat(300) }))!.length, "Other: ".length + 100);
+});
+
+test("signup: the answer is stored with the pending signup and read back", async () => {
+  const kv = memoryKv();
+  const fd = new FormData();
+  fd.set("first", "Sam"); fd.set("last", "Sample"); fd.set("email", "sam@example.com"); fd.set("lists", "society"); fd.set("source", "church");
+  const parsed = parseSignupForm(fd);
+  assert.ok(parsed.ok);
+  if (!parsed.ok) return;
+  assert.equal(parsed.value.source, "Someone at the church");
+  const ref = await createSignup(kv, parsed.value);
+  assert.equal((await readSignup(kv, ref))?.source, "Someone at the church");
 });

@@ -6,7 +6,7 @@ import { memberConfig } from './config';
 import type { DetailsInput } from './people';
 import { isEmail, normaliseEmail, parseExtra } from './validate';
 
-export type SignupData = { email: string; first: string; last: string; lists: string[]; extra: DetailsInput };
+export type SignupData = { email: string; first: string; last: string; lists: string[]; extra: DetailsInput; /** How they heard about us, as a label (optional) */ source?: string };
 
 /** What each way a signup can fail says to the visitor (the page and the background post both use these). */
 export const signupErrors: Record<string, string> = {
@@ -14,6 +14,15 @@ export const signupErrors: Record<string, string> = {
   check: 'We couldn’t complete the security check. Please try again.',
   send: 'We couldn’t send the confirmation email just now. Please try again in a little while.',
 };
+
+/** The "how did you hear about us" answer as readable text, or undefined. Only the listed choices are accepted. */
+export function parseSource(form: FormData): string | undefined {
+  const choice = memberConfig.signupSources.find((o) => o.id === String(form.get('source') ?? ''));
+  if (!choice) return undefined;
+  if (choice.id !== 'other') return choice.label;
+  const more = String(form.get('sourceOther') ?? '').replace(/[\u0000-\u001F\u007F]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100);
+  return more ? `Other: ${more}` : 'Other';
+}
 
 export function parseSignupForm(form: FormData): { ok: true; value: SignupData } | { ok: false; error: string } {
   const text = (k: string, max: number) => String(form.get(k) ?? '').trim().slice(0, max);
@@ -27,7 +36,8 @@ export function parseSignupForm(form: FormData): { ok: true; value: SignupData }
   }
   const extra = parseExtra(form);
   if (!extra.ok) return extra;
-  return { ok: true, value: { email, first, last, lists, extra: extra.value } };
+  const source = parseSource(form);
+  return { ok: true, value: { email, first, last, lists, extra: extra.value, ...(source ? { source } : {}) } };
 }
 
 type Row = SignupData & { secretHash: string; attempts: number; expiresAt: number; createdAt: string };

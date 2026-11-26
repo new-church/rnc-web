@@ -62,6 +62,16 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   if (ref) await deleteSignup(kv, ref);
   if (result.personId) await audit(kv, result.personId, { action: 'signup_confirmed', via: 'signup' });
   if (result.personId && !result.inactive) await announce('signup_confirmed', `${sub.first} ${sub.last}`.trim());
+  if (result.personId && !result.inactive && sub.source) {
+    // Best effort: a failure here must not spoil a confirmed signup.
+    try {
+      const people = peopleApi();
+      const wrote = await people.setSource(result.personId, sub.source);
+      await people.addNote(result.personId, `Joined the mailing list through the website. How they heard about us: ${sub.source}.${wrote ? '' : ' (Planning Center has no "How they heard about us" field yet, so this note is the only record.)'}`);
+    } catch (err) {
+      console.error('[signup] could not record how they heard about us', err instanceof Error ? err.message : err);
+    }
+  }
 
   if (result.inactive) {
     await alertStaff('problem', 'a deactivated person asked to subscribe again', [
@@ -74,6 +84,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   await alertStaff('subscriber', `${sub.first} ${sub.last}`, [
     `${sub.first} ${sub.last} <${sub.email}> confirmed their subscription.`,
     `Lists: ${listsFor(sub.lists).map((l) => l.label).join(', ')}`,
+    ...(sub.source ? [`How they heard about us: ${sub.source}`] : []),
     result.created ? 'They are new to Planning Center.' : 'They were already in Planning Center.',
     ...(result.resubscribed ? [resubscribeNote] : []),
   ]);

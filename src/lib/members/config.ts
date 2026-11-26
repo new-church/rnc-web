@@ -58,6 +58,18 @@ export const memberConfig = {
     avowal: 'Belief avowal',
   },
   noteCategory: 'General',
+  /** "How did you hear about us?" on the mailing list signup. Planning Center keeps the label; an optional text field of this name is filled in if it exists. */
+  sourceField: 'How they heard about us',
+  signupSources: [
+    { id: 'friend', label: 'Friend or family' },
+    { id: 'church', label: 'Someone at the church' },
+    { id: 'visit', label: 'I visited or came to a service' },
+    { id: 'search', label: 'Internet search' },
+    { id: 'social', label: 'Social media' },
+    { id: 'centre', label: 'The Swedenborg Centre' },
+    { id: 'event', label: 'An event, flyer or newspaper' },
+    { id: 'other', label: 'Other' },
+  ],
   /** Who is told about membership applications and resignations. */
   notifyTo: () => env('MEMBERSHIP_NOTIFY_TO') ?? signupConfig.contactTo,
   /** Version label stored with each avowal; bump when the wording below changes. */

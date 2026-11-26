@@ -7,6 +7,7 @@ import ExtraFields from '../../components/ExtraFields.astro';
 import AjaxForm from '../../components/AjaxForm.astro';
 import { signupErrors } from '../../lib/members/signup';
 import { signupConfig } from '../../lib/signup/config';
+import { memberConfig } from '../../lib/members/config';
 import { apiPath, turnstileKeys } from '../../lib/signup';
 
 export const prerender = false;
@@ -77,6 +78,19 @@ const detail = sp.get('detail');
               ))}
             </fieldset>
 
+            <div class="flex flex-col gap-2">
+              <label for="sub-source" class="flex flex-col gap-1.5 font-display text-sm text-text-heading">
+                <span>How did you hear about us? <span class="font-body text-text-muted">(optional)</span></span>
+                <select id="sub-source" name="source" class="font-body text-base text-text-body px-4 py-3 rounded-md border border-border-strong bg-white outline-none focus:border-accent-primary focus:shadow-glow w-full">
+                  <option value="">Choose one…</option>
+                  {memberConfig.signupSources.map((o) => <option value={o.id}>{o.label}</option>)}
+                </select>
+              </label>
+              <div id="sub-source-other" hidden>
+                <Input label="Tell us a little more" id="sub-source-other-text" name="sourceOther" placeholder="e.g. a website, a talk, a person" />
+              </div>
+            </div>
+
             <details class="rounded-md border border-border-soft bg-white px-4 py-3">
               <summary class="cursor-pointer font-display text-sm text-text-heading">Add more details (optional)</summary>
               <p class="mt-3 mb-4 text-[13px] text-text-muted">
@@ -108,6 +122,10 @@ const detail = sp.get('detail');
         // The button stays off until Turnstile has passed the visitor (usually instantly and invisibly).
         window.turnstileDone = () => { document.getElementById('subscribe-submit').disabled = false; };
         window.turnstileReset = () => { document.getElementById('subscribe-submit').disabled = true; };
+        // A short text box appears only for "Other".
+        document.getElementById('sub-source').addEventListener('change', (e) => {
+          document.getElementById('sub-source-other').hidden = e.target.value !== 'other';
+        });
       </script>
       <AjaxForm formId="subscribe-form" />
       <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline></script>
