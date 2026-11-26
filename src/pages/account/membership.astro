@@ -151,24 +151,19 @@ const notice = Object.keys(notices).find((k) => sp.get(k) === '1');
               <form method="post" action="/api/account/membership" class="flex flex-col gap-4">
                 <input type="hidden" name="csrf" value={session.csrf} />
                 <input type="hidden" name="action" value="apply" />
-                <fieldset class="border-0 p-0 m-0 flex flex-col gap-2.5">
-                  <legend class="font-display text-sm text-text-heading mb-1">I affirm my belief in:</legend>
-                  {memberConfig.avowals.map((a, i) => (
-                    <label class="flex items-start gap-3 font-body text-base text-text-body">
-                      <input type="checkbox" name={`avow${i}`} value="1" required class="mt-1.5 h-4 w-4 accent-[var(--color-accent-primary,#5b3fa0)]" />
-                      <span>{a}</span>
-                    </label>
-                  ))}
-                </fieldset>
-                <fieldset class="border-0 p-0 m-0 flex flex-col gap-2.5">
-                  <legend class="font-display text-sm text-text-heading mb-1">I understand and agree that:</legend>
+                <fieldset class="border-0 p-0 m-0 flex flex-col gap-3">
+                  <legend class="font-display text-sm text-text-heading mb-2">To apply, please tick each box:</legend>
+                  <label class="flex items-start gap-3 font-body text-base text-text-body">
+                    <input type="checkbox" name="beliefs" value="1" required class="mt-1.5 h-4 w-4 accent-[var(--color-accent-primary,#5b3fa0)]" />
+                    <span>{memberConfig.beliefsStatement}</span>
+                  </label>
                   <label class="flex items-start gap-3 font-body text-base text-text-body">
                     <input type="checkbox" name="guarantee" value="1" required class="mt-1.5 h-4 w-4 accent-[var(--color-accent-primary,#5b3fa0)]" />
-                    <span>as a member I may be asked to contribute {memberConfig.guarantee} if the Society is wound up</span>
+                    <span>I understand that if the Society were ever wound up, I may be asked to contribute {memberConfig.guarantee}, and nothing more. There are no fees or dues.</span>
                   </label>
                   <label class="flex items-start gap-3 font-body text-base text-text-body">
                     <input type="checkbox" name="register" value="1" required class="mt-1.5 h-4 w-4 accent-[var(--color-accent-primary,#5b3fa0)]" />
-                    <span>my name and address will be kept on the register of members</span>
+                    <span>I’m happy for my name and address to be kept on the Society’s Roll of members.</span>
                   </label>
                 </fieldset>
                 <label class="flex flex-col gap-1.5 font-display text-sm text-text-heading">

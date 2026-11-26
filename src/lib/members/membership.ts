@@ -111,11 +111,11 @@ export type Result<T = object> = ({ ok: true } & T) | { ok: false; error: string
 export async function applyForMembership(
   deps: Deps,
   who: { personId: string; email: string },
-  consent: { avowed: boolean[]; guarantee: boolean; register: boolean; message?: string },
+  consent: { beliefs: boolean; guarantee: boolean; register: boolean; message?: string },
   ipHash?: string,
 ): Promise<Result> {
   const { kv, people } = deps;
-  if (consent.avowed.length !== memberConfig.avowals.length || !consent.avowed.every(Boolean) || !consent.guarantee || !consent.register) {
+  if (!consent.beliefs || !consent.guarantee || !consent.register) {
     return { ok: false, error: 'Please tick each box to confirm you understand and agree.' };
   }
   const p = await people.get(who.personId);
@@ -133,13 +133,13 @@ export async function applyForMembership(
     name: `${p.firstName} ${p.lastName}`.trim(),
     email: who.email,
     submittedAt: now.toISOString(),
-    consent: { version: memberConfig.avowalVersion, items: [...memberConfig.avowals.map((_, i) => `avowal:${i + 1}`), 'guarantee', 'register'], at: now.toISOString() },
+    consent: { version: memberConfig.avowalVersion, items: ['beliefs', 'guarantee', 'register'], at: now.toISOString() },
     ...(message ? { message } : {}),
   };
   await putRequest(kv, who.personId, sk, data);
   await audit(kv, who.personId, { action: 'membership_apply', via: 'member', ipHash });
   await announce('membership_applied', data.name, message ? 'with a message for the Committee' : undefined);
-  await note(people, who.personId, `Applied for membership through the website on ${day(now)}. Acknowledged the guarantee, affirmed the four beliefs in Article 4 (wording ${memberConfig.avowalVersion}) and agreed to be on the register of members.${message ? ` Their message to the Committee: "${message}"` : ''} Awaiting the Committee.`);
+  await note(people, who.personId, `Applied for membership through the website on ${day(now)}. Acknowledged the guarantee, affirmed that they share the Society’s core beliefs (wording ${memberConfig.avowalVersion}) and agreed to be on the register of members.${message ? ` Their message to the Committee: "${message}"` : ''} Awaiting the Committee.`);
   await tell('membership application', async () => {
     await sendMail({ ...mails.notifyCommittee('apply', { name: data.name, email: who.email, message }, adminLink()), to: memberConfig.notifyTo() });
   });
@@ -252,7 +252,7 @@ export async function decideRequest(deps: Deps, d: Decision): Promise<Result> {
       secondedBy,
       avowal: `${req.consent?.version ?? memberConfig.avowalVersion}, ${req.consent?.at.slice(0, 10) ?? ''}`.trim(),
     });
-    await note(people, d.personId, `Admitted as a member. Committee ${ref}. Proposed by ${proposedBy}, seconded by ${secondedBy}. Avowed the four beliefs in Article 4 (${req.consent?.version ?? memberConfig.avowalVersion}) on ${req.consent?.at.slice(0, 10) ?? 'unknown date'}. Recorded by ${d.decidedBy}.${roll.missing.length ? ` (Roll Book fields not set up yet: ${roll.missing.join(', ')}.)` : ''}`);
+    await note(people, d.personId, `Admitted as a member. Committee ${ref}. Proposed by ${proposedBy}, seconded by ${secondedBy}. Affirmed they share the Society’s core beliefs (${req.consent?.version ?? memberConfig.avowalVersion}) on ${req.consent?.at.slice(0, 10) ?? 'unknown date'}. Recorded by ${d.decidedBy}.${roll.missing.length ? ` (Roll Book fields not set up yet: ${roll.missing.join(', ')}.)` : ''}`);
     await putRequest(kv, d.personId, d.sk, { ...req, status: 'approved', decision });
     await audit(kv, d.personId, { action: 'membership_approved', via: 'admin', by: d.decidedBy });
     await announce('membership_approved', req.name, d.decidedBy);

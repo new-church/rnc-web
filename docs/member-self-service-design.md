@@ -101,7 +101,7 @@ Use the existing Planning Center rules from `docs/sync.md`: the Unsubscribed tic
    - what they get: vote at the AGM, can be nominated for the committee;
    - the statement of beliefs they are affirming, shown in full;
    - that the committee decides, and that they can resign at any time.
-2. They tick each acknowledgement separately (understand the guarantee, affirm the beliefs, agree to be on the register of members) and submit. We store the wording version and what they ticked.
+2. They tick three acknowledgements separately: one box sharing the Society’s core beliefs (plain-words wording, matching the public membership page, not four boxes), one for the guarantee, one for being on the Roll of members and submit. We store the wording version and what they ticked.
 3. The application is recorded as `MEMBERAPP#` (status `pending`) and the committee is emailed. **Planning Center is not changed yet.**
 4. The committee decides at a meeting (see Constitution check): a member proposes, another seconds, a majority approves having regard to the Minister's advice. The Secretary records the decision on the site. Approval sets the membership field in Planning Center, writes a `MEMBERCHG#` row, and emails a welcome. A decline sends a kind, brief note.
 5. Leaving (three options, all from the same page):
@@ -125,7 +125,7 @@ Source: `SSNC constitution.pdf` in the SSNC OneDrive (Finance - Documents/SSNC 2
 - A member of another New Church society can be admitted at any Committee meeting on a recommendation from that society's minister or leader, signed within six months.
 - Members are limited to 100 for registration, but the Committee may register an increase (Articles 1 and 2).
 
-**The belief statement.** There is no long creed to sign. The test is the four avowals above, verbatim. The page should quote them exactly and not paraphrase or add to them. The wider objects (Memorandum clause 3) are worship of the Lord Jesus Christ as Jehovah in His Divine Humanity, knowledge of the Scriptures, shunning evils, and circulating Swedenborg's works. They can appear as context.
+**The belief statement.** There is no long creed to sign. The constitution's test is the four avowals above. The application form uses one tick box with a plain-words version (same wording as the public membership page) so it feels welcoming; the stored wording version records which text was ticked. The exact constitutional wording stays in the linked constitution PDF. The wider objects (Memorandum clause 3) are worship of the Lord Jesus Christ as Jehovah in His Divine Humanity, knowledge of the Scriptures, shunning evils, and circulating Swedenborg's works. They can appear as context.
 
 **Rights (Articles 6, 7, 14).** Members vote at general meetings and use the libraries and rooms. The Committee is chosen at the AGM from members, so only members can stand. Proxies are allowed only for electing officers.
 

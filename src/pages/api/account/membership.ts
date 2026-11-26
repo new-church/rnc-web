@@ -20,7 +20,7 @@ export const POST: APIRoute = async ({ request, cookies, clientAddress }) => {
     const r = await applyForMembership(
       deps,
       who,
-      { avowed: memberConfig.avowals.map((_, i) => form.get(`avow${i}`) === '1'), guarantee: form.get('guarantee') === '1', register: form.get('register') === '1', message: String(form.get('message') ?? '') },
+      { beliefs: form.get('beliefs') === '1', guarantee: form.get('guarantee') === '1', register: form.get('register') === '1', message: String(form.get('message') ?? '') },
       ip,
     );
     return r.ok ? see('/account/membership?applied=1') : fail(r.error);

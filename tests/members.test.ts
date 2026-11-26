@@ -125,11 +125,11 @@ test("rate limit: counts within a window then refuses", async () => {
 });
 
 const who = { personId: "1", email: "test@example.com" };
-const consent = { avowed: [true, true, true, true], guarantee: true, register: true };
+const consent = { beliefs: true, guarantee: true, register: true };
 
 test("membership: every box must be ticked", async () => {
   const deps = { kv: memoryKv(), people: new DemoPeople() };
-  const r = await applyForMembership(deps, who, { ...consent, avowed: [true, true, true, false] });
+  const r = await applyForMembership(deps, who, { ...consent, beliefs: false });
   assert.equal(r.ok, false);
 });
 
