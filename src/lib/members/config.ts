@@ -73,10 +73,10 @@ export const memberConfig = {
   /** Who is told about membership applications and resignations. */
   notifyTo: () => env('MEMBERSHIP_NOTIFY_TO') ?? signupConfig.contactTo,
   /** Version label stored with each avowal; bump when the wording below changes. */
-  avowalVersion: 'plain-words-2026-11',
+  avowalVersion: 'plain-words-broadly-2026-11',
   /** What the applicant ticks, in the same everyday words as the membership page (one box, not four). */
   beliefsStatement:
-    'I share the Society’s core beliefs: that Jesus Christ is the one God, that the Bible is sacred, that turning away from harmful ways is part of a life of faith, and that we are called to care for everyone.',
+    'I broadly share the Society’s core beliefs: that Jesus Christ is the one God, that the Bible is sacred, that turning away from harmful ways is part of a life of faith, and that we are called to care for everyone.',
   /** Article 4 of the registered constitution: candidates "must avow their belief in" these four things. The plain-words statement above is our paraphrase of them. */
   avowals: [
     'the Deity of the Lord Jesus Christ',
