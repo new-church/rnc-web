@@ -80,10 +80,11 @@ test("the header's main button is Sign up, Log in is the second button, and Cont
   for (const id of ["signup-link", "signup-link-compact", "signup-link-mobile", "login-link", "login-link-mobile"]) assert.match(header, new RegExp(`'${id}'`), `${id} hides once signed in`);
 });
 
-test("the draft intro page lives at /about/new-church, stays noindex, and is linked from the menu and home page", () => {
+test("the intro page lives at /about/new-church, is open to search engines, and is linked from the menu and home page", () => {
   const page = read("pages/about/new-church.astro");
   assert.match(page, /currentPath="\/about\/new-church"/);
-  assert.match(page, /\bnoindex\b/);
+  assert.doesNotMatch(page, /\bnoindex\b/);
+  assert.doesNotMatch(read("../astro.config.mjs"), /\|new-church\|/, "the intro page belongs in the sitemap");
   assert.match(read("../astro.config.mjs"), /'\/new-church': '\/about\/new-church'/);
   const header = read("components/Header.astro");
   assert.match(header, /href: '\/about\/new-church', label: 'What is the New Church\?'/);

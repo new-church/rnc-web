@@ -16,7 +16,7 @@ export default defineConfig({
 
   redirects: {
     '/about/governance': '/about/membership', // renamed 2026-11-26
-    '/new-church': '/about/new-church', // draft intro page moved under About 2026-11-27
+    '/new-church': '/about/new-church', // intro page moved under About 2026-11-27
     // One sign-in page at /login (2026-11-25/26). Old links and bookmarks land there.
     '/account/code': '/login/code',
     '/login/verify': '/login',
@@ -53,11 +53,10 @@ export default defineConfig({
   integrations: [
     react(),
     // Keep sign-in, admin and API routes out of the sitemap, and the articles
-    // index while it has no published posts (it redirects home), and the draft
-    // /new-church page until the committee has reviewed it. The blog holds
+    // index while it has no published posts (it redirects home). The blog holds
     // the migrated Wix posts, so it stays in.
     sitemap({
-      filter: (page) => !/\/(admin|login|api|articles|new-church|subscribe\/confirm(ed)?)(\/|$)/.test(page),
+      filter: (page) => !/\/(admin|login|api|articles|subscribe\/confirm(ed)?)(\/|$)/.test(page),
     }),
   ],
 });
