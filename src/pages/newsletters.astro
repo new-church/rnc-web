@@ -156,7 +156,7 @@ const articleById = new Map(articles.map((a) => [a.id, a]));
                         <Button
                           variant="secondary"
                           size="sm"
-                          href={issue.data.pdfUrl}
+                          href={`/newsletters/${issue.id}.pdf`}
                           class="shrink-0 self-start"
                         >
                           Download

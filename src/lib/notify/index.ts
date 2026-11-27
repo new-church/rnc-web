@@ -100,6 +100,20 @@ async function post(url: string, body: unknown, label: string): Promise<void> {
   }
 }
 
+/**
+ * Sends one GA4 event from the server (Measurement Protocol), live site only. Pass the visitor's `_ga`
+ * cookie when there is one so the event joins their session; otherwise it counts as a new client.
+ * `params` must hold no personal details.
+ */
+export async function trackServerEvent(name: string, params: Record<string, string | number>, gaCookie?: string): Promise<void> {
+  const secret = env('GA4_API_SECRET');
+  if (!secret || process.env.VERCEL_ENV !== 'production') return;
+  // _ga looks like GA1.1.<random>.<timestamp>; GA's client_id is the last two parts.
+  const fromCookie = gaCookie?.match(/^GA\d\.\d\.(\d+\.\d+)$/)?.[1];
+  const url = `https://www.google-analytics.com/mp/collect?measurement_id=G-WQG7KKW8M5&api_secret=${encodeURIComponent(secret)}`;
+  await post(url, { client_id: fromCookie ?? `server.${randomToken(8)}`, events: [{ name, params: { engagement_time_msec: 1, ...params } }] }, 'Analytics');
+}
+
 /** Tells the committee (Teams) and Analytics. `extra` must hold no personal details: field names, a label, a role. */
 export async function announce(event: MemberEvent, name: string, extra?: string): Promise<void> {
   // The same Teams channel as the signup alerts (TEAMS_ALERT_WEBHOOK), and like them only when live.

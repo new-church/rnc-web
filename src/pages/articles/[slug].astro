@@ -74,7 +74,7 @@ function formatDate(date: Date) {
           <p class="mt-1 mb-3 text-sm text-text-muted">
             Originally published in {source.data.title}.
           </p>
-          <Button size="sm" variant="secondary" href={source.data.pdfUrl}>
+          <Button size="sm" variant="secondary" href={`/newsletters/${source.id}.pdf`}>
             Download PDF
           </Button>
           <Button size="sm" variant="secondary" href="/newsletters" class="ml-2">
