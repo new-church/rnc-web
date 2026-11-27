@@ -141,11 +141,12 @@ const notice = Object.keys(notices).find((k) => sp.get(k) === '1');
         ) : (
           <>
             <Card variant="tint" title="Becoming a member">
-              <p class="mt-0 mb-3">
-                Our records show you as a friend of the Society, and that’s a lovely place to be. If you’d like to be a member too, here is what it means. It’s all set out in the Society’s{' '}
-                <a href="/documents/sydney-society-constitution.pdf" class="text-link hover:text-link-hover" target="_blank" rel="noopener">constitution (PDF)</a>.
+              <p class="m-0">
+                Our records show you as a friend of the Society, and that’s a lovely place to be. If you’d like to be a
+                member too, our{' '}
+                <a href="/about/membership#what-membership-means">Membership and governance</a> page explains what it
+                means: what members can do, what membership asks of you, and how the Society is run.
               </p>
-              <MembershipInfo applying />
             </Card>
             <Card title="Apply to become a member">
               <form method="post" action="/api/account/membership" class="flex flex-col gap-4">

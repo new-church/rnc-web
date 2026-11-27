@@ -59,7 +59,7 @@ const field = 'rounded-md border border-border-strong bg-white px-3 py-2 text-sm
           </p>
           {data.kind === 'apply' && (
             <p class="text-sm text-ink-muted m-0">
-              Acknowledged the guarantee, affirmed the four beliefs in Article 4 (wording {data.consent?.version}) and agreed to be on the register, on {data.consent ? when(data.consent.at) : '—'}.
+              Acknowledged the guarantee, affirmed that they share the Society’s core beliefs (wording {data.consent?.version}) and agreed to be on the register, on {data.consent ? when(data.consent.at) : '—'}.
             </p>
           )}
           {data.message && (

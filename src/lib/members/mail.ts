@@ -82,7 +82,7 @@ export const mails = {
       kind === 'apply'
         ? [
             `${who.name} <${who.email}> has applied to become a member through the website.`,
-            'They acknowledged the guarantee, affirmed the four beliefs in Article 4, and agreed to be on the register of members.',
+            'They acknowledged the guarantee, affirmed that they share the Society’s core beliefs, and agreed to be on the register of members.',
             ...(who.message ? ['', 'Their message to the Committee:', who.message] : []),
             '',
             'For the Committee: a member proposes and another seconds, a majority approves having regard to the Minister’s advice, then the Secretary records the decision here:',
